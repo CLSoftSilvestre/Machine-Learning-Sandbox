@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">Train new model - KNN regressor algorithm</h3>
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Model parameters
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-horizontal">
+
+                        <div class="form-group row">
+
+                            <!-- Name -->
+                            <label for="name" class="col-sm-1 col-form-label">Name</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                            </div>
+
+                            <!-- Description -->
+                            <label for="description" class="col-sm-1 col-form-label">Description</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+        
+                        <div class="form-group row">
+                            <!-- Neighbors -->
+                            <label for="neighbors" class="col-sm-1 col-form-label">Neigbours</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="neighbors" name="neighbors" value="5"></input>
+                            </div>
+
+                            <label for="weights" class="col-sm-1 col-form-label">Weights</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-select-sm" name="weights" id="weights">
+                                    <option value="uniform">Uniform</option>
+                                    <option value="distance">Distance</option>
+                                </select>
+                            </div> 
+                        </div>
+
+                        <div>&MediumSpace;</div>
+        
+                        <div class="form-group row">
+                            <!-- algorithm -->
+                            <label for="leaf" class="col-sm-1 col-form-label">Leaf size</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="leaf" name="leaf" value="30"></input>
+                            </div>
+
+                            <label for="algorithm" class="col-sm-1 col-form-label">Algorithm</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-select-sm" name="algorithm" id="algorithm">
+                                    <option value="auto">Auto</option>
+                                    <option value="ball_tree">Ball Tree</option>
+                                    <option value="kd_tree">KD Tree</option>
+                                    <option value="brute">Brute</option>
+                                </select>
+                            </div> 
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="scaling" name="scaling" checked>
+                                <label class="form-check-label">Use standard scaler for features.</label>
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="featurered" name="featurered">
+                                <label class="form-check-label">Use feature reduction (SelectKBest k=all).</label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-graduation-cap"></i> Train model</button>
+                            </div>
+                        </div>
+        
+                    </div>
+
+                </form>
+                    
+            </div>
+            <div class="card-footer">
+                <div class="mt-4 p-5 bg-primary text-white rounded">
+                    <h3><i class="fa-solid fa-info-circle fa-lg"></i> What is KNN classifier?</h3>
+                    <blockquote class="blockquote">
+                        <p>In statistics, the k-nearest neighbors algorithm (k-NN) is a non-parametric supervised learning method first developed by Evelyn Fix and Joseph Hodges in 1951,[1] and later expanded by Thomas Cover.[2] It is used for classification and regression. In both cases, the input consists of the k closest training examples in a data set. The output depends on whether k-NN is used for classification or regression:
+                            <br>
+                            <ul>
+                                <li>In k-NN classification, the output is a class membership. An object is classified by a plurality vote of its neighbors, with the object being assigned to the class most common among its k nearest neighbors (k is a positive integer, typically small). If k = 1, then the object is simply assigned to the class of that single nearest neighbor.</li>
+                                <li>In k-NN regression, the output is the property value for the object. This value is the average of the values of k nearest neighbors. If k = 1, then the output is simply assigned to the value of that single nearest neighbor.</li>
+                              </ul>
+                            </p>
+                        <footer class="blockquote-footer">From Wikipedia website</footer>
+                      </blockquote>
+                </div>
+            </div>
+        </div> 
+    </div>
+  </div>
+{% endblock %}

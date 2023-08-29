@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">All available models</h3>
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card-header">
+          <a class="btn btn-primary" type="button" href="{{ url_for('train')}}"><i class="fas fa-add"></i> Train new model</a>
+          <a class="btn btn-primary disabled" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
+          <a class="btn btn-primary" type="button" href="{{ url_for('refresh')}}"><i class="fas fa-rotate"></i> Refresh models list</a>
+        </div>        
+      </div>     
+    </div>
+  </div>
+  <div class="row">
+      <div class="col-12">
+          {% if models %}
+          <div class="card bg-light ms-4 me-4 mb-4">
+              <div class="card-header">
+                  <i class="fa-solid fa-list fa-lg"></i> Models list
+              </div>
+              <div class="card-body">
+                <p class="card-text">
+                  <div class="table-responsive">
+                      <table class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th scope="col">Model name</th>
+                              <th scope="col">Model description</th>
+                              <th scope="col">Algorithm type</th>
+                              <th scope="col">Train datetime</th>
+                              <th scope="col">MSE</th>
+                              <th scope="col">R² score</th>
+                              <th scope="col">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                              {% for model in models %}
+                              <tr>
+                                  <td style="vertical-align: middle;">{{model.name}}</td>
+                                  <td style="vertical-align: middle;">{{model.description}}</td>
+                                  <td style="vertical-align: middle;">{{model.model}}</td>
+                                  <td style="vertical-align: middle;">{{model.datetime.strftime('%d/%m/%Y %H:%M')}}</td>
+                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better">{{ '%0.1f'|format(model.MSE)}}</td>
+                                  <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
+                                  <td style="vertical-align: middle;">
+                                    <div class="progress">
+                                      {% if model.R2 * 100 > 90 %}
+                                      <div class="progress-bar bg-success" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
+                                      {% elif model.R2 * 100 > 80 %}
+                                      <div class="progress-bar bg-warning" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
+                                      {% else %}
+                                      <div class="progress-bar bg-danger" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
+                                      {% endif %}  
+                                    </div>
+                                  </td>
+                                  <td style="vertical-align: middle;">
+                                    <div class="btn-group" role="group" aria-label="Action commands">
+                                        <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model"><i class="fa fa-calculator"></i></a>
+                                        <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information"><i class="fa fa-info-circle"></i></a>
+                                        <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file"><i class="fa fa-download"></i></a>
+                                        <a href="{{ url_for('delete', uuid=model.uuid)}}" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file"><i class="fa fa-trash"></i></a>
+                                    </div>
+                                  </td>
+                              <tr>
+                              {% endfor %}
+                          </tbody>
+                        </table>
+                  </div>
+                </p>
+              </div>
+            </div>
+            {% else %}
+              <h5 class="alert alert-primary ms-4 me-4">No trained models available</h5>
+          {% endif %}   
+      </div>
+  </div>
+{% endblock %}

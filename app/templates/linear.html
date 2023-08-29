@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">Train new model - Linear regression algorithm</h3>
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Model parameters
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-horizontal">
+
+                        <div class="form-group row">
+
+                            <!-- Name -->
+                            <label for="name" class="col-sm-1 col-form-label">Name</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                            </div>
+
+                            <!-- Description -->
+                            <label for="description" class="col-sm-1 col-form-label">Description</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="scaling" name="scaling">
+                                <label class="form-check-label">Use standard scaler for features.</label>
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="featurered" name="featurered">
+                                <label class="form-check-label">Use feature reduction (SelectKBest k=all).</label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-graduation-cap"></i> Train model</button>
+                            </div>
+                        </div>
+        
+                    </div>
+
+                </form>
+                    
+            </div>
+            <div class="card-footer">
+                <div class="mt-4 p-5 bg-primary text-white rounded">
+                    <h3><i class="fa-solid fa-info-circle fa-lg"></i> What is Linear Regression?</h3>
+                    <blockquote class="blockquote">
+                        <p>In statistics, linear regression is a linear approach for modelling the relationship between a scalar response and one or more explanatory variables (also known as dependent and independent variables). The case of one explanatory variable is called simple linear regression; for more than one, the process is called multiple linear regression.[1] This term is distinct from multivariate linear regression, where multiple correlated dependent variables are predicted, rather than a single scalar variable.[2]
+                            
+                            In linear regression, the relationships are modeled using linear predictor functions whose unknown model parameters are estimated from the data. Such models are called linear models.[3] Most commonly, the conditional mean of the response given the values of the explanatory variables (or predictors) is assumed to be an affine function of those values; less commonly, the conditional median or some other quantile is used. Like all forms of regression analysis, linear regression focuses on the conditional probability distribution of the response given the values of the predictors, rather than on the joint probability distribution of all of these variables, which is the domain of multivariate analysis.
+                            <br>
+                            Linear regression was the first type of regression analysis to be studied rigorously, and to be used extensively in practical applications.[4] This is because models which depend linearly on their unknown parameters are easier to fit than models which are non-linearly related to their parameters and because the statistical properties of the resulting estimators are easier to determine.
+                            <br>
+                            Linear regression has many practical uses. Most applications fall into one of the following two broad categories:
+                            <br>
+                            <ul>
+                                <li>If the goal is error reduction in prediction or forecasting, linear regression can be used to fit a predictive model to an observed data set of values of the response and explanatory variables. After developing such a model, if additional values of the explanatory variables are collected without an accompanying response value, the fitted model can be used to make a prediction of the response.</li>
+                                <li>If the goal is to explain variation in the response variable that can be attributed to variation in the explanatory variables, linear regression analysis can be applied to quantify the strength of the relationship between the response and the explanatory variables, and in particular to determine whether some explanatory variables may have no linear relationship with the response at all, or to identify which subsets of explanatory variables may contain redundant information about the response.</li>
+                                <li>Linear regression models are often fitted using the least squares approach, but they may also be fitted in other ways, such as by minimizing the "lack of fit" in some other norm (as with least absolute deviations regression), or by minimizing a penalized version of the least squares cost function as in ridge regression (L2-norm penalty) and lasso (L1-norm penalty). Conversely, the least squares approach can be used to fit models that are not linear models. Thus, although the terms "least squares" and "linear model" are closely linked, they are not synonymous.</li>
+                              </ul>
+                            </p>
+                        <footer class="blockquote-footer">From Wikipedia website</footer>
+                      </blockquote>
+                </div>
+            </div>   
+        </div> 
+    </div>
+  </div>
+{% endblock %}

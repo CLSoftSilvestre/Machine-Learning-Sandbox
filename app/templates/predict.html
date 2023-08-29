@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">
+      <a href="{{ url_for('index') }}">Trained models</a>
+  </li>
+  <li class="breadcrumb-item active" id="tr_viewproject">Predict</li>
+</ol>
+
+<h3 class="m-4">Predict value</h3>
+
+  {% if Result %}
+    <h5 class="alert alert-primary ms-4 me-4">Model prediction: {{Result}}</h5>
+  {% endif %}
+
+  {% if Error==True %}
+    <h5 class="alert alert-primary ms-4 me-4">Error getting predicton. Please check the input</h5>
+  {% endif %} 
+
+  <div class="row">
+    <div class="col-12">
+      {% if Model %}
+      
+      <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card-header">
+          <i class="fa-solid fa-list fa-lg"></i> Model details
+        </div>
+        <div class="card-body">
+          <!-- Controlos para selecionar projecto a visualizar -->
+          <div class="form-horizontal">
+
+            <div class="form-group row">       
+              <!-- Model Name field -->
+              <label for="ModelName" class="col-sm-1 col-form-label">Model name</label>
+              <div class="col-sm-3">
+                <input type="text" class="form-control text-left" id="ModelName" value="{{Model.name}}" disabled>
+              </div>
+              
+              <!-- Plant field -->
+              <label for="Description" class="col-sm-1 col-form-label">Description</label>
+              <div class="col-sm-7">
+                <input type="text" class="form-control text-left" id="Description" value="{{Model.description}}" disabled>
+              </div>
+            </div>
+
+            <hr>
+
+            <h5>Data input variables for model:</h5>
+            <div>&MediumSpace;</div>
+
+            <form method="post">
+
+                {% for variable in Model.variables %}
+
+                {% if "float64" in variable.varType %}
+
+                  <div class="form-group row">
+                    <label for={{variable.name}} class="col-sm-2 col-form-label">{{variable.name}}</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control text-left" id={{variable.name}} name={{variable.name}} step="0.01"></input>
+                    </div>
+                    (Decimal number)
+                  </div>
+
+                {% else %}
+
+                  <div class="form-group row">
+                    <label for={{variable.name}} class="col-sm-2 col-form-label">{{variable.name}}</label>
+                    <div class="col-sm-4">
+                        <input type="number" class="form-control text-left" id={{variable.name}} name={{variable.name}} step="1"></input>
+                    </div>
+                    (Integer number)
+                  </div>
+
+                {% endif %}
+
+                <div>&MediumSpace;</div>
+
+                {% endfor %}
+
+                <div>&MediumSpace;</div>
+
+                <!-- Predict button -->
+                <div class="form-group row">
+                    <div class="col-sm-12 text-center">
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Predict value using model</button>
+                    </div>
+                </div>
+
+            </form>
+
+          </div>
+        </div>    
+      </div>
+
+      <!-- TODO: Add model details here... -->
+      {% else %}
+      <h5 class="alert alert-primary ms-4 me-4">Model not found</h5>
+      {% endif %}
+    </div>
+  </div>
+
+{% endblock %}
+
+        
+
+          
+

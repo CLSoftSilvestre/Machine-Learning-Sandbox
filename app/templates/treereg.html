@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">Train new model - Decision tree regressor algorithm</h3>
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Model parameters
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-horizontal">
+
+                        <div class="form-group row">
+
+                            <!-- Name -->
+                            <label for="name" class="col-sm-1 col-form-label">Name</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                            </div>
+
+                            <!-- Description -->
+                            <label for="description" class="col-sm-1 col-form-label">Description</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+        
+                        <div class="form-group row">
+                            <!-- Max depth -->
+                            <label for="maxdepth" class="col-sm-1 col-form-label">Max depth</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="maxdepth" name="maxdepth" step="1" value="2"></input>
+                            </div>
+
+                            <label for="criterion" class="col-sm-1 col-form-label">Criterion</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-select-sm" name="criterion" id="criterion">
+                                    <option value="squared_error">Squared error</option>
+                                    <option value="friedman_mse">Friedman MSE</option>
+                                    <option value="absolute_error">Absolute error</option>
+                                    <option value="poisson">Poisson</option>
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="scaling" name="scaling" checked>
+                                <label class="form-check-label">Use standard scaler for features.</label>
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="featurered" name="featurered">
+                                <label class="form-check-label">Use feature reduction (SelectKBest k=all).</label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-graduation-cap"></i> Train model</button>
+                            </div>
+                        </div>
+        
+                    </div>
+
+                </form>
+                    
+            </div>
+            <div class="card-footer">
+                <div class="mt-4 p-5 bg-primary text-white rounded">
+                    <h3><i class="fa-solid fa-info-circle fa-lg"></i> What is decision tree?</h3>
+                    <blockquote class="blockquote">
+                        <p>Decision tree learning is a supervised learning approach used in statistics, data mining and machine learning. In this formalism, a classification or regression decision tree is used as a predictive model to draw conclusions about a set of observations.
+                            <br>
+                            Tree models where the target variable can take a discrete set of values are called classification trees; in these tree structures, leaves represent class labels and branches represent conjunctions of features that lead to those class labels. Decision trees where the target variable can take continuous values (typically real numbers) are called regression trees. More generally, the concept of regression tree can be extended to any kind of object equipped with pairwise dissimilarities such as categorical sequences.[1]
+                            <br>
+                            Decision trees are among the most popular machine learning algorithms given their intelligibility and simplicity.[2]
+                        </p>
+                        <footer class="blockquote-footer">From Wikipedia website</footer>
+                      </blockquote>
+                </div>
+            </div>   
+        </div> 
+    </div>
+  </div>
+{% endblock %}

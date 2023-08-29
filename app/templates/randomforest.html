@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">Train new model - Random forest classifier algorithm</h3>
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Model parameters
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-horizontal">
+
+                        <div class="form-group row">
+
+                            <!-- Name -->
+                            <label for="name" class="col-sm-1 col-form-label">Name</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                            </div>
+
+                            <!-- Description -->
+                            <label for="description" class="col-sm-1 col-form-label">Description</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+        
+                        <div class="form-group row">
+
+                            <!-- Max Depth -->
+                            <label for="maxdepth" class="col-sm-1 col-form-label">Max depth</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="maxdepth" name="maxdepth" step="1" value="2"></input>
+                            </div>
+
+                            <!-- random state -->
+                            <label for="randomstate" class="col-sm-1 col-form-label">Random state</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="randomstate" name="randomstate" step="1" value="0"></input>
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="scaling" name="scaling" checked>
+                                <label class="form-check-label">Use standard scaler for features.</label>
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="featurered" name="featurered">
+                                <label class="form-check-label">Use feature reduction (SelectFromModel).</label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-graduation-cap"></i> Train model</button>
+                            </div>
+                        </div>
+        
+                    </div>
+
+                </form>
+                    
+            </div>
+            <div class="card-footer">
+                <div class="mt-4 p-5 bg-primary text-white rounded">
+                    <h3><i class="fa-solid fa-info-circle fa-lg"></i> What is random forest?</h3>
+                    <blockquote class="blockquote">
+                        <p>Random forests or random decision forests is an ensemble learning method for classification, regression and other tasks that operates by constructing a multitude of decision trees at training time. For classification tasks, the output of the random forest is the class selected by most trees. For regression tasks, the mean or average prediction of the individual trees is returned.[1][2] Random decision forests correct for decision trees' habit of overfitting to their training set.[3]: 587–588  Random forests generally outperform decision trees, but their accuracy is lower than gradient boosted trees.[citation needed] However, data characteristics can affect their performance.[4][5]
+                        </p>
+                        <footer class="blockquote-footer">From Wikipedia website</footer>
+                      </blockquote>
+                </div>
+            </div>
+        </div> 
+    </div>
+  </div>
+{% endblock %}

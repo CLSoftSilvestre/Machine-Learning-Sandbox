@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+<!-- and it's easy to individually load additional languages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/python.min.js"></script>
+
+<script>hljs.highlightAll();</script>
+
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="{{ url_for('index') }}">Trained models</a>
+    </li>
+    <li class="breadcrumb-item active">Download model</li>
+  </ol>
+
+  <!--h3 class="m-4">Download model</h3-->
+  <h3 class="m-4">Download {{Model.name}} - {{Model.description}}</h3>
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card-header">
+          <a class="btn btn-primary" type="button" href="{{ url_for('downloadmodel', uuid=Model.uuid)}}"><i class="fas fa-download"></i> Download</a>
+        </div>
+        
+      </div>
+      
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+  
+      <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card-header">
+          <i class="fa-solid fa-circle-question fa-lg"></i> How to use downloaded model?
+        </div>
+        <div class="card-body">
+
+            This example shows how to use the downloaded model in python using one Excel files for multiple predictions, saving the several predictions values into one CSV file.
+
+            <pre>
+                <code class="language-python">
+import pandas as pd
+import numpy as np
+import pickle
+import csv
+
+# load the model with pickle
+filename = '[model_saved_path]/ModelName.model'
+savedModel = pickle.load(open(filename, 'rb'))
+
+# Load Excel file with the input values to feed prediction
+file_xls = '[file_path]/filename.xlsx'
+xl_file = pd.ExcelFile([file_xls])
+df1 = xl_file.parse('SHEET1')
+
+# Iterate in the Excel Sheet and get the values for each cell in each row.
+for index, row in df1.iterrows():
+    var1 = row[0]
+    var2 = row[1]
+    var3 = row[2]
+    (...)
+    
+    # Get prediction for each row
+    data = np.array([[var1,var2,var3,...]])
+    preData = pd.DataFrame(data, columns=['Column_name_1','Column_name_2','Column_name_3',...])
+
+    result = savedModel.model.predict(preData)
+
+    # Save each prediction result into the CSV file.
+    predictRow = []
+    predictRow.append(result[0][0])
+
+    with open('[file_path]/filename.csv', mode="a", newline='') as prediction_file:
+        records_writer = csv.writer(prediction_file, delimiter=";")
+        records_writer.writerow(predictRow)
+
+                </code>
+            </pre>
+
+          </div>
+        </div>    
+      </div>
+
+    </div>
+  </div>
+
+{% endblock %}

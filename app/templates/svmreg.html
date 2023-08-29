@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">Train new model - SVR regressor algorithm</h3>
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Model parameters
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-horizontal">
+
+                        <div class="form-group row">
+
+                            <!-- Name -->
+                            <label for="name" class="col-sm-1 col-form-label">Name</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                            </div>
+
+                            <!-- Description -->
+                            <label for="description" class="col-sm-1 col-form-label">Description</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+        
+                        <div class="form-group row">
+                            <!-- Kernel -->
+                            <label for="kernel" class="col-sm-1 col-form-label">Kernel</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-select-sm" name="kernel" id="kernel">
+                                    <option value="linear">Linear</option>
+                                    <option value="poly">Poly</option>
+                                    <option value="rbf">RBF</option>
+                                    <option value="sigmoid">Sigmoid</option>
+                                    <option value="precomputed">Precomputed</option>
+                                </select>
+                            </div> 
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="scaling" name="scaling" checked>
+                                <label class="form-check-label">Use standard scaler for features.</label>
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="featurered" name="featurered">
+                                <label class="form-check-label">Use feature reduction (SelectFromModel).</label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-graduation-cap"></i> Train model</button>
+                            </div>
+                        </div>
+        
+                    </div>
+
+                </form>
+                    
+            </div>
+            <div class="card-footer">
+                <div class="mt-4 p-5 bg-primary text-white rounded">
+                    <h3><i class="fa-solid fa-info-circle fa-lg"></i> What is SVM?</h3>
+                    <blockquote class="blockquote">
+                        <p>In machine learning, support vector machines (SVMs, also support vector networks[1]) are supervised learning models with associated learning algorithms that analyze data for classification and regression analysis. Developed at AT&T Bell Laboratories by Vladimir Vapnik with colleagues (Boser et al., 1992, Guyon et al., 1993, Cortes and Vapnik, 1995,[1] Vapnik et al., 1997[citation needed]) SVMs are one of the most robust prediction methods, being based on statistical learning frameworks or VC theory proposed by Vapnik (1982, 1995) and Chervonenkis (1974). Given a set of training examples, each marked as belonging to one of two categories, an SVM training algorithm builds a model that assigns new examples to one category or the other, making it a non-probabilistic binary linear classifier (although methods such as Platt scaling exist to use SVM in a probabilistic classification setting). SVM maps training examples to points in space so as to maximise the width of the gap between the two categories. New examples are then mapped into that same space and predicted to belong to a category based on which side of the gap they fall.
+                        </p>
+                        <footer class="blockquote-footer">From Wikipedia website</footer>
+                      </blockquote>
+                </div>
+            </div>  
+        </div> 
+    </div>
+  </div>
+{% endblock %}
