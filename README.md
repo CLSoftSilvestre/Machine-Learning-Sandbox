@@ -5,12 +5,15 @@ Web application to train and use machine learning models with integrated API.
 
 ### Main screen
 Management of existent models
-![alt text](https://github.com/CLSoftSilvestre/FactoryFloor/blob/main/screenshots/mainscreen.png?raw=true)
+![alt text](https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox/blob/main/screenshots/mainscreen.png?raw=true)
 
 ### Train  models screen
 Train model with imported csv dataset. Some features implemented to clean the data, delete columns, select the Y feature. The system show the main stats of the data imported and creates a correlation matrix.
-![alt text](https://github.com/CLSoftSilvestre/FactoryFloor/blob/main/screenshots/trainmodel.png?raw=true)
+![alt text](https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox/blob/main/screenshots/trainmodel.png?raw=true)
 
+### Download trained model
+Use the trained model in other python applications.
+![alt text](https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox/blob/main/screenshots/download.png?raw=true)
 
 ## How to run
 
