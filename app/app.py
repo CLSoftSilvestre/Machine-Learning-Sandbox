@@ -46,6 +46,7 @@ temp_df = pd.DataFrame()
 temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
+heatmap_base64_jpgData = ""
 appversion = "1.0.3"
 
 @app.context_processor
@@ -150,6 +151,7 @@ def train():
     global temp_df_x
     global temp_df_y
     global temp_df_y_name
+    global heatmap_base64_jpgData
 
     if(request.method == 'POST'):
         print(request.form['mod'], file=sys.stderr)
@@ -169,22 +171,21 @@ def train():
             temp_df_y = temp_df[request.form['column']]
             temp_df_y_name = request.form['column']
             temp_df_x = temp_df.loc[:,temp_df.columns != temp_df_y_name]
-
-        #print("df_x: ",temp_df_x.describe(), file=sys.stderr)
-        #print("Independent variable: ",temp_df_x_name, file=sys.stderr)   
-        #print("df_y: ", temp_df_y.describe(), file=sys.stderr)   
-
         
         # Update the correlation matrix image
         temp_df.corr(method="pearson")
         corr_matrix = temp_df.corr(min_periods=1)
         sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
-        filepath = os.path.join(app.root_path, 'static','img', "heatmap.png")
-        plt.savefig(filepath, bbox_inches='tight', pad_inches=0.0)
+
+        # Save image data in variable
+        my_stringIObytes = io.BytesIO()
+        plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
+        my_stringIObytes.seek(0)
+        heatmap_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
         plt.clf()
 
     if temp_df.columns.size > 0:   
-        return render_template('train.html', tables=[temp_df.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=temp_df.columns.values, uploaded=True, descTable=[temp_df.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = temp_df.dtypes, dependend = temp_df_y_name)
+        return render_template('train.html', tables=[temp_df.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=temp_df.columns.values, uploaded=True, descTable=[temp_df.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = temp_df.dtypes, dependend = temp_df_y_name, heatmap=heatmap_base64_jpgData)
     else:
         return render_template('train.html')
 
@@ -196,6 +197,7 @@ def uploader():
         if f:
             # Process the file
             global temp_df
+            global heatmap_base64_jpgData
             sep = request.form['sep']
             dec = request.form['dec']
 
@@ -206,8 +208,12 @@ def uploader():
             corr_matrix = temp_df.corr(min_periods=1)
             #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='YlGnBu')
             sn.heatmap(corr_matrix, linewidths=2,vmax=1, vmin=0, cmap='YlGnBu')
-            filepath = os.path.join(app.root_path, 'static','img', "heatmap.png")
-            plt.savefig(filepath, bbox_inches='tight', pad_inches=0.0)
+
+            # Save image data in variable
+            my_stringIObytes = io.BytesIO()
+            plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
+            my_stringIObytes.seek(0)
+            heatmap_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
             plt.clf()
 
             return redirect('/train')
@@ -222,14 +228,12 @@ def cleardataset():
     global temp_df_x
     global temp_df_y
     global temp_df_y_name
+    global heatmap_base64_jpgData
     temp_df = pd.DataFrame()
     temp_df_x = pd.DataFrame()
     temp_df_y = pd.DataFrame()
     temp_df_y_name = ""
-
-    # Remove old heatmap image
-    filepath = os.path.join(app.root_path, 'static','img', "heatmap.png")
-    os.remove(filepath)
+    heatmap_base64_jpgData = ""
 
     return render_template('train.html')
 

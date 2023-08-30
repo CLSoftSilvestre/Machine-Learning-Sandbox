@@ -237,16 +237,7 @@
                         </p>
                     </div>
                     <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
-                        <img src="" class="img-fluid" alt="..." id="heatimg">
-                        <script>
-                            var im = document.getElementById('heatimg'); // or select based on classes
-                            im.src = "../static/img/heatmap.png?" + Date.now()
-                            im.onerror = function(){
-                            // image not found or change src like this as default image:
-
-                            im.src = '../static/img/empty_heatmap.png';
-                            };
-                        </script>
+                        <img src="data:image/jpeg;base64,{{heatmap}}" class="img-fluid" alt="..." id="heatimg">
                     </div>
                   </div>
             </div>   
