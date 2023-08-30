@@ -19,11 +19,26 @@
                             <input type="text" class="form-control text-left" name = "sep" id="sep" value=";">
                         </div>
 
+                        <!--label for="sep" class="col-sm-1 col-form-label">Separator</label>
+                        <div class="col-sm-1">
+                            <select class="form-select form-select-sm" name="sep" id="sep">
+                                <option value=";">Semicolon</option>
+                                <option value=",">Comma</option>
+                            </select>
+                        </div-->
+
                         <label for="dec" class="col-sm-1 col-form-label">Decimal</label>
                         <div class="col-sm-1">
                             <input type="text" class="form-control text-left" name = "dec" id="dec" value=",">
                         </div>
 
+                        <!--label for="dec" class="col-sm-1 col-form-label">Decimal</label>
+                        <div class="col-sm-1">
+                            <select class="form-select form-select-sm" name="dec" id="dec">
+                                <option value=",">Comma</option>
+                                <option value=".">Point</option>
+                            </select>
+                        </div-->
 
                         <div class="col-sm-2 text-center">
                             <button type="submit" class="btn btn-primary"><i class="fas fa-file-import"></i> Parse CSV dataset</button>
@@ -59,7 +74,7 @@
                             <li><a class="dropdown-item disabled" type="button" href="#">K Nearest Neighbors regressor</a></li>
                             <li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine regression</a></li>
                             <li><a class="dropdown-item disabled" type="button" href="#">Decision tree regressor</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li>
+                            <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
                           </ul>
                         {% else %}
                         <ul class="dropdown-menu">
@@ -67,7 +82,7 @@
                             <li><a class="dropdown-item" type="button" href="{{ url_for('knnreg')}}">K Nearest Neighbors regressor</a></li>
                             <li><a class="dropdown-item" type="button" href="{{ url_for('svmreg')}}">Support Vector Machine regression</a></li>
                             <li><a class="dropdown-item" type="button" href="{{ url_for('treereg')}}">Decision tree regressor</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li>
+                            <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
                           </ul>
                         {% endif %}
                     </div>
@@ -78,21 +93,21 @@
                         </button>
                         {% if dependend == "" %} 
                         <ul class="dropdown-menu">
-                          <li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li>
-                          <li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li>
+                          <!--li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li-->
+                          <!--li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li-->
                           <li><a class="dropdown-item disabled" type="button" href="#">Random florest</a></li>
-                          <li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li>
+                          <!--li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li-->
                           <li><a class="dropdown-item disabled" type="button" href="#">K Nearest Neighbors</a></li>
-                          <li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li>
+                          <!--li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li-->
                         </ul>
                         {% else %}
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li>
+                            <!--li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li-->
+                            <!--li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li-->
                             <li><a class="dropdown-item" type="button" href="{{ url_for('randomforest')}}">Random florest</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li>
+                            <!--li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li-->
                             <li><a class="dropdown-item" type="button" href="{{ url_for('knn')}}">K Nearest Neighbors</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li>
+                            <!--li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li-->
                         </ul>
                         {% endif %}
                     </div>

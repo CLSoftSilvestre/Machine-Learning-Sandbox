@@ -12,7 +12,6 @@ import sys
 import matplotlib.pylab as plt
 import seaborn as sn
 import numpy as np
-import os
 
 from sklearn import neighbors
 from sklearn import linear_model
@@ -30,23 +29,24 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 
-from PredictionModel import PredictionModel, InputFeature, ModelInformation
+from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature
 from ModelManager import ModelManager
 
 import os
+import io
+import base64
 import json
 from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
-
 mm = ModelManager()
 modelsList = []
 temp_df = pd.DataFrame()
 temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
-appversion = "1.0.2"
+appversion = "1.0.3"
 
 @app.context_processor
 def inject_app_version():
@@ -62,8 +62,13 @@ def details(uuid):
     for model in modelsList:
         if (model.uuid == uuid):
             #print(model.name, file=sys.stderr)
-            return render_template('details.html', Model=model)
-    
+            try:
+                image = model.imageData
+            except:
+                image = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+
+            return render_template('details.html', Model=model, imageData=image)
+  
     return render_template('details.html')
 
 @app.route("/download/<uuid>", methods=['GET'])
@@ -78,9 +83,13 @@ def download(uuid):
 def downloadmodel(uuid):
     for model in modelsList:
         if (model.uuid == uuid):
-            modelName = model.modelPath.split("\\")
-            modelsPath = os.path.join(app.root_path, 'models')
-            return send_from_directory(modelsPath,modelName[-1], as_attachment=True)
+            modelName = model.modelPath.split("\\")[-1]
+            try:
+                modelsPath = os.path.join(app.root_path, 'models')
+                return send_from_directory(modelsPath,modelName, as_attachment=True)
+            except:
+                modelsPath = os.path.join(os.getcwd(), 'models')
+                return send_from_directory(modelsPath,modelName, as_attachment=True)
         
     return render_template('download.html')
 
@@ -96,6 +105,7 @@ def predict(uuid):
     if(request.method == 'POST'):
 
         inputData = pd.DataFrame()
+        features = []
 
         for key in request.form:
             if (len(request.form[key])==0):
@@ -103,6 +113,7 @@ def predict(uuid):
                 return redirect(url_for('index'))
             
             inputData[key]=[request.form[key]]
+            features.append(ReturnFeature(key, float(inputData[key])))
 
         print(inputData, file=sys.stderr)
 
@@ -123,7 +134,7 @@ def predict(uuid):
             except:
                 resultValue = result[0]
             #return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(result[0][0],2)))
-            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2))) 
+            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features) 
         else:
             return redirect(url_for('index'))
 
@@ -193,7 +204,8 @@ def uploader():
             # Update the correlation matrix image
             temp_df.corr(method="pearson")
             corr_matrix = temp_df.corr(min_periods=1)
-            sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
+            #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='YlGnBu')
+            sn.heatmap(corr_matrix, linewidths=2,vmax=1, vmin=0, cmap='YlGnBu')
             filepath = os.path.join(app.root_path, 'static','img', "heatmap.png")
             plt.savefig(filepath, bbox_inches='tight', pad_inches=0.0)
             plt.clf()
@@ -242,8 +254,6 @@ def linear():
                 linear = make_pipeline(SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
             else:
                 linear = linear_model.LinearRegression()
-
-        linear = linear_model.LinearRegression()
         
         # Set train/test groups
         x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
@@ -259,6 +269,8 @@ def linear():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -315,6 +327,8 @@ def knnreg():
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+
         mMan = ModelManager()
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
@@ -370,6 +384,8 @@ def knn():
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+
         mMan = ModelManager()
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
@@ -423,6 +439,8 @@ def randomforest():
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+
         mMan = ModelManager()
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
@@ -474,6 +492,8 @@ def svmreg():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -528,6 +548,8 @@ def treereg():
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+
         mMan = ModelManager()
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
@@ -574,6 +596,26 @@ def UpdateModelsList():
     modelspath = os.path.join(app.root_path, 'models', "*.model")
     modelsList = mm.GetModelsList(modelspath)
 
+def CreateImage(test, pred):
+    # Add train image into model
+    plot_y_test = test.reset_index()
+    del plot_y_test['index']
+
+    plt.plot(plot_y_test[0:100], color='#2c3e50', label='Real')
+    plt.plot(pred[0:100], color='#18bc9c', label='Predicted')
+    plt.xlabel('Predictions')
+    plt.ylabel(temp_df_y_name)
+    plt.legend(loc='lower right')
+
+    my_stringIObytes = io.BytesIO()
+    plt.savefig(my_stringIObytes, format='jpg')
+    my_stringIObytes.seek(0)
+    my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
+    plt.clf()
+
+    return my_base64_jpgData
+
+
 # API routes
 @app.route("/api/GetModels", methods=['GET'])
 def ApiGetModelsList():
@@ -616,6 +658,7 @@ def ApiPredict(uuid):
     if(request.method == 'POST'):
 
         inputData = pd.DataFrame()
+        features = []
 
         for key in request.form:
             if (len(request.form[key])==0):
@@ -623,11 +666,14 @@ def ApiPredict(uuid):
                 return redirect(url_for('index'))
             
             inputData[key]=[request.form[key]]
+            features.append(ReturnFeature(key, float(inputData[key])))
+            #featuresJson = json.dumps([obj.__dict__ for obj in features])
+            featuresJson = json.dumps(features, default=ReturnFeature.serialize)
 
         # Check the model
         for model in modelsList:
             if (model.uuid == uuid):
-                activeModel = model
+                #activeModel = model
                 try:
                     result =model.model.predict(inputData)
                     
@@ -640,8 +686,10 @@ def ApiPredict(uuid):
                         "UUID" : model.uuid,
                         "Model" : model.name,
                         "Description" : model.description,
-                        "Prediction" : innerResult
+                        "Prediction" : innerResult,
+                        "Features": json.loads(featuresJson)
                     }
+
                     return jsonify(data)
                 except:
                     return "Error predicting value.", 404
@@ -649,6 +697,7 @@ def ApiPredict(uuid):
 
 if __name__ == "__main__":
     UpdateModelsList()
-
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    
+    app.run(host="0.0.0.0", port=8080, debug=True)
+    #app.run(host="127.0.0.1", port=8080, debug=True)
 

@@ -12,7 +12,22 @@
 <h3 class="m-4">Predict value</h3>
 
   {% if Result %}
-    <h5 class="alert alert-primary ms-4 me-4">Model prediction: {{Result}}</h5>
+    <h5 class="alert alert-primary ms-4 me-4">
+      {% for feature in Features %}
+
+      <li>
+        {{feature.name}} - {{feature.value}}
+      </li>
+
+      {% endfor %}
+
+      <br>
+
+      <b>
+        Model prediction: {{Result}}
+      </b>
+      
+    </h5>
   {% endif %}
 
   {% if Error==True %}

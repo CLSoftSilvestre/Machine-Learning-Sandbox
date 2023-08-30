@@ -24,6 +24,9 @@ class PredictionModel:
     
     def SetModelPath(self, path):
         self.modelPath = path
+    
+    def SetTrainImage(self, imageData):
+        self.imageData = imageData
         
 class InputFeature:
     
@@ -40,10 +43,25 @@ class InputFeature:
     
     def setDescription(self, description):
         self.description = description
+
+    def setValue(self, value):
+        self.value = value
     
 class ModelInformation:
-
+    
     def __init__(self, uuid, name, description):
         self.uuid = uuid
         self.name = name
         self.description = description
+
+class ReturnFeature:
+    
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+    
+    def serialize(self):
+        return {
+            'name': self.name, 
+            'value': self.value
+        }

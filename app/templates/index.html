@@ -60,10 +60,31 @@
                                         <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model"><i class="fa fa-calculator"></i></a>
                                         <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information"><i class="fa fa-info-circle"></i></a>
                                         <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file"><i class="fa fa-download"></i></a>
-                                        <a href="{{ url_for('delete', uuid=model.uuid)}}" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file"><i class="fa fa-trash"></i></a>
+                                        <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}"><i class="fa fa-trash"></i></a>
                                     </div>
                                   </td>
                               <tr>
+                              
+                              <!-- Model delete confirmation Modal -->
+                              <div class="modal fade" id="deleteConfirmation{{model.uuid}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="deleteConfirmationLabel">Do you really want to delete this model?</h5>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <h5>{{model.name}}</h5>
+                                      <h6>{{model.description}}</h4>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                      <a href="{{ url_for('delete', uuid=model.uuid)}}" type="button" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</a>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
                               {% endfor %}
                           </tbody>
                         </table>
@@ -76,4 +97,7 @@
           {% endif %}   
       </div>
   </div>
+
+  
+
 {% endblock %}
