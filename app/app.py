@@ -622,7 +622,7 @@ def CreateImage(test, pred):
 
 # API routes
 @app.route("/api/GetModels", methods=['GET'])
-def ApiGetModelsList():
+def ApiGetModels():
     models = []
 
     for model in modelsList:
@@ -632,20 +632,29 @@ def ApiGetModelsList():
         jsonStr = json.dumps([obj.__dict__ for obj in models])   
         return jsonStr, 200
     else:
-            return "No models found.", 404
+        return "No models found.", 404
     
 @app.route("/api/GetModel/<uuid>", methods=['GET'])
-def ApiGetModels(uuid):
+def ApiGetModel(uuid):
     models = []
 
     for model in modelsList:
         if (model.uuid == uuid):
             models.append(ModelInformation(model.uuid, model.name, model.description))
+            featuresJson = json.dumps(model.variables, default=InputFeature.serialize)
+    
+    if(len(models) > 0):
 
-            jsonStr = json.dumps([obj.__dict__ for obj in models])
-            return jsonStr, 200
-        else:
-            return "No models found.", 404
+        data = {
+                    "UUID" : models[0].uuid,
+                    "Model" : models[0].name,
+                    "Description" : models[0].description,
+                    "Features": json.loads(featuresJson)
+                }
+
+        return jsonify(data)
+    else:
+        return "No models found.", 404
 
 @app.route("/api/Predict/<uuid>", methods=['GET', 'POST'])
 def ApiPredict(uuid):

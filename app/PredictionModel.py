@@ -47,6 +47,12 @@ class InputFeature:
     def setValue(self, value):
         self.value = value
     
+    def serialize(self):
+        return {
+            'name': self.name, 
+            'type': self.varType
+        }
+    
 class ModelInformation:
     
     def __init__(self, uuid, name, description):
