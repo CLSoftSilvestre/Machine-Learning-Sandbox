@@ -18,11 +18,11 @@ Sdandard scaler and feature reduction can also be applied in the pipeline by sel
 
 ### Main screen
 Management of existent models
-![alt text](https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox/blob/main/screenshots/mainscreen.png?raw=true)
+![alt text](./screenshots/mainscreen.png?raw=true)
 
 ### Train  models screen
 Train model with imported csv dataset. Some features implemented to clean the data, delete columns, select the Y feature. The system show the main stats of the data imported and creates a correlation matrix.
-![alt text](https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox/blob/main/screenshots/trainmodel.png?raw=true)
+![alt text](./screenshots/trainmodel.png?raw=true)
 
 ### Check the model performance
 After training the model, it will be saved in the folder ./app/models/. The user can check the performance of the model accesing the model details in the main screen of the application. It will be visible the chart with the Real vs Predicted values (limited to 100 tests) created during the training and will be shown the R^2^ and MSE scores.
@@ -30,7 +30,7 @@ After training the model, it will be saved in the folder ./app/models/. The user
 
 ### Download trained model
 Use the trained model in other python applications.
-![alt text](https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox/blob/main/screenshots/download.png?raw=true)
+![alt text](./screenshots/download.png?raw=true)
 
 ### Using API
 The integrated API prodived methods to list the available models, get the required input fields and retrieve the prediction.

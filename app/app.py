@@ -47,7 +47,7 @@ temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
 heatmap_base64_jpgData = ""
-appversion = "1.0.3"
+appversion = "1.1.0"
 
 @app.context_processor
 def inject_app_version():
