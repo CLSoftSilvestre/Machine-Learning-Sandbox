@@ -1,5 +1,5 @@
 /env
 /app/models/*.model
 /__pycache__
-/app/__pycache__
+/app/__pycache__/*.pyc
 /app/static/img/heatmap*

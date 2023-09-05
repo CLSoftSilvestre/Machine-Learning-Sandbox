@@ -6,6 +6,8 @@ Created on Fri Aug 18 09:53:44 2023
 """
 
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify
+from flask_socketio import SocketIO, emit
+
 from ModelManager import ModelManager
 import pandas as pd
 import sys
@@ -40,6 +42,9 @@ from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
+app.config['SECRET'] = "secret!123"
+socketio = SocketIO(app, async_mode='threading', transports=['websocket'])
+
 mm = ModelManager()
 modelsList = []
 temp_df = pd.DataFrame()
@@ -47,7 +52,11 @@ temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
 heatmap_base64_jpgData = ""
-appversion = "1.1.0"
+appversion = "1.1.1"
+
+@socketio.on('message')
+def handle_message(message):
+    emit(message, broadcast=True)
 
 @app.context_processor
 def inject_app_version():
@@ -709,7 +718,6 @@ def ApiPredict(uuid):
 
 
 if __name__ == "__main__":
-    UpdateModelsList()
-    
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    UpdateModelsList() 
+    socketio.run(app, host="0.0.0.0", port=8000, debug=True, allow_unsafe_werkzeug=True)
 
