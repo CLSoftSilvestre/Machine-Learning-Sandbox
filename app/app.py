@@ -26,6 +26,8 @@ from sklearn.ensemble import RandomForestClassifier
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
+from models import LinearRegression
+
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
@@ -257,33 +259,35 @@ def linear():
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
 
-        if scaling:
-            if featurered:
-                linear = make_pipeline(StandardScaler(),SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
-            else:
-                linear = make_pipeline(StandardScaler(), linear_model.LinearRegression())
-        else:
-            if featurered:
-                linear = make_pipeline(SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
-            else:
-                linear = linear_model.LinearRegression()
+        #if scaling:
+        #    if featurered:
+        #        linear = make_pipeline(StandardScaler(),SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
+        #    else:
+        #        linear = make_pipeline(StandardScaler(), linear_model.LinearRegression())
+        #else:
+        #    if featurered:
+        #        linear = make_pipeline(SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
+        #    else:
+        #        linear = linear_model.LinearRegression()
         
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+        #x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
 
         # Train model
-        linear.fit(x_train, y_train)
-        y_pred = linear.predict(x_test)
+        #linear.fit(x_train, y_train)
+        #y_pred = linear.predict(x_test)
 
         # Save model
-        inputFeatures = []
-        for item in temp_df_x:
-            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        #inputFeatures = []
+        #for item in temp_df_x:
+        #    inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
 
-        pModel = PredictionModel()
-        pModel.Setup(name,description,linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        #pModel = PredictionModel()
+        #pModel.Setup(name,description,linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
+
+        pModel = LinearRegression(name, description, temp_df_y,temp_df_y_name, temp_df_x, scaling, featurered)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
