@@ -74,6 +74,8 @@
                             <li><a class="dropdown-item disabled" type="button" href="#">K Nearest Neighbors regressor</a></li>
                             <li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine regression</a></li>
                             <li><a class="dropdown-item disabled" type="button" href="#">Decision tree regressor</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item disabled" type="button" href="#">Neural Network MLP regressor</a></li>
                             <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
                           </ul>
                         {% else %}
@@ -82,6 +84,8 @@
                             <li><a class="dropdown-item" type="button" href="{{ url_for('knnreg')}}">K Nearest Neighbors regressor</a></li>
                             <li><a class="dropdown-item" type="button" href="{{ url_for('svmreg')}}">Support Vector Machine regression</a></li>
                             <li><a class="dropdown-item" type="button" href="{{ url_for('treereg')}}">Decision tree regressor</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" type="button" href="{{ url_for('perceptronreg')}}">Neural Network MLP regressor</a></li>
                             <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
                           </ul>
                         {% endif %}

@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">Train new model - Neural Network multi-layer perceptron algorithm</h3>
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Model parameters
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="form-horizontal">
+
+                        <div class="form-group row">
+
+                            <!-- Name -->
+                            <label for="name" class="col-sm-1 col-form-label">Name</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                            </div>
+
+                            <!-- Description -->
+                            <label for="description" class="col-sm-1 col-form-label">Description</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+        
+                        <div class="form-group row">
+                            <!-- Hidden Layers -->
+                            <label for="hiddenlayers" class="col-sm-1 col-form-label">Hiden layer sizes</label>
+                            <div class="col-sm-5">
+                                <input type="text" class="form-control text-left" id="hiddenlayers" name="hiddenlayers" value="100, 50"></input>
+                            </div>
+
+                            <!-- Activation -->
+                            <label for="activation" class="col-sm-1 col-form-label">Activation</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-select-sm" name="activation" id="activation">
+                                    <option value="relu">Relu</option>
+                                    <option value="identity">Identity</option>
+                                    <option value="logistic">Logistic</option>
+                                    <option value="tanh">tanh</option>
+                                </select>
+                            </div> 
+                        </div>
+
+                        <div>&MediumSpace;</div>
+        
+                        <div class="form-group row">
+                            <!-- Solver -->
+                            <label for="solver" class="col-sm-1 col-form-label">Solver</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-select-sm" name="solver" id="solver">
+                                    <option value="adam">adam</option>
+                                    <option value="lbfgs">lbfgs</option>
+                                    <option value="sgd">sgd</option>
+                                </select>
+                            </div> 
+
+                            <!-- Alfa -->
+                            <label for="alfa" class="col-sm-1 col-form-label">Alfa</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="alfa" name="alfa" value="0.0001" step="0.0001"></input>
+                            </div>
+
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+
+                            <!-- Learning rate -->
+                            <label for="learningrate" class="col-sm-1 col-form-label">Learning Rate</label>
+                            <div class="col-sm-5">
+                                <select class="form-select form-select-sm" name="learningrate" id="learningrate">
+                                    <option value="constant">Constant</option>
+                                    <option value="invscaling">Inverse scaling</option>
+                                    <option value="adaptive">Adaptive</option>
+                                </select>
+                            </div>
+
+                            <!-- Learning rate init -->
+                            <label for="learningrateinit" class="col-sm-1 col-form-label">Learning rate init</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="learningrateinit" name="learningrateinit" value="0.001" step="0.001"></input>
+                            </div>
+
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+
+                            <!-- Max iterations -->
+                            <label for="maxiter" class="col-sm-1 col-form-label">Max iterations</label>
+                            <div class="col-sm-5">
+                                <input type="number" class="form-control text-left" id="maxiter" name="maxiter" value="200" step="1"></input>
+                            </div>
+
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group-row">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="scaling" name="scaling" checked disabled>
+                                <label class="form-check-label">Use standard scaler for features.</label>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+                            <div class="col-sm-12 text-center">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-play"></i> Train model</button>
+                            </div>
+                        </div>
+        
+                    </div>
+
+                </form>
+                    
+            </div>
+            <div class="card-footer">
+                <div class="mt-4 p-5 bg-primary text-white rounded">
+                    <h3><i class="fa-solid fa-info-circle fa-lg"></i> What is MLP regressor?</h3>
+                    <blockquote class="blockquote">
+                        <p>A multilayer perceptron (MLP) is a misnomer for a modern feedforward artificial neural network, consisting of fully connected neurons with a nonlinear kind of activation function, organized in at least three layers, notable for being able to distinguish data that is not linearly separable.[1] It is a misnomer because the original perceptron used a Heaviside step function, instead of a nonlinear kind of activation function (used by modern networks).
+                        </p>
+                        <footer class="blockquote-footer">From Wikipedia website</footer>
+                        <a href="https://scikit-learn.org/stable/modules/neural_networks_supervised.html" target="_blank" rel="noopener noreferrer"><i class="fas fa-graduation-cap"></i> Learn more at scikit learn - Neural network models (supervised) webpage</a>
+                      </blockquote>
+                </div>
+            </div> 
+        </div> 
+    </div>
+  </div>
+{% endblock %}

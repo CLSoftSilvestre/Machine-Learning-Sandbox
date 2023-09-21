@@ -23,6 +23,7 @@ from sklearn.svm import SVC
 from sklearn.svm import SVR
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPRegressor
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
@@ -54,7 +55,7 @@ temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
 heatmap_base64_jpgData = ""
-appversion = "1.1.1"
+appversion = "1.2.1"
 
 @socketio.on('message')
 def handle_message(message):
@@ -218,7 +219,9 @@ def uploader():
             temp_df.corr(method="pearson")
             corr_matrix = temp_df.corr(min_periods=1)
             #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='YlGnBu')
-            sn.heatmap(corr_matrix, linewidths=2,vmax=1, vmin=0, cmap='YlGnBu')
+            #sn.heatmap(corr_matrix, linewidths=2,vmax=1, vmin=0, cmap='YlGnBu')
+            sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
+
 
             # Save image data in variable
             my_stringIObytes = io.BytesIO()
@@ -581,6 +584,60 @@ def treereg():
     
     else:
         return render_template('treereg.html')
+
+@app.route("/perceptronreg", methods=['GET', 'POST'])
+def perceptronreg():
+    if(request.method == 'POST'):
+        # Set the model
+        name = request.form['name']
+        description = request.form['description']
+        hiddenlayers = request.form['hiddenlayers']
+        activation = request.form['activation']
+        solver = request.form.get('solver')
+        alfa = float(request.form.get('alfa'))
+        learningrate = request.form.get('learningrate')
+        learningrateinit = float(request.form.get('learningrateinit'))
+        maxiter = int(request.form.get('maxiter'))
+
+        # convert hidden layers string to tupple
+        try:
+            convhiddenayers = eval(hiddenlayers)
+        except:
+            convhiddenayers = (100,)
+
+        clf = make_pipeline(StandardScaler(), MLPRegressor(hidden_layer_sizes=convhiddenayers, random_state=1, max_iter=maxiter, activation=activation, solver=solver, alpha=alfa, learning_rate=learningrate, learning_rate_init=learningrateinit))
+
+        # Set train/test groups
+        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+
+        # Train model
+        clf.fit(x_train, y_train)
+        y_pred = clf.predict(x_test)
+
+        # Save model
+        inputFeatures = []
+        for item in temp_df_x:
+            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+
+        pModel = PredictionModel()
+        pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+
+        mMan = ModelManager()
+        modelFileName = name + ".model"
+        filepath = os.path.join(app.root_path, 'models', modelFileName)
+
+        print("filepath: ", filepath, file=sys.stderr)
+
+        mMan.SaveModel(pModel, filepath)
+
+        UpdateModelsList()
+
+        return redirect('/index')
+
+    else:
+        return render_template('perceptronreg.html')
 
 # End of Models training
 
