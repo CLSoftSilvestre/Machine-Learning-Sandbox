@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.8.6 AS builder
+FROM --platform=$BUILDPLATFORM python:3.11.4 AS builder
 
 LABEL maintainer="Celso Silvestre <geral@azordev.pt>"
 
