@@ -35,17 +35,25 @@
                             <!-- Max depth -->
                             <label for="maxdepth" class="col-sm-1 col-form-label">Max depth</label>
                             <div class="col-sm-5">
-                                <input type="number" class="form-control text-left" id="maxdepth" name="maxdepth" step="1" value="2"></input>
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Max depth" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Decision trees tend to overfit on data with a large number of features. Getting the right ratio of samples to number of features is important, since a tree with few samples in high dimensional space is very likely to overfit. Remember that the number of samples required to populate the tree doubles for each additional level the tree grows to. Use max_depth to control the size of the tree to prevent overfitting."><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <input type="number" class="form-control text-left" id="maxdepth" name="maxdepth" step="1" value="2"></input>
+                                </div>
                             </div>
 
                             <label for="criterion" class="col-sm-1 col-form-label">Criterion</label>
                             <div class="col-sm-5">
-                                <select class="form-select form-select-sm" name="criterion" id="criterion">
-                                    <option value="squared_error">Squared error</option>
-                                    <option value="friedman_mse">Friedman MSE</option>
-                                    <option value="absolute_error">Absolute error</option>
-                                    <option value="poisson">Poisson</option>
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Regression criteria" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="If the target is a continuous value, then for node m 
+                                        , common criteria to minimize as for determining locations for future splits are Mean Squared Error (MSE or L2 error), Poisson deviance as well as Mean Absolute Error (MAE or L1 error). MSE and Poisson deviance both set the predicted value of terminal nodes to the learned mean value 
+                                         of the node whereas the MAE sets the predicted value of terminal nodes to the median"><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <select class="form-select form-select-sm" name="criterion" id="criterion">
+                                        <option value="squared_error">Squared error</option>
+                                        <option value="friedman_mse">Friedman MSE</option>
+                                        <option value="absolute_error">Absolute error</option>
+                                        <option value="poisson">Poisson</option>
+                                    </select>
+                                </div>
                             </div>
 
                         </div>

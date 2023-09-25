@@ -35,15 +35,22 @@
                             <!-- Neighbors -->
                             <label for="neighbors" class="col-sm-1 col-form-label">Neigbours</label>
                             <div class="col-sm-5">
-                                <input type="number" class="form-control text-left" id="neighbors" name="neighbors" value="5"></input>
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Neigbours (k value)" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="The optimal K value usually found is the square root of N, where N is the total number of samples. You must be aware of the outliers."><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <input type="number" class="form-control text-left" id="neighbors" name="neighbors" value="5"></input>
+                                </div>
+                                
                             </div>
 
                             <label for="weights" class="col-sm-1 col-form-label">Weights</label>
                             <div class="col-sm-5">
-                                <select class="form-select form-select-sm" name="weights" id="weights">
-                                    <option value="uniform">Uniform</option>
-                                    <option value="distance">Distance</option>
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Weights" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="The basic nearest neighbors regression uses uniform weights: that is, each point in the local neighborhood contributes uniformly to the classification of a query point. Under some circumstances, it can be advantageous to weight points such that nearby points contribute more to the regression than faraway points. This can be accomplished through the weights keyword. The default value, weights = 'uniform', assigns equal weights to all points. weights = 'distance' assigns weights proportional to the inverse of the distance from the query point."><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <select class="form-select form-select-sm" name="weights" id="weights">
+                                        <option value="uniform">Uniform</option>
+                                        <option value="distance">Distance</option>
+                                    </select>
+                                </div>
                             </div> 
                         </div>
 
@@ -53,17 +60,24 @@
                             <!-- algorithm -->
                             <label for="leaf" class="col-sm-1 col-form-label">Leaf size</label>
                             <div class="col-sm-5">
-                                <input type="number" class="form-control text-left" id="leaf" name="leaf" value="30"></input>
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Leaf size" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="For small sample sizes a brute force search can be more efficient than a tree-based query. This fact is accounted for in the ball tree and KD tree by internally switching to brute force searches within leaf nodes. The level of this switch can be specified with the parameter leaf_size."><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <input type="number" class="form-control text-left" id="leaf" name="leaf" value="30"></input>
+                            
+                                </div>
                             </div>
 
                             <label for="algorithm" class="col-sm-1 col-form-label">Algorithm</label>
                             <div class="col-sm-5">
-                                <select class="form-select form-select-sm" name="algorithm" id="algorithm">
-                                    <option value="auto">Auto</option>
-                                    <option value="ball_tree">Ball Tree</option>
-                                    <option value="kd_tree">KD Tree</option>
-                                    <option value="brute">Brute</option>
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Algorithm" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="The optimal algorithm for a given dataset is a complicated choice, and depends on a number of factors. For more information please check the on the botom of the page."><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <select class="form-select form-select-sm" name="algorithm" id="algorithm">
+                                        <option value="auto">Auto</option>
+                                        <option value="ball_tree">Ball Tree</option>
+                                        <option value="kd_tree">KD Tree</option>
+                                        <option value="brute">Brute</option>
+                                    </select>
+                                </div>
                             </div> 
                         </div>
 

@@ -35,13 +35,16 @@
                             <!-- Kernel -->
                             <label for="kernel" class="col-sm-1 col-form-label">Kernel</label>
                             <div class="col-sm-5">
-                                <select class="form-select form-select-sm" name="kernel" id="kernel">
-                                    <option value="linear">Linear</option>
-                                    <option value="poly">Poly</option>
-                                    <option value="rbf">RBF</option>
-                                    <option value="sigmoid">Sigmoid</option>
-                                    <option value="precomputed">Precomputed</option>
-                                </select>
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Kernel" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="The kernel function can be any of the following: linear or polynomial:(where is specified by parameter degree) or rbf: (where is specified by parameter gamma, must be greater than 0) or sigmoid (where is specified by coef0)"><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <select class="form-select form-select-sm" name="kernel" id="kernel">
+                                        <option value="linear">Linear</option>
+                                        <option value="poly">Poly</option>
+                                        <option value="rbf">RBF</option>
+                                        <option value="sigmoid">Sigmoid</option>
+                                        <option value="precomputed">Precomputed</option>
+                                    </select>
+                                </div>
                             </div> 
                         </div>
 

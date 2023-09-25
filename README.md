@@ -10,6 +10,7 @@ Sdandard scaler and feature reduction can also be applied in the pipeline by sel
 - K Nearest Neighbors regressor
 - Suport Vector Machine regression
 - Decision tree regressor
+- Neural Network Multi-Layer Perceptron regressor
 ### Classification models
 - Random forest
 - K Nearest Neighbors
