@@ -80,7 +80,12 @@ def details(uuid):
             except:
                 image = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
 
-            return render_template('details.html', Model=model, imageData=image)
+            try:
+                image2 = model.correlationMatrixImage
+            except:
+                image2 = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
+
+            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2)
   
     return render_template('details.html')
 
@@ -291,6 +296,7 @@ def linear():
         #pModel.SetTrainImage(CreateImage(y_test, y_pred))
 
         pModel = LinearRegression(name, description, temp_df_y,temp_df_y_name, temp_df_x, scaling, featurered)
+        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -348,6 +354,7 @@ def knnreg():
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -405,6 +412,7 @@ def knn():
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -460,6 +468,7 @@ def randomforest():
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -514,6 +523,7 @@ def svmreg():
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -569,6 +579,7 @@ def treereg():
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -623,6 +634,7 @@ def perceptronreg():
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
 
         mMan = ModelManager()
         modelFileName = name + ".model"

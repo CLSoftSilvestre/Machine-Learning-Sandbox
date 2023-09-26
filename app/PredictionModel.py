@@ -27,6 +27,9 @@ class PredictionModel:
     
     def SetTrainImage(self, imageData):
         self.imageData = imageData
+    
+    def SetCorrelationMatrixImage(self, imageData):
+        self.correlationMatrixImage = imageData
         
 class InputFeature:
     
