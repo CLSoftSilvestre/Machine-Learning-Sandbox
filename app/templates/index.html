@@ -6,9 +6,9 @@
     <div class="col-12">
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-header">
-          <a class="btn btn-primary" type="button" href="{{ url_for('train')}}"><i class="fas fa-add"></i> Train new model</a>
+          <a class="btn btn-primary" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a>
           <a class="btn btn-primary disabled" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
-          <a class="btn btn-primary" type="button" href="{{ url_for('refresh')}}"><i class="fas fa-rotate"></i> Refresh models list</a>
+          <a class="btn btn-primary" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
         </div>        
       </div>     
     </div>
@@ -23,7 +23,7 @@
               <div class="card-body">
                 <p class="card-text">
                   <div class="table-responsive">
-                      <table class="table table-hover">
+                      <table class="table table-hover" id="tour-index-modelslist">
                           <thead>
                             <tr>
                               <th scope="col">Model name</th>
@@ -44,7 +44,7 @@
                                   <td style="vertical-align: middle;">{{model.datetime.strftime('%d/%m/%Y %H:%M')}}</td>
                                   <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better">{{ '%0.1f'|format(model.MSE)}}</td>
                                   <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
-                                  <td style="vertical-align: middle;">
+                                  <td style="vertical-align: middle;" id="tour-index-r2">
                                     <div class="progress">
                                       {% if model.R2 * 100 > 90 %}
                                       <div class="progress-bar bg-success" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
@@ -56,11 +56,11 @@
                                     </div>
                                   </td>
                                   <td style="vertical-align: middle;">
-                                    <div class="btn-group" role="group" aria-label="Action commands">
-                                        <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model"><i class="fa fa-calculator"></i></a>
-                                        <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information"><i class="fa fa-info-circle"></i></a>
-                                        <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file"><i class="fa fa-download"></i></a>
-                                        <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}"><i class="fa fa-trash"></i></a>
+                                    <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
+                                        <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>
+                                        <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a>
+                                        <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
+                                        <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
                                     </div>
                                   </td>
                               <tr>
@@ -98,6 +98,7 @@
       </div>
   </div>
 
-  
+  <script src="../static/js/intro.min.js"></script>  
+  <script src="../static/js/tour-index.js"></script>
 
 {% endblock %}
