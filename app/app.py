@@ -5,7 +5,9 @@ Created on Fri Aug 18 09:53:44 2023
 @author: CSilvestre
 """
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session
+from flask_session import Session
+
 from flask_socketio import SocketIO, emit
 
 from ModelManager import ModelManager
@@ -45,7 +47,11 @@ from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
 app.config['SECRET'] = "secret!123"
+Session(app)
+
 socketio = SocketIO(app, async_mode='threading', transports=['websocket'])
 
 mm = ModelManager()
@@ -55,7 +61,7 @@ temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
 heatmap_base64_jpgData = ""
-appversion = "1.2.1"
+appversion = "1.2.2"
 
 @socketio.on('message')
 def handle_message(message):
