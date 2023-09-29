@@ -96,7 +96,7 @@
 
             <hr>
 
-            Input variables:
+            Model features (Input variables):
             <ul>
                 {% for variable in Model.variables %}
 
@@ -104,6 +104,19 @@
 
                 {% endfor %}
             </ul>
+            {% if showimportance %}
+            Features importances:
+            <ul>
+              {% for importance in importance %}
+
+                <li>{{'%0.2f'|format(importance * 100)}} %</li>
+                
+              {% endfor %}
+
+            </ul>
+            {% else %}
+            <h6>⚠️ Features importances not available for this model.</h6>
+            {% endif %}
 
             <hr>
             Variables correlation matrix:

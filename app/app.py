@@ -106,7 +106,27 @@ def details(uuid):
             except:
                 image2 = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
 
-            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2)
+            # Test to calculate features importance
+            # TODO: move the features importance to the model creation steap and save data in the model.
+            
+            showimportance = False
+            importance = []
+            try:
+                importance = model.model.coef_
+                print(importance, file=sys.stderr)
+                showimportance = True
+            except:
+                print("model.coef_ does not exist", file=sys.stderr)
+                showimportance = False
+                try:
+                    importance = model.model.feature_importances_
+                    print(importance, file=sys.stderr)
+                    showimportance = True
+                except:
+                    print("model.feature_importances_ does not exist", file=sys.stderr)
+                    showimportance = False
+
+            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2, importance=importance, showimportance=showimportance)
   
     return render_template('details.html')
 
