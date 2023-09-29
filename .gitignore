@@ -4,3 +4,4 @@
 /app/__pycache__/*.pyc
 /app/static/img/heatmap*
 /flask_session
+/app/flask_session

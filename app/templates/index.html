@@ -6,9 +6,18 @@
     <div class="col-12">
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-header">
-          <a class="btn btn-primary" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a>
+          {% if admin %}
+            <a class="btn btn-primary" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a>
+            <a class="btn btn-primary disabled" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
+            <a class="btn btn-primary" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
+
+          {% else %}
+
+          <a class="btn btn-primary disabled" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a>
           <a class="btn btn-primary disabled" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
           <a class="btn btn-primary" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
+          
+          {% endif %}
         </div>        
       </div>     
     </div>
@@ -58,9 +67,15 @@
                                   <td style="vertical-align: middle;">
                                     <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
                                         <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>
-                                        <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a>
-                                        <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
-                                        <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
+                                        <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a> 
+                                        {% if admin %}
+                                          <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
+                                          <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
+                                        {% else %}
+                                          <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary disabled" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
+                                          <a href="#" type="button" class="btn btn-danger disabled" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
+                                        {% endif %}
+
                                     </div>
                                   </td>
                               <tr>

@@ -38,6 +38,7 @@ from sklearn.metrics import r2_score
 
 from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature
 from ModelManager import ModelManager
+from Database import UserLogin, User
 
 import os
 import io
@@ -61,7 +62,7 @@ temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
 heatmap_base64_jpgData = ""
-appversion = "1.2.2"
+appversion = "1.2.3"
 
 @socketio.on('message')
 def handle_message(message):
@@ -70,6 +71,20 @@ def handle_message(message):
 @app.context_processor
 def inject_app_version():
     return dict(version=appversion)
+
+@app.context_processor
+def set_global_html_variable_values():
+    #session['autenticated'] = True
+    if session.get('autenticated'):
+        admin = session.get('autenticated')
+        name = session.get('user')
+    else:
+        admin = False
+        name = ""
+
+    template_config = {'admin': admin, 'username': name}
+
+    return template_config
 
 @app.route("/index")
 @app.route("/")
@@ -97,6 +112,10 @@ def details(uuid):
 
 @app.route("/download/<uuid>", methods=['GET'])
 def download(uuid):
+
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     for model in modelsList:
         if (model.uuid == uuid):
             return render_template('download.html', Model=model)
@@ -105,6 +124,10 @@ def download(uuid):
 
 @app.route("/downloadmodel/<uuid>", methods=['GET'])
 def downloadmodel(uuid):
+
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     for model in modelsList:
         if (model.uuid == uuid):
             modelName = model.modelPath.split("\\")[-1]
@@ -169,6 +192,10 @@ def refresh():
 
 @app.route("/train/", methods=['GET', 'POST'])
 def train():
+
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     # acording to the command will perform mod on the data before push again to the page.
     global temp_df
     global temp_df_x
@@ -214,6 +241,8 @@ def train():
 
 @app.route("/uploader/", methods=['GET', 'POST'])
 def uploader():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
 
     if request.method == 'POST':
         f = request.files['file']
@@ -265,6 +294,9 @@ def cleardataset():
 # Start of Models training
 @app.route("/linear/", methods=['GET', 'POST'])
 def linear():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     if(request.method == 'POST'):
 
         # Set the model
@@ -321,6 +353,9 @@ def linear():
 
 @app.route("/knnreg/", methods=['GET', 'POST'])
 def knnreg():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     if(request.method == 'POST'):
 
         # Set the model
@@ -379,6 +414,9 @@ def knnreg():
 
 @app.route("/knn/", methods=['GET', 'POST'])
 def knn():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     if(request.method == 'POST'):
 
         # Set the model
@@ -437,6 +475,9 @@ def knn():
 
 @app.route("/randomforest/", methods=['GET', 'POST'])
 def randomforest():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     if(request.method == 'POST'):
 
         # Set the model
@@ -493,6 +534,9 @@ def randomforest():
 
 @app.route("/svmreg/", methods=['GET', 'POST'])
 def svmreg():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     if(request.method == 'POST'):
 
         # Set the model
@@ -548,6 +592,9 @@ def svmreg():
 
 @app.route("/treereg/", methods=['GET', 'POST'])
 def treereg():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     if(request.method == 'POST'):
 
         # Set the model
@@ -604,6 +651,9 @@ def treereg():
 
 @app.route("/perceptronreg", methods=['GET', 'POST'])
 def perceptronreg():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     if(request.method == 'POST'):
         # Set the model
         name = request.form['name']
@@ -661,6 +711,9 @@ def perceptronreg():
 
 @app.route("/delete/<uuid>", methods=['GET'])
 def delete(uuid):
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
     for model in modelsList:
         if (model.uuid == uuid):
             #print(model.name, file=sys.stderr)
@@ -670,6 +723,9 @@ def delete(uuid):
 
 @app.route("/import/", methods=['GET','POST'])
 def importFile():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+
     if request.method == 'POST':
         f = request.files['file']
         if f:
@@ -686,6 +742,7 @@ def UpdateModelsList():
     global modelsList
     global mm
     modelspath = os.path.join(app.root_path, 'models', "*.model")
+    #modelspath = os.path.join(app.instance_path, 'models', "*.model")
     modelsList = mm.GetModelsList(modelspath)
 
 def CreateImage(test, pred):
@@ -707,6 +764,51 @@ def CreateImage(test, pred):
 
     return my_base64_jpgData
 
+@app.route("/login/", methods=['POST'])
+def Login():
+
+    name = request.form['username']
+    password = request.form['pswd']
+
+    params = (name, password)
+    dbPath = os.path.join(app.root_path, 'database', "mls.db")
+    user = UserLogin(dbPath, params)
+
+    if (user != False):
+        session['user'] = user.name
+        session['role'] = user.role
+        session['autenticated'] = True
+
+        # Train temp variables
+        # Use session variables to store temp data
+        # This will avoid setting data for other users
+        session['temp_df'] = pd.DataFrame()
+        session['temp_df_y'] = pd.DataFrame()
+        session['temp_df_y_name'] = ""
+        session['temp_df_x'] = pd.DataFrame()
+        session['heatmap_base64_jpgData'] = ""
+    else:
+        session['autenticated'] = False
+
+    return redirect('/index')
+
+@app.route("/logout/", methods=['GET'])
+def Logout():
+    session.pop('user', None)
+    session.pop('role', None)
+    session.pop('autenticated', None)
+
+    session.pop('temp_df', None)
+    session.pop('temp_df_y', None)
+    session.pop('temp_df_y_name', None)
+    session.pop('temp_df_x', None)
+    session.pop('heatmap_base64_jpgData', None)
+
+    return redirect('/index')
+
+@app.route("/notauthorized/",methods=['GET'])
+def NotAutorized():
+    return render_template('notauthorized.html')
 
 # API routes
 @app.route("/api/GetModels", methods=['GET'])
@@ -794,7 +896,6 @@ def ApiPredict(uuid):
                     return jsonify(data)
                 except:
                     return "Error predicting value.", 404
-
 
 if __name__ == "__main__":
     UpdateModelsList() 

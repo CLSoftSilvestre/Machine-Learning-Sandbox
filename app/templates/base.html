@@ -28,6 +28,18 @@
                             <i class="fa-regular fa-circle-question"></i> About
                         </a>
                       </li>
+
+                      <li class="nav-item float-right">
+                        {% if admin %}
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                          <i class="fa-solid fa-sign-out-alt"></i> Logout {{username}}
+                        </a>
+                        {% else %}
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                          <i class="fa-solid fa-sign-in-alt"></i> Login
+                        </a>
+                        {% endif %}
+                      </li>
                     </ul>
                   </div>
                 </div>
@@ -39,8 +51,6 @@
             </div>
 
             <div class="rotate" id="loader"></div>
-
-            
 
             <!-- About Modal -->
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -67,6 +77,66 @@
                   <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Dismiss</button>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Login Modal -->
+            <div class="modal fade" id="loginModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <form action="{{url_for('Login')}}" method="post">
+
+                      <div class="modal-body">
+
+                        <div class="mb-3 mt-3">
+                          <label for="username" class="form-label">Username:</label>
+                          <input type="text" class="form-control" id="username" placeholder="Enter username" name="username">
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="pwd" class="form-label">Password:</label>
+                          <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pswd">
+                        </div>
+
+                      </div>
+
+                      <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                      </div>
+
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Logout Modal -->
+            <div class="modal fade" id="logoutModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="logoutModalLabel">Logout</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <form action="{{url_for('Logout')}}" method="get">
+
+                      <div class="modal-body">
+
+                        <h5>Do you really want to logout?</h5>
+
+                      </div>
+
+                      <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Logout</button>
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                      </div>
+
+                  </form>
                 </div>
               </div>
             </div>

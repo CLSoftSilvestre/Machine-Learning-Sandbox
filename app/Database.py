@@ -4,6 +4,12 @@ from sqlite3 import Error
 
 import bcrypt
 
+class User:
+
+    def __init__(self, name, role):
+        self.name = name
+        self.role = role
+
 def create_database(db_file):
     con = sqlite3.connect(db_file)
     cur = con.cursor()
@@ -51,14 +57,24 @@ def UserLogin(db_file, loginData):
     conn = create_connection(db_file)
     print (loginData)
     user = query(conn, "SELECT * FROM users WHERE name=? AND password=?", loginData)
-
-    print(user)
+    
+    if len(user) > 0:
+        name = user[0][1]
+        role = user[0][3]
+        tempUser = User(name, role)
+        return tempUser
+    else:
+        return False
+    
 
 ## TEST CODE
 #create_database(r'C:\Users\CSilvestre\Code\Machine-Learning-Sandbox\app\database\mls.db')
 
-userLoginData = ('admin','admin')
-UserLogin(r'C:\Users\CSilvestre\Code\Machine-Learning-Sandbox\app\database\mls.db', userLoginData)
+#userLoginData = ('admin','admin')
+#userLoginData = ('pu','pu')
+#user = UserLogin(r'C:\Users\CSilvestre\Code\Machine-Learning-Sandbox\app\database\mls.db', userLoginData)
+
+
 
 
 
