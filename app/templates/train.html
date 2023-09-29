@@ -10,12 +10,12 @@
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
                     <div class="form-group row">
                         <label for="file" class="col-sm-1 col-form-label">Select file</label>
-                        <div class="col-sm-5">
+                        <div class="col-sm-5" id="tour-train-import-file">
                             <input type="file" class="form-control text-left" name = "file" id="file" accept=".csv">
                         </div>
 
                         <label for="sep" class="col-sm-1 col-form-label">Separator</label>
-                        <div class="col-sm-1">
+                        <div class="col-sm-1" id="tour-train-import-separator">
                             <input type="text" class="form-control text-left" name = "sep" id="sep" value=";">
                         </div>
 
@@ -28,7 +28,7 @@
                         </div-->
 
                         <label for="dec" class="col-sm-1 col-form-label">Decimal</label>
-                        <div class="col-sm-1">
+                        <div class="col-sm-1" id="tour-train-import-decimal">
                             <input type="text" class="form-control text-left" name = "dec" id="dec" value=",">
                         </div>
 
@@ -41,7 +41,7 @@
                         </div-->
 
                         <div class="col-sm-2 text-center">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-file-import"></i> Parse CSV dataset</button>
+                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i> Parse CSV dataset</button>
                         </div>
 
                     </div>
@@ -55,16 +55,16 @@
                 <!-- Functionalities buttons -->
                 <div class="d-flex flex-row gap-3">
 
-                    <a class="btn btn-warning" type="button" href="{{ url_for('cleardataset')}}"><i class="fas fa-eraser"></i> Delete dataset</a>
+                    <a class="btn btn-warning" type="button" href="{{ url_for('cleardataset')}}" id="tour-train-import-delete-dataset"><i class="fas fa-eraser"></i> Delete dataset</a>
 
                     <form method="post">
                         <input hidden type="text" name="mod" value="clearnull">
                         <input hidden type="text" name="column" value="all">
                         <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-bath"></i> Clear nulls</button>
+                        <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
                     </form>
 
-                    <div class="dropdown">
+                    <div class="dropdown" id="tour-train-import-regressions">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-chart-line"></i>
                             Regression models
                           </button>
@@ -91,7 +91,7 @@
                         {% endif %}
                     </div>
 
-                    <div class="dropdown">
+                    <div class="dropdown" id="tour-train-import-classifications">
                         <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-object-ungroup"></i>
                           Classification models
                         </button>
@@ -148,7 +148,7 @@
                             <div class="table-responsive">
                                 <table class="table table-bordered text-center">
                                     <thead>
-                                        <tr>
+                                        <tr id='tour-train-import-variables'>
                                             <th scope="col">Variable</th>
                                             {% for title in titles %}
                                                 
@@ -163,7 +163,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
+                                        <tr id='tour-train-import-datatypes'>
                                             <td class="align-middle" scope="col">Current data type</td>
                                             {% for dtype in datatypes %}
                                                 {% if dtype == "object" %}
@@ -189,7 +189,7 @@
                                             {% endfor %}
                                             <td class="align-middle"><button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Apply</button></td>
                                         </tr-->
-                                        <tr>
+                                        <tr id='tour-train-import-remove'>
                                             <td class="align-middle">Remove column</td>
                                             {% for title in titles %}
                                                 <td class="align-middle">
@@ -202,7 +202,7 @@
                                             {% endfor %}
                                             <td></td>
                                         </tr>
-                                        <tr>
+                                        <tr id='tour-train-import-sety'>
                                             <td class="align-middle">Set as Y column</td>
                                             {% for title in titles %}
                                                 <td class="align-middle">
@@ -267,7 +267,7 @@
               </div>
             </div>
             {% else %}
-            <h5 class="alert alert-primary ms-4 me-4">No dataset imported.</h5>
+            <h5 class="alert alert-primary ms-4 me-4" id="notuploaded">No dataset imported.</h5>
           {% endif %}            
       </div>
   </div>
@@ -283,4 +283,7 @@
     }
     
   </script>
+
+    <script src="../static/js/intro.min.js"></script>  
+    <script src="../static/js/tour-train.js"></script>
 {% endblock %}

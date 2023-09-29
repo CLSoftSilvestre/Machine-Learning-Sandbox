@@ -807,7 +807,7 @@ def Logout():
     return redirect('/index')
 
 @app.route("/notauthorized/",methods=['GET'])
-def NotAutorized():
+def NotAuthorized():
     return render_template('notauthorized.html')
 
 # API routes

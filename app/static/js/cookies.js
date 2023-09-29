@@ -24,6 +24,7 @@ function getCookie(cname) {
 
 function RestartTour() {
     setCookie("tourIndexComplete", false, 90);
+    setCookie("tourTrainPart1Complete", true, 90);
 }
 
 function SelectTours(e) {
@@ -33,5 +34,6 @@ function SelectTours(e) {
     } else {
         //Disable all tours
         setCookie("tourIndexComplete", true, 90);
+        setCookie("tourTrainPart1Complete", true, 90);
     }
 }
