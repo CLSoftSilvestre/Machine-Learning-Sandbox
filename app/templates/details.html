@@ -128,9 +128,54 @@
                     {% endif %}
 
                     <td>
-                      <div class="progress">
-                        <div class="progress-bar bg-success" role="progressbar" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="{{feature.importance*100}}" style="width:{{ '%+0.1f'|format(feature.importance * 100)}}%">{{ '%+0.1f'|format(feature.importance * 100)}}%</div>
-                      </div>
+                    {% if feature.importance != 0 %}
+                      <!--td>
+                        <div class="progress">
+                          <div class="progress-bar bg-success" role="progressbar" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="{{feature.importance*100}}" style="width:{{ '%+0.1f'|format(feature.importance * 100)}}%">{{ '%+0.1f'|format(feature.importance * 100)}}%</div>
+                        </div>
+                      </td-->
+                      {% if feature.importance * 100 <= 10 %}
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 20 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 40 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 60 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 80 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 > 80 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+
+                      {% endif %}
+                    {% else %}
+                    ✖️ Not defined
+                    {% endif %}
+
                     </td>
 
                   </tr>
