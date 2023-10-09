@@ -30,6 +30,10 @@ class PredictionModel:
     
     def SetCorrelationMatrixImage(self, imageData):
         self.correlationMatrixImage = imageData
+    
+    def SetModelVersion(self, modelVersion, appVersion):
+        self.modelVersion = modelVersion
+        self.appversion = appVersion
         
 class InputFeature:
     
@@ -37,6 +41,7 @@ class InputFeature:
         self.name = name
         self.varType = varType
         self.description = description
+        self.importance = 0
     
     def setName(self, name):
         self.name = name
@@ -49,6 +54,9 @@ class InputFeature:
 
     def setValue(self, value):
         self.value = value
+    
+    def setImportance(self, value):
+        self.importance = value
     
     def serialize(self):
         return {

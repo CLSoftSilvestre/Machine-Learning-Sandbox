@@ -26,6 +26,8 @@ from sklearn.svm import SVR
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPRegressor
+from sklearn.inspection import permutation_importance
+from sklearn.metrics import accuracy_score
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
@@ -63,6 +65,7 @@ temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
 heatmap_base64_jpgData = ""
 appversion = "1.2.3"
+model_version = 1
 
 @socketio.on('message')
 def handle_message(message):
@@ -106,27 +109,7 @@ def details(uuid):
             except:
                 image2 = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
 
-            # Test to calculate features importance
-            # TODO: move the features importance to the model creation steap and save data in the model.
-            
-            showimportance = False
-            importance = []
-            try:
-                importance = model.model.coef_
-                print(importance, file=sys.stderr)
-                showimportance = True
-            except:
-                print("model.coef_ does not exist", file=sys.stderr)
-                showimportance = False
-                try:
-                    importance = model.model.feature_importances_
-                    print(importance, file=sys.stderr)
-                    showimportance = True
-                except:
-                    print("model.feature_importances_ does not exist", file=sys.stderr)
-                    showimportance = False
-
-            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2, importance=importance, showimportance=showimportance)
+            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2)
   
     return render_template('details.html')
 
@@ -355,6 +338,7 @@ def linear():
 
         pModel = LinearRegression(name, description, temp_df_y,temp_df_y_name, temp_df_x, scaling, featurered)
         pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -410,12 +394,21 @@ def knnreg():
         inputFeatures = []
         for item in temp_df_x:
             inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        
+
+        # Calculate feature importances and update feature item.
+        results = permutation_importance(knn, x_train, y_train, scoring='r2')
+        importance = results.importances_mean
+
+        for i, v in enumerate(importance):
+            inputFeatures[i].setImportance(v)
 
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -471,12 +464,24 @@ def knn():
         inputFeatures = []
         for item in temp_df_x:
             inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        
+        # Calculate feature importances and update feature item.
+        for i in enumerate(inputFeatures):
+            inputFeatures[i].setImportance(0)
+        
+        # Calculate feature importances and update feature item.
+        results = permutation_importance(knn, x_train, y_train, scoring='accuracy')
+        importance = results.importances_mean
+
+        for i, v in enumerate(importance):
+            inputFeatures[i].setImportance(v)
 
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -526,16 +531,25 @@ def randomforest():
         clf.fit(x_train, y_train)
         y_pred = clf.predict(x_test)
 
+
         # Save model
         inputFeatures = []
         for item in temp_df_x:
             inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+
+        
+        # Calculate feature importances and update feature item.
+        importance = clf.feature_importances_
+
+        for i, v in enumerate(importance):
+            inputFeatures[i].setImportance(v)
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -594,6 +608,7 @@ def svmreg():
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -647,12 +662,19 @@ def treereg():
         inputFeatures = []
         for item in temp_df_x:
             inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        
+        # Calculate feature importances and update feature item.
+        importance = clf.feature_importances_
+
+        for i, v in enumerate(importance):
+            inputFeatures[i].setImportance(v)
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -711,6 +733,7 @@ def perceptronreg():
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
         modelFileName = name + ".model"

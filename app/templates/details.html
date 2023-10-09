@@ -97,26 +97,48 @@
             <hr>
 
             Model features (Input variables):
-            <ul>
-                {% for variable in Model.variables %}
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Feature name</th>
+                    <th scope="col">Variable type</th>
+                    <th scope="col">Impact</th>
+                    <th scope="col">Importance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for feature in Model.variables %}
+                  <tr>
+                    <td style="vertical-align: middle;">{{feature.name}}</td>
 
-                <li>{{variable.name}} ( {{variable.varType}} )</li>
+                    
+                    {% if "int64" in feature.varType %}
+                    <td style="vertical-align: middle;"> Integer</td>
+                    {% elif "float64" in feature.varType %}
+                    <td style="vertical-align: middle;"> Decimal</td>
+                    {% endif %}
 
-                {% endfor %}
-            </ul>
-            {% if showimportance %}
-            Features importances:
-            <ul>
-              {% for importance in importance %}
+                    {% if feature.importance == 0 %}
+                      <td style="vertical-align: middle;">✖️ Not defined</td>
+                    {% elif feature.importance >= 0 %}
+                      <td style="vertical-align: middle;">➕ Positive</td>
+                    {% else %}
+                      <td style="vertical-align: middle;">➖ Negative</td>
+                    {% endif %}
 
-                <li>{{'%0.2f'|format(importance * 100)}} %</li>
-                
-              {% endfor %}
+                    <td>
+                      <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="{{feature.importance*100}}" style="width:{{ '%+0.1f'|format(feature.importance * 100)}}%">{{ '%+0.1f'|format(feature.importance * 100)}}%</div>
+                      </div>
+                    </td>
 
-            </ul>
-            {% else %}
-            <h6>⚠️ Features importances not available for this model.</h6>
-            {% endif %}
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+
+            </div>
 
             <hr>
             Variables correlation matrix:
