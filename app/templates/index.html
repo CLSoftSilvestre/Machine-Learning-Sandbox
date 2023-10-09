@@ -35,6 +35,7 @@
                       <table class="table table-hover" id="tour-index-modelslist">
                           <thead>
                             <tr>
+                              <th scope="col"></th>
                               <th scope="col">Model name</th>
                               <th scope="col">Model description</th>
                               <!--th scope="col">Algorithm type</th-->
@@ -47,6 +48,11 @@
                           <tbody>
                               {% for model in models %}
                               <tr>
+                                  {% if model.modelVersion == mversion %}
+                                    <td style="vertical-align: middle;"></td>
+                                  {% else %}
+                                    <td style="vertical-align: middle;" data-toggle="tooltip" title="This model was trained in other software version. Some functionalities may not be available.">⚠️</td>
+                                  {% endif %}
                                   <td style="vertical-align: middle;">{{model.name}}</td>
                                   <td style="vertical-align: middle;">{{model.description}}</td>
                                   <!--td style="vertical-align: middle;">{{model.model}}</td-->

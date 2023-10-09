@@ -64,8 +64,8 @@ temp_df_y = pd.DataFrame()
 temp_df_y_name = ""
 temp_df_x = pd.DataFrame()
 heatmap_base64_jpgData = ""
-appversion = "1.2.3"
-model_version = 1
+appversion = "1.2.4"
+model_version = 2
 
 @socketio.on('message')
 def handle_message(message):
@@ -74,6 +74,10 @@ def handle_message(message):
 @app.context_processor
 def inject_app_version():
     return dict(version=appversion)
+
+@app.context_processor
+def inject_model_version():
+    return dict(mversion=model_version)
 
 @app.context_processor
 def set_global_html_variable_values():
