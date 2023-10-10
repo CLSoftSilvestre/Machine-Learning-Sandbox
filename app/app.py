@@ -188,7 +188,11 @@ def predict(uuid):
             except:
                 resultValue = result[0]
             #return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(result[0][0],2)))
-            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features) 
+            # Calculate the min and max expected according R2 score
+            minResult = resultValue - (resultValue * ((1-activeModel.R2)/2))
+            maxResult = resultValue + (resultValue * ((1-activeModel.R2)/2))
+
+            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2))) 
         else:
             return redirect(url_for('index'))
 
@@ -931,12 +935,17 @@ def ApiPredict(uuid):
                         innerResult = result[0][0]
                     except:
                         innerResult = result[0]
+                    
+                    minResult = innerResult - (innerResult * ((1-model.R2)/2))
+                    maxResult = innerResult + (innerResult * ((1-model.R2)/2))
 
                     data = {
                         "UUID" : model.uuid,
                         "Model" : model.name,
                         "Description" : model.description,
                         "Prediction" : innerResult,
+                        "MinPrediction" : minResult,
+                        "MaxPrediction" : maxResult,
                         "Features": json.loads(featuresJson)
                     }
 

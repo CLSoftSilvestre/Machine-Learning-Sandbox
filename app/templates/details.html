@@ -103,8 +103,7 @@
                   <tr>
                     <th scope="col">Feature name</th>
                     <th scope="col">Variable type</th>
-                    <th scope="col">Impact</th>
-                    <th scope="col">Importance</th>
+                    <th scope="col">Importance for model</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -119,13 +118,6 @@
                     <td style="vertical-align: middle;"> Decimal</td>
                     {% endif %}
 
-                    {% if feature.importance == 0 %}
-                      <td style="vertical-align: middle;">✖️ Not defined</td>
-                    {% elif feature.importance >= 0 %}
-                      <td style="vertical-align: middle;">➕ Positive</td>
-                    {% else %}
-                      <td style="vertical-align: middle;">➖ Negative</td>
-                    {% endif %}
 
                     <td>
                     {% if feature.importance != 0 %}
@@ -134,7 +126,23 @@
                           <div class="progress-bar bg-success" role="progressbar" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="{{feature.importance*100}}" style="width:{{ '%+0.1f'|format(feature.importance * 100)}}%">{{ '%+0.1f'|format(feature.importance * 100)}}%</div>
                         </div>
                       </td-->
-                      {% if feature.importance * 100 <= 10 %}
+                      {% if feature.importance * 100 <= 0 %}
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 10 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
@@ -142,6 +150,22 @@
                         <span class="fa fa-star"></span>
                       {% elif feature.importance * 100 <= 20 %}
                         <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 30 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
@@ -149,6 +173,22 @@
                       {% elif feature.importance * 100 <= 40 %}
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 50 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
@@ -156,6 +196,22 @@
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 70 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                         <span class="fa fa-star"></span>
                       {% elif feature.importance * 100 <= 80 %}
@@ -163,8 +219,29 @@
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
                         <span class="fa fa-star"></span>
-                      {% elif feature.importance * 100 > 80 %}
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 <= 90 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star"></span>
+                      {% elif feature.importance * 100 > 90 %}
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
+                        <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
                         <span class="fa fa-star checked"></span>
