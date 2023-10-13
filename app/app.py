@@ -658,7 +658,7 @@ def treereg():
                 clf = make_pipeline(SelectKBest(f_classif, k="all"), tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion))
             else:
                 clf = tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion)
-        
+
         # Set train/test groups
         x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
 
@@ -672,10 +672,12 @@ def treereg():
             inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
         
         # Calculate feature importances and update feature item.
-        importance = clf.feature_importances_
-
-        for i, v in enumerate(importance):
-            inputFeatures[i].setImportance(v)
+        try:     
+            importance = clf.feature_importances_
+            for i, v in enumerate(importance):
+                inputFeatures[i].setImportance(v)
+        except:
+            pass
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
