@@ -59,11 +59,6 @@ socketio = SocketIO(app, async_mode='threading', transports=['websocket'])
 
 mm = ModelManager()
 modelsList = []
-temp_df = pd.DataFrame()
-temp_df_y = pd.DataFrame()
-temp_df_y_name = ""
-temp_df_x = pd.DataFrame()
-heatmap_base64_jpgData = ""
 appversion = "1.2.4"
 model_version = 2
 
@@ -208,45 +203,40 @@ def train():
         return redirect('/notauthorized')
     
     # acording to the command will perform mod on the data before push again to the page.
-    global temp_df
-    global temp_df_x
-    global temp_df_y
-    global temp_df_y_name
-    global heatmap_base64_jpgData
 
     if(request.method == 'POST'):
         print(request.form['mod'], file=sys.stderr)
         print(type(request.form['mod']), file=sys.stderr)
         
         if (request.form['mod']=="clearnull"):     
-            temp_df = temp_df.dropna(how='any', axis=0)
-            temp_df = temp_df.reset_index(drop=True)
+            session['temp_df'] = session['temp_df'].dropna(how='any', axis=0)
+            session['temp_df'] = session['temp_df'].reset_index(drop=True)
 
         elif (request.form['mod']=="remcol"):
-            temp_df = temp_df.drop([request.form['column']], axis=1)
-            if(temp_df_y_name != ""):
-                temp_df_x = temp_df.loc[:,temp_df.columns != temp_df_y_name]
+            session['temp_df'] = session['temp_df'].drop([request.form['column']], axis=1)
+
+            if(session['temp_df_y_name'] != ""):
+                session['temp_df_x'] = session['temp_df_x'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
 
         elif(request.form['mod']=="setdependent"):
-            # Set temp_df_x     
-            temp_df_y = temp_df[request.form['column']]
-            temp_df_y_name = request.form['column']
-            temp_df_x = temp_df.loc[:,temp_df.columns != temp_df_y_name]
-        
+            session['temp_df_y'] = session['temp_df'][request.form['column']]
+            session['temp_df_y_name'] = request.form['column']
+            session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
+
         # Update the correlation matrix image
-        temp_df.corr(method="pearson")
-        corr_matrix = temp_df.corr(min_periods=1)
+        session['temp_df'].corr(method="pearson")
+        corr_matrix = session['temp_df'].corr(min_periods=1)
         sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
 
         # Save image data in variable
         my_stringIObytes = io.BytesIO()
         plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
         my_stringIObytes.seek(0)
-        heatmap_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
+        session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
         plt.clf()
 
-    if temp_df.columns.size > 0:   
-        return render_template('train.html', tables=[temp_df.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=temp_df.columns.values, uploaded=True, descTable=[temp_df.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = temp_df.dtypes, dependend = temp_df_y_name, heatmap=heatmap_base64_jpgData)
+    if session['temp_df'].columns.size > 0:   
+        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'])
     else:
         return render_template('train.html')
 
@@ -259,26 +249,21 @@ def uploader():
         f = request.files['file']
         if f:
             # Process the file
-            global temp_df
-            global heatmap_base64_jpgData
             sep = request.form['sep']
             dec = request.form['dec']
 
-            temp_df = pd.read_csv(f,sep=sep, decimal=dec)
+            session['temp_df'] = pd.read_csv(f,sep=sep, decimal=dec)
 
             # Update the correlation matrix image
-            temp_df.corr(method="pearson")
-            corr_matrix = temp_df.corr(min_periods=1)
-            #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='YlGnBu')
-            #sn.heatmap(corr_matrix, linewidths=2,vmax=1, vmin=0, cmap='YlGnBu')
+            session['temp_df'].corr(method="pearson")
+            corr_matrix = session['temp_df'].corr(min_periods=1)
             sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
-
 
             # Save image data in variable
             my_stringIObytes = io.BytesIO()
             plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
             my_stringIObytes.seek(0)
-            heatmap_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
+            session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
             plt.clf()
 
             return redirect('/train')
@@ -289,16 +274,11 @@ def uploader():
 
 @app.route("/cleardataset/", methods=['GET'])
 def cleardataset():
-    global temp_df
-    global temp_df_x
-    global temp_df_y
-    global temp_df_y_name
-    global heatmap_base64_jpgData
-    temp_df = pd.DataFrame()
-    temp_df_x = pd.DataFrame()
-    temp_df_y = pd.DataFrame()
-    temp_df_y_name = ""
-    heatmap_base64_jpgData = ""
+    session['temp_df'] = pd.DataFrame()
+    session['temp_df_y'] = pd.DataFrame()
+    session['temp_df_y_name'] = ""
+    session['temp_df_x'] = pd.DataFrame()
+    session['heatmap_base64_jpgData'] = ""
 
     return render_template('train.html')
 
@@ -316,36 +296,8 @@ def linear():
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
 
-        #if scaling:
-        #    if featurered:
-        #        linear = make_pipeline(StandardScaler(),SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
-        #    else:
-        #        linear = make_pipeline(StandardScaler(), linear_model.LinearRegression())
-        #else:
-        #    if featurered:
-        #        linear = make_pipeline(SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
-        #    else:
-        #        linear = linear_model.LinearRegression()
-        
-        # Set train/test groups
-        #x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
-
-        # Train model
-        #linear.fit(x_train, y_train)
-        #y_pred = linear.predict(x_test)
-
-        # Save model
-        #inputFeatures = []
-        #for item in temp_df_x:
-        #    inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
-
-        #pModel = PredictionModel()
-        #pModel.Setup(name,description,linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
-        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
-
-        pModel = LinearRegression(name, description, temp_df_y,temp_df_y_name, temp_df_x, scaling, featurered)
-        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel = LinearRegression(name, description, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered)
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
@@ -392,7 +344,7 @@ def knnreg():
                 knn = neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf)
         
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
         # Train model
         knn.fit(x_train, y_train)
@@ -400,8 +352,8 @@ def knnreg():
 
         # Save model
         inputFeatures = []
-        for item in temp_df_x:
-            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
         
 
         # Calculate feature importances and update feature item.
@@ -415,7 +367,7 @@ def knnreg():
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
@@ -462,7 +414,7 @@ def knn():
                 knn = neighbors.KNeighborsClassifier(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf)
         
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
         # Train model
         knn.fit(x_train, y_train)
@@ -470,8 +422,8 @@ def knn():
 
         # Save model
         inputFeatures = []
-        for item in temp_df_x:
-            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
         
         # Calculate feature importances and update feature item.
         for i in enumerate(inputFeatures):
@@ -488,7 +440,7 @@ def knn():
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
@@ -533,7 +485,7 @@ def randomforest():
                 clf = RandomForestClassifier(max_depth=maxdepth, random_state=randomstate)
         
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
         # Train model
         clf.fit(x_train, y_train)
@@ -542,8 +494,8 @@ def randomforest():
 
         # Save model
         inputFeatures = []
-        for item in temp_df_x:
-            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
 
         
         # Calculate feature importances and update feature item.
@@ -556,7 +508,7 @@ def randomforest():
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
@@ -600,7 +552,7 @@ def svmreg():
                 clf = SVR(kernel=kernel)
         
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
         # Train model
         clf.fit(x_train, y_train)
@@ -608,14 +560,14 @@ def svmreg():
 
         # Save model
         inputFeatures = []
-        for item in temp_df_x:
-            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
@@ -660,7 +612,7 @@ def treereg():
                 clf = tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion)
 
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
         # Train model
         clf.fit(x_train, y_train)
@@ -668,8 +620,8 @@ def treereg():
 
         # Save model
         inputFeatures = []
-        for item in temp_df_x:
-            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
         
         # Calculate feature importances and update feature item.
         try:     
@@ -683,7 +635,7 @@ def treereg():
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
@@ -727,7 +679,7 @@ def perceptronreg():
         clf = make_pipeline(StandardScaler(), MLPRegressor(hidden_layer_sizes=convhiddenayers, random_state=1, max_iter=maxiter, activation=activation, solver=solver, alpha=alfa, learning_rate=learningrate, learning_rate_init=learningrateinit))
 
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(temp_df_x, temp_df_y, test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
         # Train model
         clf.fit(x_train, y_train)
@@ -735,14 +687,14 @@ def perceptronreg():
 
         # Save model
         inputFeatures = []
-        for item in temp_df_x:
-            inputFeatures.append(InputFeature(item, str(type(temp_df_x[item][0])), "Description of " + item))
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(heatmap_base64_jpgData)
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
 
         mMan = ModelManager()
@@ -806,7 +758,7 @@ def CreateImage(test, pred):
     plt.plot(plot_y_test[0:100], color='#2c3e50', label='Real')
     plt.plot(pred[0:100], color='#18bc9c', label='Predicted')
     plt.xlabel('Predictions')
-    plt.ylabel(temp_df_y_name)
+    plt.ylabel(session['temp_df_y_name'])
     plt.legend(loc='lower right')
 
     my_stringIObytes = io.BytesIO()
@@ -851,11 +803,11 @@ def Logout():
     session.pop('role', None)
     session.pop('autenticated', None)
 
-    session.pop('temp_df', None)
-    session.pop('temp_df_y', None)
-    session.pop('temp_df_y_name', None)
-    session.pop('temp_df_x', None)
-    session.pop('heatmap_base64_jpgData', None)
+    session['temp_df'] = pd.DataFrame()
+    session['temp_df_y'] = pd.DataFrame()
+    session['temp_df_y_name'] = ""
+    session['temp_df_x'] = pd.DataFrame()
+    session['heatmap_base64_jpgData'] = ""
 
     return redirect('/index')
 
