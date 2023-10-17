@@ -40,13 +40,20 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
         inputFeatures.append(InputFeature(item, str(type(df_x[item][0])), "Description of " + item))
     
     # Calculate feature importances and update feature item.
-    importance = linear.coef_
     desc = pd.DataFrame(df_x)
 
-    for i, v in enumerate(importance):
-        inputFeatures[i].setImportance(v)
-        featureName = inputFeatures[i].name
-        inputFeatures[i].setDescribe(desc[featureName].describe())
+    try:     
+        importance = linear.coef_
+        for i, v in enumerate(importance):
+            inputFeatures[i].setImportance(v)
+    except:
+        pass
+
+    desc = pd.DataFrame(df_x)
+
+    for i in range(len(inputFeatures)):
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
 
 
     pModel = PredictionModel()
