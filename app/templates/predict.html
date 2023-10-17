@@ -84,9 +84,8 @@
                   <div class="form-group row">
                     <label for={{variable.name}} class="col-sm-2 col-form-label">{{variable.name}}</label>
                     <div class="col-sm-4">
-                        <input type="number" class="form-control text-left" id={{variable.name}} name={{variable.name}} step="0.01"></input>
+                        <input type="number" class="form-control text-left" id={{variable.name}} name={{variable.name}} step="0.01" placeholder="Expected Min: {{'%0.2f'|format(variable.describe['min'])}} - Max: {{'%0.2f'|format(variable.describe['max'])}}"></input>
                     </div>
-                    (Decimal number)
                   </div>
 
                 {% else %}
@@ -94,9 +93,8 @@
                   <div class="form-group row">
                     <label for={{variable.name}} class="col-sm-2 col-form-label">{{variable.name}}</label>
                     <div class="col-sm-4">
-                        <input type="number" class="form-control text-left" id={{variable.name}} name={{variable.name}} step="1"></input>
+                        <input type="number" class="form-control text-left" id={{variable.name}} name={{variable.name}} step="1" placeholder="Expected Min: {{'%0.0f'|format(variable.describe['min'])}} - Max: {{'%0.0f'|format(variable.describe['max'])}}"></input>
                     </div>
-                    (Integer number)
                   </div>
 
                 {% endif %}

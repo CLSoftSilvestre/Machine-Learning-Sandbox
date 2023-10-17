@@ -58,6 +58,9 @@ class InputFeature:
     def setImportance(self, value):
         self.importance = value
     
+    def setDescribe(self, value):
+        self.describe = value
+    
     def serialize(self):
         return {
             'name': self.name, 

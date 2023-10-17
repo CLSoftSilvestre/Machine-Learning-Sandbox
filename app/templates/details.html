@@ -103,6 +103,8 @@
                   <tr>
                     <th scope="col">Feature name</th>
                     <th scope="col">Variable type</th>
+                    <th scope="col">Trained Min</th>
+                    <th scope="col">Trained Max</th>
                     <th scope="col">Importance for model</th>
                   </tr>
                 </thead>
@@ -114,8 +116,14 @@
                     
                     {% if "int64" in feature.varType %}
                     <td style="vertical-align: middle;"> Integer</td>
+                    <td style="vertical-align: middle;">{{'%0.0f'|format(feature.describe['min'])}}</td>
+                    <td style="vertical-align: middle;">{{'%0.0f'|format(feature.describe['max'])}}</td>
+
                     {% elif "float64" in feature.varType %}
                     <td style="vertical-align: middle;"> Decimal</td>
+                    <td style="vertical-align: middle;">{{'%0.2f'|format(feature.describe['min'])}}</td>
+                    <td style="vertical-align: middle;">{{'%0.2f'|format(feature.describe['max'])}}</td>
+
                     {% endif %}
 
 

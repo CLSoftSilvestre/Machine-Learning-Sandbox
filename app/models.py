@@ -10,6 +10,9 @@ from PredictionModel import PredictionModel, InputFeature, ModelInformation, Ret
 from utils import CreateImage
 
 
+import sys
+import pandas as pd
+
 # Creates and returns one PredictionModel object with Liner regression
 def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, featureReduction=False):
 
@@ -38,9 +41,12 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
     
     # Calculate feature importances and update feature item.
     importance = linear.coef_
+    desc = pd.DataFrame(df_x)
 
     for i, v in enumerate(importance):
         inputFeatures[i].setImportance(v)
+        featureName = inputFeatures[i].name
+        inputFeatures[i].setDescribe(desc[featureName].describe())
 
 
     pModel = PredictionModel()

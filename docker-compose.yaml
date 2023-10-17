@@ -5,7 +5,7 @@ services:
       target: builder
     stop_signal: SIGINT
     ports:
-      - '8000:8000'
+      - '8000:80'
     volumes:
       - ./app/models:/app/models
       - ./app/database:/app/database

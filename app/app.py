@@ -59,8 +59,8 @@ socketio = SocketIO(app, async_mode='threading', transports=['websocket'])
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.4"
-model_version = 2
+appversion = "1.2.5"
+model_version = 3
 
 @socketio.on('message')
 def handle_message(message):
@@ -359,9 +359,12 @@ def knnreg():
         # Calculate feature importances and update feature item.
         results = permutation_importance(knn, x_train, y_train, scoring='r2')
         importance = results.importances_mean
+        desc = pd.DataFrame(session['temp_df_x'])
 
         for i, v in enumerate(importance):
             inputFeatures[i].setImportance(v)
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
@@ -432,9 +435,12 @@ def knn():
         # Calculate feature importances and update feature item.
         results = permutation_importance(knn, x_train, y_train, scoring='accuracy')
         importance = results.importances_mean
+        desc = pd.DataFrame(session['temp_df_x'])
 
         for i, v in enumerate(importance):
             inputFeatures[i].setImportance(v)
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
@@ -500,9 +506,12 @@ def randomforest():
         
         # Calculate feature importances and update feature item.
         importance = clf.feature_importances_
+        desc = pd.DataFrame(session['temp_df_x'])
 
         for i, v in enumerate(importance):
             inputFeatures[i].setImportance(v)
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
@@ -562,6 +571,12 @@ def svmreg():
         inputFeatures = []
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
+
+        desc = pd.DataFrame(session['temp_df_x'])
+
+        for i in range(len(inputFeatures)):
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
@@ -630,6 +645,14 @@ def treereg():
                 inputFeatures[i].setImportance(v)
         except:
             pass
+        
+        desc = pd.DataFrame(session['temp_df_x'])
+
+        for i in range(len(inputFeatures)):
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
+
+
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
@@ -689,6 +712,12 @@ def perceptronreg():
         inputFeatures = []
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
+
+        desc = pd.DataFrame(session['temp_df_x'])
+
+        for i in range(len(inputFeatures)):
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
@@ -909,5 +938,5 @@ def ApiPredict(uuid):
 
 if __name__ == "__main__":
     UpdateModelsList() 
-    socketio.run(app, host="0.0.0.0", port=8000, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host="0.0.0.0", port=80, debug=True, allow_unsafe_werkzeug=True)
 
