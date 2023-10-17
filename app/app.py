@@ -885,12 +885,25 @@ def ApiPredict(uuid):
 
     # return the list of input parameters for the model
     if (request.method == 'GET'):
+        models = []
+
         for model in modelsList:
             if (model.uuid == uuid):
-                jsonStr = json.dumps([obj.__dict__ for obj in model.variables])
-                return jsonStr, 200
+                models.append(ModelInformation(model.uuid, model.name, model.description))
+                featuresJson = json.dumps(model.variables, default=InputFeature.serialize)
+        
+        if(len(models) > 0):
 
-        return "No models found.", 404
+            data = {
+                        "UUID" : models[0].uuid,
+                        "Model" : models[0].name,
+                        "Description" : models[0].description,
+                        "Features": json.loads(featuresJson)
+                    }
+
+            return jsonify(data)
+        else:
+            return "No models found.", 404
     
     if(request.method == 'POST'):
 

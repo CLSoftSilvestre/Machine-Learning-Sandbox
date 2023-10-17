@@ -64,7 +64,9 @@ class InputFeature:
     def serialize(self):
         return {
             'name': self.name, 
-            'type': self.varType
+            'type': self.varType,
+            'min': self.describe['min'],
+            'max': self.describe['max'] 
         }
     
 class ModelInformation:
