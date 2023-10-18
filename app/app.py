@@ -83,6 +83,11 @@ def set_global_html_variable_values():
 @app.route("/index")
 @app.route("/")
 def index():
+
+    # Load the models in the first usage
+    if len(modelsList) == 0:
+        UpdateModelsList()
+
     return render_template('index.html', models=modelsList)
 
 @app.route("/details/<uuid>", methods=['GET'])
