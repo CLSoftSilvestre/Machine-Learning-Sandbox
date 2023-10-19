@@ -819,10 +819,14 @@ def delete(uuid):
     
     for model in modelsList:
         if (model.uuid == uuid):
-            #print(model.name, file=sys.stderr)
-            os.remove(model.modelPath)
+            try:
+                #print(model.name, file=sys.stderr)
+                os.remove(model.modelPath)
+            except:
+                print("Error deleting model from " + model.modelPath, file=sys.stderr)
             UpdateModelsList()
-            return redirect('/index')
+            
+    return redirect('/index')
 
 @app.route("/import/", methods=['GET','POST'])
 def importFile():
