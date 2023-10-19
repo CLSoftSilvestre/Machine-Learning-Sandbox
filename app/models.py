@@ -55,7 +55,6 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
             featureName = inputFeatures[i].name
             inputFeatures[i].setDescribe(desc[featureName].describe())
 
-
     pModel = PredictionModel()
     pModel.Setup(name,description,linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 

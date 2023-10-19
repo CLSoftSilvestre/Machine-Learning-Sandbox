@@ -42,6 +42,7 @@ class InputFeature:
         self.varType = varType
         self.description = description
         self.importance = 0
+        self.unit = "Not defined"
     
     def setName(self, name):
         self.name = name
@@ -61,10 +62,14 @@ class InputFeature:
     def setDescribe(self, value):
         self.describe = value
     
+    def setUnit(self, value):
+        self.unit = value
+    
     def serialize(self):
         return {
             'name': self.name, 
             'type': self.varType,
+            'unit': self.unit,
             'min': self.describe['min'],
             'max': self.describe['max'] 
         }

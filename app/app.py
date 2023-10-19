@@ -55,8 +55,8 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.6"
-model_version = 3
+appversion = "1.2.7"
+model_version = 4
 
 @app.context_processor
 def inject_app_version():
@@ -136,7 +136,7 @@ def downloadmodel(uuid):
             except:
                 modelsPath = os.path.join(os.getcwd(), 'models')
                 return send_from_directory(modelsPath,modelName, as_attachment=True)
-        
+            
     return render_template('download.html')
 
 @app.route("/predict/<uuid>", methods=['GET', 'POST'])
@@ -220,6 +220,17 @@ def train():
             session['temp_df_y_name'] = request.form['column']
             session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
 
+        elif(request.form['mod']=="setproperties"):
+            propList = []
+            session['temp_df_units'] = []
+
+            for i in session['temp_df']:
+                varUnit = request.form[i]
+                print("Objecto " + i + " - Unidade: " + varUnit, file=sys.stderr)
+                propList.append((i, varUnit))
+                session['temp_df_units'] = propList
+
+
         # Update the correlation matrix image
         session['temp_df'].corr(method="pearson")
         corr_matrix = session['temp_df'].corr(min_periods=1)
@@ -301,7 +312,15 @@ def linear():
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
 
-        print("filepath: ", filepath, file=sys.stderr)
+        try:
+            for feature in pModel.variables:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
+
+        #print("filepath: ", filepath, file=sys.stderr)
 
         mMan.SaveModel(pModel, filepath)
 
@@ -352,6 +371,14 @@ def knnreg():
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
         
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
 
         # Calculate feature importances and update feature item.
         results = permutation_importance(knn, x_train, y_train, scoring='r2')
@@ -424,6 +451,15 @@ def knn():
         inputFeatures = []
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
+        
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
         
         # Calculate feature importances and update feature item.
         for i in enumerate(inputFeatures):
@@ -500,6 +536,15 @@ def randomforest():
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
 
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
+
         
         # Calculate feature importances and update feature item.
         importance = clf.feature_importances_
@@ -569,6 +614,15 @@ def svmreg():
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
 
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
+
         desc = pd.DataFrame(session['temp_df_x'])
 
         for i in range(len(inputFeatures)):
@@ -634,6 +688,15 @@ def treereg():
         inputFeatures = []
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
+        
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
         
         # Calculate feature importances and update feature item.
         try:     
@@ -709,6 +772,15 @@ def perceptronreg():
         inputFeatures = []
         for item in session['temp_df_x']:
             inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
+        
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
 
         desc = pd.DataFrame(session['temp_df_x'])
 
@@ -819,6 +891,7 @@ def Login():
         session['temp_df_y_name'] = ""
         session['temp_df_x'] = pd.DataFrame()
         session['heatmap_base64_jpgData'] = ""
+        session['temp_df_units'] = []
     else:
         session['autenticated'] = False
 
@@ -835,6 +908,7 @@ def Logout():
     session['temp_df_y_name'] = ""
     session['temp_df_x'] = pd.DataFrame()
     session['heatmap_base64_jpgData'] = ""
+    session['temp_df_units'] = []
 
     return redirect('/index')
 

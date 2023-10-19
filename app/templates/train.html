@@ -130,6 +130,9 @@
                         <button class="nav-link active" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Data manipulator</button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true">Data properties</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
                       <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
                     </li>
                   </ul>
@@ -240,6 +243,73 @@
                             </div>  
                         </p>
                     </div>
+                    <div class="tab-pane fade" id="properties" role="tabpanel" aria-labelledby="properties-tab">
+                        <p class="card-text">
+                            <form method="post">
+                                <input hidden type="text" name="mod" value="setproperties">
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save properties</button>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered text-center w-auto">
+                                        <thead>
+                                            <tr id='tour-train-import-variables'>
+                                                <th scope="col">Variable</th>
+                                                {% for title in titles %}
+                                                    
+                                                    {% if title == dependend %}
+                                                        <th scope="col" class="th-lg"><i class="fa-solid fa-star"></i> {{title}}</th>
+                                                    {% else %}
+                                                        <th scope="col" class="th-lg">{{title}}</th>
+                                                    {% endif %}
+
+                                                {% endfor %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="align-middle" scope="col">Units</td>
+                                                {% for title in titles %}
+                                                    <td class="align-middle">
+                                                        <select class="form-select form-select-sm mb-3" aria-label=".form-select-sm example" name={{title}}>
+                                                            <optgroup label="Temperature">
+                                                                <option value="ºC">Celsius</option>
+                                                                <option value="ºF">Fahrenheit</option>
+                                                            </optgroup>
+                                                            <optgroup label="Volume">
+                                                                <option value="L">Liter</option>
+                                                                <option value="m3">m3</option>
+                                                            </optgroup>
+                                                            <optgroup label="Mass">
+                                                                <option value="kg">Kg</option>
+                                                                <option value="t">Ton</option>
+                                                            </optgroup>
+                                                            <optgroup label="Flow">
+                                                                <option value="L/min">L/min</option>
+                                                                <option value="L/h">L/h</option>
+                                                                <option value="m3/h">m3/h</option>
+                                                            </optgroup>
+                                                            <optgroup label="Pressure">
+                                                                <option value="bar">Bar</option>
+                                                                <option value="psi">Psi</option>
+                                                            </optgroup>
+                                                            <optgroup label="Others">
+                                                                <option value="A">Current</option>
+                                                                <option value="V">Voltage</option>
+                                                                <option value="%">Percentage</option>
+                                                                <option value="rpm">RPM</option>
+                                                                <option value="Not defined" selected>Not defined</option>
+                                                            </optgroup>
+                                                        </select>
+                                                    </td>
+                                                {% endfor %}
+                                            </tr>
+                                        </tbody>
+                                        
+                                    </table>
+                                    
+                                </div>
+                            </form>
+                        </p>
+                    </div> 
                     <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
                         <img src="data:image/jpeg;base64,{{heatmap}}" class="img-fluid" alt="..." id="heatimg">
                     </div>
