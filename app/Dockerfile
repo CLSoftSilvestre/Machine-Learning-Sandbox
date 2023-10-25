@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM python:3.11.4 AS builder
+FROM --platform=$BUILDPLATFORM python:3.11.4-slim AS builder
 
 LABEL maintainer="Celso Silvestre <geral@azordev.pt>"
 
@@ -11,8 +11,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . /app
 
-ENTRYPOINT ["python3"]
-CMD ["app.py"]
+CMD gunicorn --bind 0.0.0.0:5000 app:app
 
 FROM builder as dev-envs
 

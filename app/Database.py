@@ -55,15 +55,9 @@ def query(conn, sql, args):
 
 def UserLogin(db_file, loginData):
     conn = create_connection(db_file)
-    #print (loginData)
     user = query(conn, "SELECT * FROM users WHERE name=?", (loginData[0],))
     
     if len(user) > 0:
-
-        print(loginData[1])
-        print(user[0][2])
-
-        #hashed = bcrypt.hashpw(loginData[1], user[0][2])
 
         if bcrypt.hashpw(loginData[1].encode('ASCII'), user[0][2]) == user[0][2]:
             name = user[0][1]

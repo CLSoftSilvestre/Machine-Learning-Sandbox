@@ -102,6 +102,7 @@
                 <thead>
                   <tr>
                     <th scope="col">Feature name</th>
+                    <th scope="col">Units</th>
                     <th scope="col">Variable type</th>
                     <th scope="col">Trained Min</th>
                     <th scope="col">Trained Max</th>
@@ -112,8 +113,8 @@
                   {% for feature in Model.variables %}
                   <tr>
                     <td style="vertical-align: middle;">{{feature.name}}</td>
+                    <td style="vertical-align: middle;">{{feature.unit}}</td>
 
-                    
                     {% if "int64" in feature.varType %}
                     <td style="vertical-align: middle;"> Integer</td>
                     <td style="vertical-align: middle;">{{'%0.0f'|format(feature.describe['min'])}}</td>

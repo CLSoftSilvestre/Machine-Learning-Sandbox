@@ -8,7 +8,7 @@
         <div class="card-header">
           {% if admin %}
             <a class="btn btn-primary" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a>
-            <a class="btn btn-primary disabled" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
+            <a class="btn btn-primary" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
             <a class="btn btn-primary" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
 
           {% else %}
