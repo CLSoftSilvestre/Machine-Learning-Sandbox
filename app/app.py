@@ -29,7 +29,7 @@ from sklearn.metrics import accuracy_score
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
-from models import LinearRegression
+from models import LinearRegression, KnnRegression
 
 
 from sklearn.model_selection import train_test_split
@@ -55,7 +55,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.7"
+appversion = "1.2.8"
 model_version = 4
 
 @app.context_processor
@@ -347,67 +347,33 @@ def knnreg():
         description = request.form['description']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+        findbest = bool(request.form.get('findbest'))
 
-        if scaling:
-            if featurered:
-                knn = make_pipeline(StandardScaler(),SelectKBest(f_classif, k="all"), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf))
-            else:
-                knn = make_pipeline(StandardScaler(), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf))
+        session['temp_best_models'] = []
+        bestModelsList = []
+        if(findbest):
+            for i in range(n, n+10, 1):
+                pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, i, weights, algorithm, leaf)
+                # Setup the remaing data of the model
+                pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+                pModel.SetModelVersion(model_version, appversion)
+                bestModelsList.append(pModel)
+            session['temp_best_models'] = bestModelsList
+            return redirect('/best')
         else:
-            if featurered:
-                knn = make_pipeline(SelectKBest(f_classif, k="all"), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf))
-            else:
-                knn = neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf)
-        
-        # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
-        # Train model
-        knn.fit(x_train, y_train)
-        y_pred = knn.predict(x_test)
+            pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, n, weights, algorithm, leaf)
+            # Setup the remaing data of the model
+            pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+            pModel.SetModelVersion(model_version, appversion)
 
-        # Save model
-        inputFeatures = []
-        for item in session['temp_df_x']:
-            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
-        
-        # Set the feature unit
-        try:
-            for feature in inputFeatures:
-                for funit in session['temp_df_units']:
-                    if feature.name == funit[0]:
-                        feature.setUnit(funit[1])
-        except:
-            print("Error setting feature units.", file=sys.stderr)
-
-        # Calculate feature importances and update feature item.
-        results = permutation_importance(knn, x_train, y_train, scoring='r2')
-        importance = results.importances_mean
-        desc = pd.DataFrame(session['temp_df_x'])
-
-        for i, v in enumerate(importance):
-            inputFeatures[i].setImportance(v)
-            featureName = inputFeatures[i].name
-            inputFeatures[i].setDescribe(desc[featureName].describe())
-
-        pModel = PredictionModel()
-        pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
-        pModel.SetModelVersion(model_version, appversion)
-
-        mMan = ModelManager()
-        modelFileName = name + ".model"
-        filepath = os.path.join(app.root_path, 'models', modelFileName)
-
-        print("filepath: ", filepath, file=sys.stderr)
-
-        mMan.SaveModel(pModel, filepath)
-
-        UpdateModelsList()
-
-        return redirect('/index')
+            # Save the model
+            mMan = ModelManager()
+            modelFileName = name + ".model"
+            filepath = os.path.join(app.root_path, 'models', modelFileName)
+            mMan.SaveModel(pModel, filepath)
+            UpdateModelsList()
+            return redirect('/index')
     
     else:
         return render_template('knnreg.html')
@@ -812,6 +778,39 @@ def perceptronreg():
 
 # End of Models training
 
+@app.route("/best/", methods=['GET'])
+def best():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    # Get the best models finded.
+    return render_template('best.html', bestmodels=session['temp_best_models'])  
+
+@app.route("/save/<uuid>", methods=['GET'])
+def save(uuid):
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    for model in session['temp_best_models']:
+        if (model.uuid == uuid):
+            try:
+                # Save the model
+                mMan = ModelManager()
+                modelFileName = model.name + ".model"
+                filepath = os.path.join(app.root_path, 'models', modelFileName)
+                mMan.SaveModel(model, filepath)
+                UpdateModelsList()
+                return redirect('/index')          
+            except:
+                print("Error saving model to " + model.modelPath, file=sys.stderr)
+            UpdateModelsList()
+    
+    # Clean the temporary models list
+    session['temp_best_models'] = []
+            
+    return redirect('/index')
+
+
 @app.route("/delete/<uuid>", methods=['GET'])
 def delete(uuid):
     if (session.get('autenticated') != True):
@@ -896,6 +895,7 @@ def Login():
         session['temp_df_x'] = pd.DataFrame()
         session['heatmap_base64_jpgData'] = ""
         session['temp_df_units'] = []
+        session['temp_best_models'] = []
     else:
         session['autenticated'] = False
 
@@ -913,6 +913,7 @@ def Logout():
     session['temp_df_x'] = pd.DataFrame()
     session['heatmap_base64_jpgData'] = ""
     session['temp_df_units'] = []
+    session['temp_best_models'] = []
 
     return redirect('/index')
 
