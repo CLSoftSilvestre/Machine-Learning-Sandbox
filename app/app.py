@@ -220,16 +220,24 @@ def train():
             session['temp_df_y_name'] = request.form['column']
             session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
 
+            if len(session['temp_df_units']) > 0:
+                for unit in session['temp_df_units']:
+                    if unit[0] == session['temp_df_y_name']:
+                        session['temp_variable_units'] = unit[1]
+
         elif(request.form['mod']=="setproperties"):
             propList = []
             session['temp_df_units'] = []
+            session['temp_variable_units'] = ""
 
             for i in session['temp_df']:
                 varUnit = request.form[i]
                 print("Objecto " + i + " - Unidade: " + varUnit, file=sys.stderr)
                 propList.append((i, varUnit))
                 session['temp_df_units'] = propList
-
+            
+            if session['temp_df_y_name'] != "":
+                session['temp_variable_units'] = request.form[session['temp_df_y_name']]
 
         # Update the correlation matrix image
         session['temp_df'].corr(method="pearson")
@@ -307,6 +315,8 @@ def linear():
         pModel = LinearRegression(name, description, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered)
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -366,6 +376,9 @@ def knnreg():
             # Setup the remaing data of the model
             pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
             pModel.SetModelVersion(model_version, appversion)
+
+            pModel.SetModelType("regression")
+            pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
             # Save the model
             mMan = ModelManager()
@@ -447,6 +460,8 @@ def knn():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("classification")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -527,6 +542,8 @@ def randomforest():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("classifier")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -601,6 +618,8 @@ def svmreg():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -686,6 +705,8 @@ def treereg():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -760,6 +781,8 @@ def perceptronreg():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"

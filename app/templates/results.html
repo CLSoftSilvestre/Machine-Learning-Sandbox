@@ -109,6 +109,23 @@
                               display: true,
                               text: '{{Predictions.model.description}}',
                             }
+                          },
+                          responsive: true,
+                          scales: {
+                            x: {
+                              display: true,
+                              title: {
+                                display: true,
+                                text: "Prediction number",
+                              }  
+                            },
+                            y: {
+                              display: true,
+                              title: {
+                                display: true,
+                                text: "{{Predictions.model.pVariable}} ({{Predictions.model.pVariableUnits}})",
+                              } 
+                            }
                           }
                         }
                       });
