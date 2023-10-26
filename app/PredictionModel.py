@@ -92,3 +92,13 @@ class ReturnFeature:
             'name': self.name, 
             'value': self.value
         }
+
+class Prediction:
+    def __init__(self, value, features):
+        self.value = value
+        self.features = features
+
+class PredictionBatch:
+    def __init__(self, model, predictions):
+        self.model = model
+        self.prediction = predictions

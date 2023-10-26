@@ -36,7 +36,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 
-from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature
+from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, Prediction, PredictionBatch
 from ModelManager import ModelManager
 from Database import UserLogin, User
 
@@ -55,7 +55,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.8"
+appversion = "1.2.9"
 model_version = 4
 
 @app.context_processor
@@ -810,6 +810,67 @@ def save(uuid):
             
     return redirect('/index')
 
+@app.route("/batch/<uuid>", methods=['GET', 'POST'])
+def batch(uuid):
+    
+    if(request.method == 'GET'):
+        for model in modelsList:
+            if (model.uuid == uuid):
+                return render_template('batch.html', Model=model, Error=False, ErrorText="")
+    
+    if(request.method == 'POST'):
+        # 0 - Get the model
+        for model in modelsList:
+            if (model.uuid == uuid):
+                tempModel = model
+
+        # 1 - Check the file
+        f = request.files['file']
+        if f:
+            # Process the file
+            #sep = request.form['sep']
+            #dec = request.form['dec']
+            sep = ";"
+            dec = ","
+            session['temp_batch_df'] = []
+            session['temp_predictions'] = []
+            tempPrediction = []
+
+            session['temp_batch_df'] = pd.read_csv(f,sep=sep, decimal=dec)
+
+            # 1.1 - Check if headers are consistent with expected
+            # check if it's the same number of header expected
+            if len(session['temp_batch_df'].columns) == len(tempModel.variables):
+                print("Header count match! ", file=sys.stderr)
+            else:
+                return render_template('batch.html', Error=True, ErrorText="Bad CSV format column headers provided the number of header dont match with the expected values!")
+      
+            # 1.2 - If we get here all headers exist lets calculate the predictions.   
+            for index, row in session['temp_batch_df'].iterrows():
+
+                try:
+                    result = tempModel.model.predict([row])
+                    try:
+                        innerResult = result[0][0]
+                    except:
+                        innerResult = result[0]
+
+                    tempPrediction.append(Prediction(innerResult, row))
+
+                except:
+                    return render_template('batch.html', Error=True, ErrorText="Error predicting values!")
+                
+                session['temp_predictions'] = PredictionBatch(tempModel, tempPrediction)
+
+            return redirect('/batchresults')
+
+        return render_template('batch.html', Error=True, ErrorText="Please select a valid CSV file!")
+    
+    return render_template('batch.html', Error=True, ErrorText="Model not found!")
+
+@app.route("/batchresults/", methods=['GET'])
+def batchresults():
+    return render_template('results.html', Predictions=session['temp_predictions'])
 
 @app.route("/delete/<uuid>", methods=['GET'])
 def delete(uuid):

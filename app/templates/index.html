@@ -73,6 +73,7 @@
                                   <td style="vertical-align: middle;">
                                     <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
                                         <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>
+                                        <a href="{{ url_for('batch', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Batch calculation"><i class="fa fa-chart-line"></i></a>
                                         <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a> 
                                         {% if admin %}
                                           <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>

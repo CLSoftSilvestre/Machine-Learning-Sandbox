@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">
+      <a href="{{ url_for('index') }}">Trained models</a>
+  </li>
+  <li class="breadcrumb-item">
+    <a href="{{ url_for('batch', uuid=Predictions.model.uuid) }}">Batch predict</a>
+  </li>
+  <li class="breadcrumb-item active">Results</li>
+</ol>
+
+<h3 class="m-4">List of calculated predictions</h3>
+<h6 class="m-4">For model {{Predictions.model.name}}</h6>
+
+<div class="row">
+  <div class="col-12">
+      {% if Predictions.prediction %}
+      <div class="card bg-light ms-4 me-4 mb-4">
+          <div class="card-header">
+              <i class="fa-solid fa-list fa-lg"></i> Predictions list
+          </div>
+          <div class="card-body">
+            <p class="card-text">
+              <div class="table-responsive">
+                  <table class="table table-hover" id="tour-index-modelslist">
+                      <thead>
+                        <tr>
+                          {% for header in Predictions.model.variables %}
+                          <th scope="col">{{header.name}}</th>
+                          {% endfor %}
+                          <th scope="col">Prediction</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          {% for prediction in Predictions.prediction %}
+                          <tr>
+                              {% for feature in prediction.features %}
+                                <td style="vertical-align: middle;">{{feature}}</td>
+                              {% endfor %}
+                              <td style="vertical-align: middle;"><b>{{'%0.2f'|format(prediction.value)}}</b></td>
+                          <tr>
+                          {% endfor %}
+                      </tbody>
+                    </table>
+              </div>
+            </p>
+          </div>
+        </div>
+        {% else %}
+          <h5 class="alert alert-primary ms-4 me-4">No predictions calculated</h5>
+      {% endif %}   
+  </div>
+</div>
+
+{% endblock %}
