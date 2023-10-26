@@ -17,41 +17,97 @@
 
 <div class="row">
   <div class="col-12">
-      {% if Predictions.prediction %}
-      <div class="card bg-light ms-4 me-4 mb-4">
-          <div class="card-header">
-              <i class="fa-solid fa-list fa-lg"></i> Predictions list
-          </div>
-          <div class="card-body">
-            <p class="card-text">
-              <div class="table-responsive">
-                  <table class="table table-hover" id="tour-index-modelslist">
-                      <thead>
-                        <tr>
-                          {% for header in Predictions.model.variables %}
-                          <th scope="col">{{header.name}}</th>
-                          {% endfor %}
-                          <th scope="col">Prediction</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                          {% for prediction in Predictions.prediction %}
-                          <tr>
-                              {% for feature in prediction.features %}
-                                <td style="vertical-align: middle;">{{feature}}</td>
-                              {% endfor %}
-                              <td style="vertical-align: middle;"><b>{{'%0.2f'|format(prediction.value)}}</b></td>
-                          <tr>
-                          {% endfor %}
-                      </tbody>
-                    </table>
+    <ul class="nav nav-tabs ms-4 me-4 mb-4" id="myTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="table-tab" data-bs-toggle="tab" data-bs-target="#table" type="button" role="tab" aria-controls="table" aria-selected="false">Table results</button>
+      </li>
+      <li class="nav-item" role="presentation">
+          <button class="nav-link" id="chart-tab" data-bs-toggle="tab" data-bs-target="#chart" type="button" role="tab" aria-controls="chart" aria-selected="true">Chart results</button>
+      </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+      <div class="tab-pane fade show active" id="table" role="tabpanel" aria-labelledby="table-tab">
+        <div class="col-12">
+          {% if Predictions.prediction %}
+          <div class="card bg-light ms-4 me-4 mb-4">
+              <div class="card-header">
+                  <i class="fa-solid fa-list fa-lg"></i> Predictions list
               </div>
-            </p>
-          </div>
+              <div class="card-body">
+                <p class="card-text">
+                  <div class="table-responsive">
+                      <table class="table table-hover" id="tour-index-modelslist">
+                          <thead>
+                            <tr>
+                              {% for header in Predictions.model.variables %}
+                              <th scope="col">{{header.name}}</th>
+                              {% endfor %}
+                              <th scope="col">Prediction</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                              {% for prediction in Predictions.prediction %}
+                              <tr>
+                                  {% for feature in prediction.features %}
+                                    <td style="vertical-align: middle;">{{feature}}</td>
+                                  {% endfor %}
+                                  <td style="vertical-align: middle;"><b>{{'%0.2f'|format(prediction.value)}}</b></td>
+                              <tr>
+                              {% endfor %}
+                          </tbody>
+                        </table>
+                  </div>
+                </p>
+              </div>
+            </div>
+            {% else %}
+              <h5 class="alert alert-primary ms-4 me-4">No predictions calculated</h5>
+          {% endif %}   
+      </div>
+      </div>
+      <div class="tab-pane fade" id="chart" role="tabpanel" aria-labelledby="chart-tab">
+        <div class="col-12">
+          {% if Predictions.prediction %}
+            <div class="card bg-light ms-4 me-4 mb-4">
+                <div class="card-header">
+                    <i class="fa-solid fa-chart-line fa-lg"></i> Predictions chart
+                </div>
+                <div class="card-body">
+                  <div>
+                    <canvas id="myChart" width="200" height="50"></canvas>
+                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                    <script>
+                      const ctx = document.getElementById('myChart').getContext('2d');
+                      const myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels:  [
+                                  {% for i in range(1,(Predictions.prediction)| length +1) %}
+                                    {{i}},
+                                  {% endfor %}
+                                ], 
+                            datasets: [{
+                                label: '# of Prediction',
+                                data: [
+                                  {% for result in Predictions.prediction %}
+                                    {{result.value}},
+                                  {% endfor %}
+                                ],
+                                borderWidth: 1
+                            }]
+                        }
+                      });
+                    </script>
+                  </div>
+                </div>
+              </div>
+              {% else %}
+                <h5 class="alert alert-primary ms-4 me-4">No predictions calculated</h5>
+            {% endif %}  
         </div>
-        {% else %}
-          <h5 class="alert alert-primary ms-4 me-4">No predictions calculated</h5>
-      {% endif %}   
+      </div> 
+    </div>
+
   </div>
 </div>
 
