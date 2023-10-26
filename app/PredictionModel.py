@@ -21,6 +21,9 @@ class PredictionModel:
         self.variables = variables
         self.MSE = MSE
         self.R2 = R2
+        self.modelType = "regression"
+        self.pVariable = "not defined"
+        self.pVariableUnits = "not defined"
     
     def SetModelPath(self, path):
         self.modelPath = path
@@ -34,6 +37,13 @@ class PredictionModel:
     def SetModelVersion(self, modelVersion, appVersion):
         self.modelVersion = modelVersion
         self.appversion = appVersion
+    
+    def SetModelType(self, modelType):
+        self.modelType = modelType
+    
+    def SetPredictVariable(self, pVariable, pVariableUnits):
+        self.pVariable = pVariable
+        self.pVariableUnits = pVariableUnits
         
 class InputFeature:
     
@@ -92,3 +102,13 @@ class ReturnFeature:
             'name': self.name, 
             'value': self.value
         }
+
+class Prediction:
+    def __init__(self, value, features):
+        self.value = value
+        self.features = features
+
+class PredictionBatch:
+    def __init__(self, model, predictions):
+        self.model = model
+        self.prediction = predictions

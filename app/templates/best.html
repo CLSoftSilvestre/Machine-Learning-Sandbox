@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h4>Best models</h4>
+<h6>Select one to save</h6>
+
+<div class="row">
+    <div class="col-12">
+        {% if bestmodels %}
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-lg"></i> Proposed models list
+            </div>
+            <div class="card-body">
+              <p class="card-text">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th scope="col">Train / Test image</th>
+                            <th scope="col">Model UUID</th>
+                            <th scope="col">Model name</th>
+                            <th scope="col">Model description</th>
+                            <th scope="col">MSE</th>
+                            <th scope="col">R² score</th>
+                            <th scope="col">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            {% for model in bestmodels %}
+                            <tr>
+                                <td style="vertical-align: middle;"><img src="data:image/jpeg;base64,{{model.imageData}}" class="img-thumbnail" alt="trainImage" height="25%"></td>
+                                <td style="vertical-align: middle;">{{model.uuid}}</td>
+                                <td style="vertical-align: middle;">{{model.name}}</td>
+                                <td style="vertical-align: middle;">{{model.description}}</td>
+                                <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better">{{ '%0.1f'|format(model.MSE)}}</td>
+                                <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
+                                <td style="vertical-align: middle;">
+                                  <div class="progress">
+                                    {% if model.R2 * 100 > 90 %}
+                                    <div class="progress-bar bg-success" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
+                                    {% elif model.R2 * 100 > 80 %}
+                                    <div class="progress-bar bg-warning" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
+                                    {% else %}
+                                    <div class="progress-bar bg-danger" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
+                                    {% endif %}  
+                                  </div>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                  <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
+                                      <a href="{{ url_for('save', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Save this model"><i class="fa fa-save"></i></a>
+                                  </div>
+                                </td>
+                            <tr>
+
+                            {% endfor %}
+                        </tbody>
+                      </table>
+                </div>
+              </p>
+            </div>
+          </div>
+          {% else %}
+            <h5 class="alert alert-primary ms-4 me-4">No trained models available</h5>
+        {% endif %}   
+    </div>
+</div>
+
+{% endblock %}

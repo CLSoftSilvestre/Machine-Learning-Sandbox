@@ -29,14 +29,14 @@ from sklearn.metrics import accuracy_score
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
-from models import LinearRegression
+from models import LinearRegression, KnnRegression
 
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 
-from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature
+from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, Prediction, PredictionBatch
 from ModelManager import ModelManager
 from Database import UserLogin, User
 
@@ -55,7 +55,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.7"
+appversion = "1.2.9"
 model_version = 4
 
 @app.context_processor
@@ -220,16 +220,24 @@ def train():
             session['temp_df_y_name'] = request.form['column']
             session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
 
+            if len(session['temp_df_units']) > 0:
+                for unit in session['temp_df_units']:
+                    if unit[0] == session['temp_df_y_name']:
+                        session['temp_variable_units'] = unit[1]
+
         elif(request.form['mod']=="setproperties"):
             propList = []
             session['temp_df_units'] = []
+            session['temp_variable_units'] = ""
 
             for i in session['temp_df']:
                 varUnit = request.form[i]
                 print("Objecto " + i + " - Unidade: " + varUnit, file=sys.stderr)
                 propList.append((i, varUnit))
                 session['temp_df_units'] = propList
-
+            
+            if session['temp_df_y_name'] != "":
+                session['temp_variable_units'] = request.form[session['temp_df_y_name']]
 
         # Update the correlation matrix image
         session['temp_df'].corr(method="pearson")
@@ -307,6 +315,8 @@ def linear():
         pModel = LinearRegression(name, description, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered)
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -347,67 +357,36 @@ def knnreg():
         description = request.form['description']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+        findbest = bool(request.form.get('findbest'))
 
-        if scaling:
-            if featurered:
-                knn = make_pipeline(StandardScaler(),SelectKBest(f_classif, k="all"), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf))
-            else:
-                knn = make_pipeline(StandardScaler(), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf))
+        session['temp_best_models'] = []
+        bestModelsList = []
+        if(findbest):
+            for i in range(n, n+10, 1):
+                pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, i, weights, algorithm, leaf)
+                # Setup the remaing data of the model
+                pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+                pModel.SetModelVersion(model_version, appversion)
+                bestModelsList.append(pModel)
+            session['temp_best_models'] = bestModelsList
+            return redirect('/best')
         else:
-            if featurered:
-                knn = make_pipeline(SelectKBest(f_classif, k="all"), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf))
-            else:
-                knn = neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf)
-        
-        # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
 
-        # Train model
-        knn.fit(x_train, y_train)
-        y_pred = knn.predict(x_test)
+            pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, n, weights, algorithm, leaf)
+            # Setup the remaing data of the model
+            pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+            pModel.SetModelVersion(model_version, appversion)
 
-        # Save model
-        inputFeatures = []
-        for item in session['temp_df_x']:
-            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
-        
-        # Set the feature unit
-        try:
-            for feature in inputFeatures:
-                for funit in session['temp_df_units']:
-                    if feature.name == funit[0]:
-                        feature.setUnit(funit[1])
-        except:
-            print("Error setting feature units.", file=sys.stderr)
+            pModel.SetModelType("regression")
+            pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
-        # Calculate feature importances and update feature item.
-        results = permutation_importance(knn, x_train, y_train, scoring='r2')
-        importance = results.importances_mean
-        desc = pd.DataFrame(session['temp_df_x'])
-
-        for i, v in enumerate(importance):
-            inputFeatures[i].setImportance(v)
-            featureName = inputFeatures[i].name
-            inputFeatures[i].setDescribe(desc[featureName].describe())
-
-        pModel = PredictionModel()
-        pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
-        pModel.SetModelVersion(model_version, appversion)
-
-        mMan = ModelManager()
-        modelFileName = name + ".model"
-        filepath = os.path.join(app.root_path, 'models', modelFileName)
-
-        print("filepath: ", filepath, file=sys.stderr)
-
-        mMan.SaveModel(pModel, filepath)
-
-        UpdateModelsList()
-
-        return redirect('/index')
+            # Save the model
+            mMan = ModelManager()
+            modelFileName = name + ".model"
+            filepath = os.path.join(app.root_path, 'models', modelFileName)
+            mMan.SaveModel(pModel, filepath)
+            UpdateModelsList()
+            return redirect('/index')
     
     else:
         return render_template('knnreg.html')
@@ -481,6 +460,8 @@ def knn():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("classification")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -561,6 +542,8 @@ def randomforest():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("classifier")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -635,6 +618,8 @@ def svmreg():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -720,6 +705,8 @@ def treereg():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -794,6 +781,8 @@ def perceptronreg():
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -811,6 +800,100 @@ def perceptronreg():
         return render_template('perceptronreg.html')
 
 # End of Models training
+
+@app.route("/best/", methods=['GET'])
+def best():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    # Get the best models finded.
+    return render_template('best.html', bestmodels=session['temp_best_models'])  
+
+@app.route("/save/<uuid>", methods=['GET'])
+def save(uuid):
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    for model in session['temp_best_models']:
+        if (model.uuid == uuid):
+            try:
+                # Save the model
+                mMan = ModelManager()
+                modelFileName = model.name + ".model"
+                filepath = os.path.join(app.root_path, 'models', modelFileName)
+                mMan.SaveModel(model, filepath)
+                UpdateModelsList()
+                return redirect('/index')          
+            except:
+                print("Error saving model to " + model.modelPath, file=sys.stderr)
+            UpdateModelsList()
+    
+    # Clean the temporary models list
+    session['temp_best_models'] = []
+            
+    return redirect('/index')
+
+@app.route("/batch/<uuid>", methods=['GET', 'POST'])
+def batch(uuid):
+    
+    if(request.method == 'GET'):
+        for model in modelsList:
+            if (model.uuid == uuid):
+                return render_template('batch.html', Model=model, Error=False, ErrorText="")
+    
+    if(request.method == 'POST'):
+        # 0 - Get the model
+        for model in modelsList:
+            if (model.uuid == uuid):
+                tempModel = model
+
+        # 1 - Check the file
+        f = request.files['file']
+        if f:
+            # Process the file
+            #sep = request.form['sep']
+            #dec = request.form['dec']
+            sep = ";"
+            dec = ","
+            session['temp_batch_df'] = []
+            session['temp_predictions'] = []
+            tempPrediction = []
+
+            session['temp_batch_df'] = pd.read_csv(f,sep=sep, decimal=dec)
+
+            # 1.1 - Check if headers are consistent with expected
+            # check if it's the same number of header expected
+            if len(session['temp_batch_df'].columns) == len(tempModel.variables):
+                print("Header count match! ", file=sys.stderr)
+            else:
+                return render_template('batch.html', Error=True, ErrorText="Bad CSV format column headers provided the number of header dont match with the expected values!")
+      
+            # 1.2 - If we get here all headers exist lets calculate the predictions.   
+            for index, row in session['temp_batch_df'].iterrows():
+
+                try:
+                    result = tempModel.model.predict([row])
+                    try:
+                        innerResult = result[0][0]
+                    except:
+                        innerResult = result[0]
+
+                    tempPrediction.append(Prediction(innerResult, row))
+
+                except:
+                    return render_template('batch.html', Error=True, ErrorText="Error predicting values!")
+                
+                session['temp_predictions'] = PredictionBatch(tempModel, tempPrediction)
+
+            return redirect('/batchresults')
+
+        return render_template('batch.html', Error=True, ErrorText="Please select a valid CSV file!")
+    
+    return render_template('batch.html', Error=True, ErrorText="Model not found!")
+
+@app.route("/batchresults/", methods=['GET'])
+def batchresults():
+    return render_template('results.html', Predictions=session['temp_predictions'])
 
 @app.route("/delete/<uuid>", methods=['GET'])
 def delete(uuid):
@@ -896,6 +979,7 @@ def Login():
         session['temp_df_x'] = pd.DataFrame()
         session['heatmap_base64_jpgData'] = ""
         session['temp_df_units'] = []
+        session['temp_best_models'] = []
     else:
         session['autenticated'] = False
 
@@ -913,6 +997,7 @@ def Logout():
     session['temp_df_x'] = pd.DataFrame()
     session['heatmap_base64_jpgData'] = ""
     session['temp_df_units'] = []
+    session['temp_best_models'] = []
 
     return redirect('/index')
 

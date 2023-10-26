@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item">
+      <a href="{{ url_for('index') }}">Trained models</a>
+  </li>
+  <li class="breadcrumb-item active">Batch Predict</li>
+</ol>
+
+{% if Error==False %}
+<h4 class="m-4">Batch prediction</h4>
+<h6 class="m-4">Import one CSV file with the features in batch format to be predicted.</h6>
+  <div class="row">
+    <div class="col-12">
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="form-group row">
+                        <label for="file" class="col-sm-2 col-form-label">Select file</label>
+                        <div class="col-sm-8">
+                            <input type="file" class="form-control text-left" name = "file" id="file" accept=".csv">
+                        </div>
+
+                        <div class="col-sm-2 text-center">
+                            <button type="submit" class="btn btn-primary"><i class="fas fa-file-import"></i> Import file</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer">
+                <h6>⚠️ Please be sure the CSV only contains the columns with headers described bellow and in the same order. (Separator = ; Decimal = ,)</h6>
+                <ul>
+                  {% for item in Model.variables %}
+                    <li>{{item.name}}</li>
+                    
+                  {% endfor%} 
+                </ul>
+            </div>  
+        </div>  
+    </div>
+  </div>
+  {% else %}
+
+  <div class="alert alert-danger alert-dismissible d-flex align-items-center" role="alert">
+    <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+    <div>
+      {{ErrorText}}
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  {% endif %}
+
+
+{% endblock %}
