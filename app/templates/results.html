@@ -12,8 +12,8 @@
   <li class="breadcrumb-item active">Results</li>
 </ol>
 
-<h3 class="m-4">List of calculated predictions</h3>
-<h6 class="m-4">For model {{Predictions.model.name}}</h6>
+<h4 class="m-4">Batch prediction results</h4>
+<h6 class="m-4">{{Predictions.model.name}} - {{Predictions.model.description}}</h6>
 
 <div class="row">
   <div class="col-12">
@@ -73,6 +73,11 @@
                     <i class="fa-solid fa-chart-line fa-lg"></i> Predictions chart
                 </div>
                 <div class="card-body">
+                  <select class="form-select" aria-label="Default select example" id="chartType">
+                    <option selected value="bar">Bar chart</option>
+                    <option value="line">Line chart</option>
+                    <option value="scatter">Scatter chart</option>
+                  </select>
                   <div>
                     <canvas id="myChart" width="200" height="50"></canvas>
                     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -87,16 +92,33 @@
                                   {% endfor %}
                                 ], 
                             datasets: [{
-                                label: '# of Prediction',
+                                label: 'prediction',
                                 data: [
                                   {% for result in Predictions.prediction %}
                                     {{result.value}},
                                   {% endfor %}
                                 ],
-                                borderWidth: 1
+                                borderColor: '#22bfa0',
+                                borderWidth: 2,
+                                borderRadius: 5,
                             }]
+                        },
+                        options: {
+                          plugins: {
+                            title: {
+                              display: true,
+                              text: '{{Predictions.model.description}}',
+                            }
+                          }
                         }
                       });
+
+                      const selector = document.getElementById("chartType")
+                      selector.onchange = function(){
+                        myChart.config.type = selector.value;
+                        myChart.update();
+                      }
+
                     </script>
                   </div>
                 </div>
