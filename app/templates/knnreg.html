@@ -38,8 +38,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><a href="#" title="Neigbours (k value)" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="The optimal K value usually found is the square root of N, where N is the total number of samples. You must be aware of the outliers."><i class="fa-solid fa-circle-info"></i></a></span>
                                     <input type="number" class="form-control text-left" id="neighbors" name="neighbors" value="5"></input>
-                                </div>
-                                
+                                </div>         
                             </div>
 
                             <label for="weights" class="col-sm-1 col-form-label">Weights</label>
@@ -95,7 +94,32 @@
                         <div class="form-group-row">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="featurered" name="featurered">
-                                <label class="form-check-label">Use feature reduction (SelectKBest k=all).</label>
+                                <label class="form-check-label">Use feature reduction.</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <!-- Feature reduction k -->
+                            <label for="selectkbestk" class="col-sm-1 col-form-label">k=</label>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="SelectKBest k" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Uses the K best ranked features. The number must be lower than the maximum features available."><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <input type="number" class="form-control text-left" id="selectkbestk" name="selectkbestk" value="2" step="1" min="1" max="{{FeaturesCount-1}}"></input>
+                                </div>         
+                            </div>
+                        </div>
+
+                        <div>&MediumSpace;</div>
+
+                        <div class="form-group row">
+                            <!-- Test size -->
+                            <label for="testsize" class="col-sm-1 col-form-label">Test size</label>
+                            <div class="col-sm-2">
+                                <div class="input-group">
+                                    <span class="input-group-text"><a href="#" title="Test dataset size" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Define the amount of data used for testing the model. (% of the total data)"><i class="fa-solid fa-circle-info"></i></a></span>
+                                    <input type="number" class="form-control text-left" id="testsize" name="testsize" value="33" step="1" min="1" max="90"></input>
+                                    <span class="input-group-text">%</span>
+                                </div>         
                             </div>
                         </div>
 
@@ -104,7 +128,7 @@
                         <div class="form-group-row">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" id="findbest" name="findbest">
-                                <label class="form-check-label">Create list of models from k to k = k+10.</label>
+                                <label class="form-check-label">Create list of models with neighbours from k to k = k+10 letting the user the possibility to select the best model.</label>
                             </div>
                         </div>
 
