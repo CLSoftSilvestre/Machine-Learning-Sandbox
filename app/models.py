@@ -16,21 +16,21 @@ import sys
 import pandas as pd
 
 # Creates and returns one PredictionModel object with Liner regression
-def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, featureReduction=False):
+def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, featureReduction=False, seleckbestk=10, testsize=0.33):
 
     if scaler:
         if featureReduction:
-            linear = make_pipeline(StandardScaler(),SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
+            linear = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=seleckbestk), linear_model.LinearRegression())
         else:
             linear = make_pipeline(StandardScaler(), linear_model.LinearRegression())
     else:
         if featureReduction:
-            linear = make_pipeline(SelectKBest(f_classif, k="all"), linear_model.LinearRegression())
+            linear = make_pipeline(SelectKBest(f_classif, k=seleckbestk), linear_model.LinearRegression())
         else:
             linear = linear_model.LinearRegression()
         
     # Set train/test groups
-    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=0.33, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=testsize, random_state=42)
 
     # Train model
     linear.fit(x_train, y_train)
@@ -65,21 +65,26 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
     return pModel
     
 # Creates and returns one PredictionModel object with KNN regression
-def KnnRegression(name, description, df_y, df_y_name, df_x, units, scaler=False, featureReduction=False, n=5, weights='distance', algorithm='auto', leaf_size=30):
+def KnnRegression(name, description, df_y, df_y_name, df_x, units, scaler=False, featureReduction=False, n=5, weights='distance', algorithm='auto', leaf_size=30, selectkbestk=10, testsize=0.33):
+
+    # Check if the slectedkbestk is equal or higer thant the amount of features
+    featuresCount = len(df_x.columns)
+    if(selectkbestk>= featuresCount):
+        selectkbestk = featuresCount -1
 
     if scaler:
         if featureReduction:
-            knn = make_pipeline(StandardScaler(),SelectKBest(f_classif, k="all"), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
+            knn = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=selectkbestk), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
         else:
             knn = make_pipeline(StandardScaler(), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
     else:
         if featureReduction:
-            knn = make_pipeline(SelectKBest(f_classif, k="all"), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
+            knn = make_pipeline(SelectKBest(f_classif, k=selectkbestk), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
         else:
             knn = neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size)
     
     # Set train/test groups
-    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=0.33, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=testsize, random_state=42)
 
     # Train model
     knn.fit(x_train, y_train)
@@ -101,12 +106,18 @@ def KnnRegression(name, description, df_y, df_y_name, df_x, units, scaler=False,
     
     # Calculate feature importances and update feature item.
     results = permutation_importance(knn, x_train, y_train, scoring='r2')
+    #print(results, file=sys.stderr)
+
     importance = results.importances_mean
 
     desc = pd.DataFrame(df_x)
 
+    # Number of features
+    n = len(inputFeatures)
+
     for i, v in enumerate(importance):
-        inputFeatures[i].setImportance(v)
+        if featureReduction == False:
+            inputFeatures[i].setImportance(v*n)
         featureName = inputFeatures[i].name
         inputFeatures[i].setDescribe(desc[featureName].describe())
     

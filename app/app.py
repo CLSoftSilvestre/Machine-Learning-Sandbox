@@ -311,8 +311,10 @@ def linear():
         description = request.form['description']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+        selectkbestk = int(request.form['selectkbestk'])
+        testsize = int(request.form['testsize']) / 100
 
-        pModel = LinearRegression(name, description, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered)
+        pModel = LinearRegression(name, description, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered, selectkbestk)
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
@@ -339,7 +341,8 @@ def linear():
         return redirect('/index')
     
     else:
-        return render_template('linear.html')
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('linear.html', FeaturesCount = featuresCount)
 
 @app.route("/knnreg/", methods=['GET', 'POST'])
 def knnreg():
@@ -357,13 +360,15 @@ def knnreg():
         description = request.form['description']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+        selectkbestk = int(request.form['selectkbestk'])
         findbest = bool(request.form.get('findbest'))
+        testsize = int(request.form['testsize']) / 100
 
         session['temp_best_models'] = []
         bestModelsList = []
         if(findbest):
             for i in range(n, n+10, 1):
-                pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, i, weights, algorithm, leaf)
+                pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, i, weights, algorithm, leaf, selectkbestk, testsize)
                 # Setup the remaing data of the model
                 pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
                 pModel.SetModelVersion(model_version, appversion)
@@ -372,7 +377,7 @@ def knnreg():
             return redirect('/best')
         else:
 
-            pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, n, weights, algorithm, leaf)
+            pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, n, weights, algorithm, leaf, selectkbestk, testsize)
             # Setup the remaing data of the model
             pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
             pModel.SetModelVersion(model_version, appversion)
@@ -389,7 +394,9 @@ def knnreg():
             return redirect('/index')
     
     else:
-        return render_template('knnreg.html')
+        # TODO: Add here the code to push the max of features to the page
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('knnreg.html', FeaturesCount = featuresCount)
 
 @app.route("/knn/", methods=['GET', 'POST'])
 def knn():
@@ -573,6 +580,7 @@ def svmreg():
         kernel = request.form['kernel']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+        testsize = int(request.form['testsize']) / 100
 
         if scaling == True:
             if featurered == True:
@@ -586,7 +594,7 @@ def svmreg():
                 clf = SVR(kernel=kernel)
         
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=testsize, random_state=42)
 
         # Train model
         clf.fit(x_train, y_train)
@@ -650,20 +658,22 @@ def treereg():
         criterion = request.form['criterion']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+        selectkbestk = int(request.form['selectkbestk'])
+        testsize = int(request.form['testsize']) / 100
 
         if scaling:
             if featurered:
-                clf = make_pipeline(StandardScaler(), SelectKBest(f_classif, k="all"), tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion))
+                clf = make_pipeline(StandardScaler(), SelectKBest(f_classif, k=selectkbestk), tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion))
             else:
                 clf = make_pipeline(StandardScaler(), tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion))
         else:
             if featurered:
-                clf = make_pipeline(SelectKBest(f_classif, k="all"), tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion))
+                clf = make_pipeline(SelectKBest(f_classif, k=selectkbestk), tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion))
             else:
                 clf = tree.DecisionTreeRegressor(max_depth=max_depth, criterion=criterion)
 
         # Set train/test groups
-        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=testsize, random_state=42)
 
         # Train model
         clf.fit(x_train, y_train)
@@ -721,7 +731,8 @@ def treereg():
         return redirect('/index')
     
     else:
-        return render_template('treereg.html')
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('treereg.html', FeaturesCount = featuresCount)
 
 @app.route("/perceptronreg", methods=['GET', 'POST'])
 def perceptronreg():

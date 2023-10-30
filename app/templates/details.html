@@ -145,7 +145,7 @@
                     {% endif %}
 
 
-                    <td>
+                    <td data-toggle="tooltip" title="Importance value: {{'%0.2f'|format(feature.importance)}}">
                     {% if feature.importance != 0 %}
                       <!--td>
                         <div class="progress">
