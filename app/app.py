@@ -55,7 +55,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.9"
+appversion = "1.2.10"
 model_version = 4
 
 @app.context_processor

@@ -40,6 +40,12 @@ if ( (x== "" || x == "false")){
             position: 'left'
         },
         {
+            element: document.getElementById('tour-index-batch-predict'),
+            title: "Use batch prediction",
+            intro: 'Use this button to create a batch prediction. Here you will be able to input one CSV file with the features data to create several prediction at once.',
+            position: 'left'
+        },
+        {
             element: document.getElementById('tour-index-info'),
             title: "Model information",
             intro: 'Check here the model information like algorithm used, correlations matrix, training charts, etc...',
