@@ -17,13 +17,13 @@
                             <!-- Name -->
                             <label for="name" class="col-sm-1 col-form-label">Name</label>
                             <div class="col-sm-5">
-                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                                <input type="text" class="form-control text-left" id="name" name="name" required></input>
                             </div>
 
                             <!-- Description -->
                             <label for="description" class="col-sm-1 col-form-label">Description</label>
                             <div class="col-sm-5">
-                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                                <input type="text" class="form-control text-left" id="description" name="description" required></input>
                             </div>
                         </div>
 
@@ -37,7 +37,7 @@
                             <div class="col-sm-5">
                                 <div class="input-group">
                                     <span class="input-group-text"><a href="#" title="Max depth" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Decision trees tend to overfit on data with a large number of features. Getting the right ratio of samples to number of features is important, since a tree with few samples in high dimensional space is very likely to overfit. Remember that the number of samples required to populate the tree doubles for each additional level the tree grows to. Use max_depth to control the size of the tree to prevent overfitting."><i class="fa-solid fa-circle-info"></i></a></span>
-                                    <input type="number" class="form-control text-left" id="maxdepth" name="maxdepth" step="1" value="2"></input>
+                                    <input type="number" class="form-control text-left" id="maxdepth" name="maxdepth" step="1" value="2" required></input>
                                 </div>
                             </div>
 
@@ -134,4 +134,8 @@
         </div> 
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="../static/js/validation.js"></script>
 {% endblock %}

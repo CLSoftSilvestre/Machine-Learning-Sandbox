@@ -184,7 +184,7 @@ def predict(uuid):
             minResult = resultValue - (resultValue * ((1-activeModel.R2)/2))
             maxResult = resultValue + (resultValue * ((1-activeModel.R2)/2))
 
-            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2))) 
+            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
         else:
             return redirect(url_for('index'))
 
