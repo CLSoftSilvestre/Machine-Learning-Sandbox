@@ -248,6 +248,7 @@
                             <form method="post">
                                 <input hidden type="text" name="mod" value="setproperties">
                                 <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save properties</button>
+                                <div>&MediumSpace;</div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered text-center w-auto">
                                         <thead>
@@ -290,6 +291,8 @@
                                                                 <option value="L/h">L/h</option>
                                                                 <option value="m³/h">m³/h</option>
                                                                 <option value="Nm³/h">Nm³/h</option>
+                                                                <option value="kg/h">kg/h</option>
+                                                                <option value="t/h">t/h</option>
                                                             </optgroup>
                                                             <optgroup label="Pressure and Force">
                                                                 <option value="bar">Bar</option>
@@ -329,6 +332,7 @@
                                                                 <option value="%">Percentage</option>
                                                                 <option value="Yes/No">Yes/No</option>
                                                                 <option value="Number">Number</option>
+                                                                <option value="Status code">Status code</option>
                                                                 <option value="Not defined" selected>Not defined</option>
                                                             </optgroup>
                                                         </select>
@@ -374,19 +378,22 @@
           {% endif %}            
       </div>
   </div>
-  <!-- Accentuate the NaN value in table-->
-  <script>
-    const cells = document.querySelectorAll('td');
-    console.log(cells)
+  
+{% endblock %}
 
-    for (let i=0; i < cells.length; i++){
-        if(cells[i].innerText == "NaN"){
-            cells[i].innerText = "⚠️"
+{% block scripts %}
+<!-- Accentuate the NaN value in table-->
+    <script>
+        const cells = document.querySelectorAll('td');
+        console.log(cells)
+
+        for (let i=0; i < cells.length; i++){
+            if(cells[i].innerText == "NaN"){
+                cells[i].innerText = "⚠️"
+            }
         }
-    }
-    
-  </script>
-
+        
+    </script>
     <script src="../static/js/intro.min.js"></script>  
     <script src="../static/js/tour-train.js"></script>
 {% endblock %}

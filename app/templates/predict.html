@@ -24,7 +24,7 @@
       <br>
 
       <b>
-        Model prediction: {{Result}}
+        Model prediction: {{Result}} {{Units}}
       </b>
 
       <br>
@@ -58,14 +58,14 @@
 
             <div class="form-group row">       
               <!-- Model Name field -->
-              <label for="ModelName" class="col-sm-1 col-form-label">Model name</label>
+              <label for="ModelName" class="col-sm-2 col-form-label">Model name</label>
               <div class="col-sm-3">
                 <input type="text" class="form-control text-left" id="ModelName" value="{{Model.name}}" disabled>
               </div>
               
               <!-- Plant field -->
-              <label for="Description" class="col-sm-1 col-form-label">Description</label>
-              <div class="col-sm-7">
+              <label for="Description" class="col-sm-2 col-form-label">Description</label>
+              <div class="col-sm-5">
                 <input type="text" class="form-control text-left" id="Description" value="{{Model.description}}" disabled>
               </div>
             </div>

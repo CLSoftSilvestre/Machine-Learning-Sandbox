@@ -17,13 +17,13 @@
                             <!-- Name -->
                             <label for="name" class="col-sm-1 col-form-label">Name</label>
                             <div class="col-sm-5">
-                                <input type="text" class="form-control text-left" id="name" name="name"></input>
+                                <input type="text" class="form-control text-left" id="name" name="name" required></input>
                             </div>
 
                             <!-- Description -->
                             <label for="description" class="col-sm-1 col-form-label">Description</label>
                             <div class="col-sm-5">
-                                <input type="text" class="form-control text-left" id="description" name="description"></input>
+                                <input type="text" class="form-control text-left" id="description" name="description" required></input>
                             </div>
                         </div>
 
@@ -111,4 +111,8 @@
         </div> 
     </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="../static/js/validation.js"></script>
 {% endblock %}

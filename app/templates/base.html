@@ -2,6 +2,7 @@
 <html lang="en">
     <head>
         <title>Machine Learning Sandbox{% block title %} {% endblock %}</title>
+        <link rel="icon" type="image/x-icon" href="../static/img/deep-learning.png">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link href="../static/css/bootstrap.min.css" rel="stylesheet">
         <link href="../static/css/loader.css" rel="stylesheet">
@@ -63,12 +64,24 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
                   <div class="modal-body">
-                    <p>App name: MLS - Machine Learning Sandbox</p>
-                    <p>App version: {{version}}</p>
-                    <p>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Fromageries Bel</p>
+                    <div class="container">
+                      <div class="row">
+                        <div class="col-md-3">
+                          <img class="img-fluid" src="../static/img/deep-learning.png">
+                        </div>
+                        <div class="col-md-9">
+                          <h5><b>Machine Learning Sandbox</b></h5>
+                          <h6>App version: {{version}}</h6>
+                          <h6>Model version: {{mversion}}</h6>
+                          <h6>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Fromageries Bel</h6>
+                        </div>
+                      </div>
+                    </div>
+
                     <hr>
                     <p>For more information please contact:</p>
-                    <a href = "mailto: celso.silvestre@groupe-bel.com">celso.silvestre@groupe-bel.com</a>
+                    <h6><a href = "mailto: geral@azordev.pt">geral@azordev.pt</a></h6>
+                    <h6><a href = "https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox" target="_blank">https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox</a></h6>
                     <hr>
                     <!-- Show tutorials -->
                     <div class="form-check form-switch">

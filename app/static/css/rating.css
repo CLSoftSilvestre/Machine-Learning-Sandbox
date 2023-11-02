@@ -2,3 +2,67 @@
 .checked {
     color: orange;
   }
+
+.timeline {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-top: 50px;
+}
+.timeline:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50px;
+  width: 2px;
+  background-color: #ccc;
+  margin-left: -1px;
+}
+.timeline-item {
+  position: relative;
+  margin-bottom: 50px;
+  padding-left: 70px;
+  clear: both;
+}
+.timeline-item:before {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: 20px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+.timeline-icon {
+  position: absolute;
+  top: 15px;
+  left: 10px;
+  font-size: 20px;
+  color: #666;
+}
+.timeline-content {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.timeline-date {
+  font-weight: bold;
+  color: #666;
+}
+.timeline-title {
+  margin-top: 5px;
+  font-weight: bold;
+}
+.timeline-description {
+  margin-top: 5px;
+  color: #666;
+}
+
+.form-control:disabled {
+  background-color: #fff !important;
+  color: #666 !important;
+  opacity: 1;
+}
