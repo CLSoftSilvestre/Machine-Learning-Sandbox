@@ -1082,20 +1082,16 @@ def ApiPredict(uuid):
         inputData = pd.DataFrame()
         features = []
 
-        for key in request.form:
-            if (len(request.form[key])==0):
-                # Is empty and should be number
-                return redirect(url_for('index'))
-            
-            inputData[key]=[request.form[key]]
-            features.append(ReturnFeature(key, float(inputData[key])))
-            #featuresJson = json.dumps([obj.__dict__ for obj in features])
+        resultJson = json.loads(request.data)
+
+        for arg in resultJson:
+            inputData[arg]=[resultJson[arg]]
+            features.append(ReturnFeature(arg, float(resultJson[arg])))
             featuresJson = json.dumps(features, default=ReturnFeature.serialize)
 
         # Check the model
         for model in modelsList:
             if (model.uuid == uuid):
-                #activeModel = model
                 try:
                     result =model.model.predict(inputData)
                     
