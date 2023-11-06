@@ -1113,9 +1113,11 @@ def ApiPredict(uuid):
                         "Features": json.loads(featuresJson)
                     }
 
-                    return jsonify(data)
+                    return jsonify(data), 200
                 except:
                     return "Error predicting value.", 404
+        
+        return "Model not found", 404
 
 if __name__ == '__main__':
     UpdateModelsList()
