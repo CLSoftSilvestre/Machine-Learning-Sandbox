@@ -988,14 +988,13 @@ def loaddummy(dataset):
         dummydata = load_diabetes()
     elif dataset == "digits":
         dummydata = load_digits()
-    elif dataset == "linnerud":
-        dummydata = load_linnerud()
     elif dataset == "wine":
         dummydata = load_wine()
     elif dataset == "bcancer":
         dummydata = load_breast_cancer()
 
     session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=dummydata.feature_names)
+    session['temp_df']['target'] = dummydata.target
 
     # Update the correlation matrix image
     session['temp_df'].corr(method="pearson")
