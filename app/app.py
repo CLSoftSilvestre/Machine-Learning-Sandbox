@@ -14,6 +14,7 @@ import sys
 import matplotlib.pylab as plt
 import seaborn as sn
 import numpy as np
+import math
 
 from sklearn import neighbors
 from sklearn import linear_model
@@ -26,6 +27,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.inspection import permutation_importance
 from sklearn.metrics import accuracy_score
+
+from sklearn.datasets import load_iris, load_diabetes, load_digits, load_linnerud, load_wine, load_breast_cancer
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
@@ -46,6 +49,7 @@ import base64
 import json
 from werkzeug.utils import secure_filename
 
+from outlierextractor import CreateOutliersBoxplot
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -55,7 +59,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.10"
+appversion = "1.2.11"
 model_version = 4
 
 @app.context_processor
@@ -180,9 +184,9 @@ def predict(uuid):
             except:
                 resultValue = result[0]
             #return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(result[0][0],2)))
-            # Calculate the min and max expected according R2 score
-            minResult = resultValue - (resultValue * ((1-activeModel.R2)/2))
-            maxResult = resultValue + (resultValue * ((1-activeModel.R2)/2))
+            # Calculate the min and max expected according MSE score
+            minResult = resultValue - (math.sqrt(activeModel.MSE)/2)
+            maxResult = resultValue + (math.sqrt(activeModel.MSE)/2)
 
             return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
         else:
@@ -213,7 +217,8 @@ def train():
             session['temp_df'] = session['temp_df'].drop([request.form['column']], axis=1)
 
             if(session['temp_df_y_name'] != ""):
-                session['temp_df_x'] = session['temp_df_x'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
+                session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
+                #TESTE session['temp_df_x'] = session['temp_df_x'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
 
         elif(request.form['mod']=="setdependent"):
             session['temp_df_y'] = session['temp_df'][request.form['column']]
@@ -239,6 +244,31 @@ def train():
             if session['temp_df_y_name'] != "":
                 session['temp_variable_units'] = request.form[session['temp_df_y_name']]
 
+        elif(request.form['mod']=="filtercol"):
+
+            min = request.form['minimum']
+            max = request.form['maximum']
+
+            column = request.form['column']
+
+            tempFilteredDf = pd.DataFrame()
+            tempFilteredDf = session['temp_df']
+
+            if min != "":
+                print("Applying filtering column " + column + " with min value", file=sys.stderr)
+                tempFilteredDf = session['temp_df'].loc[session['temp_df'][column] >= float(min)]
+            
+            if max != "":
+                print("Applying filtering column " + column + " with max value", file=sys.stderr)
+                tempFilteredDf = session['temp_df'].loc[session['temp_df'][column] <= float(max)]
+            
+            session['temp_df'] = tempFilteredDf
+
+            if(session['temp_df_y_name'] != ""):
+                session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
+                #TESTE session['temp_df_x'] = session['temp_df_x'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
+
+
         # Update the correlation matrix image
         session['temp_df'].corr(method="pearson")
         corr_matrix = session['temp_df'].corr(min_periods=1)
@@ -251,8 +281,12 @@ def train():
         session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
         plt.clf()
 
+        # Create the outliers image
+        features = session['temp_df'].columns.tolist()
+        session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
+
     if session['temp_df'].columns.size > 0:   
-        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'])
+        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'])
     else:
         return render_template('train.html')
 
@@ -281,6 +315,10 @@ def uploader():
             my_stringIObytes.seek(0)
             session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
             plt.clf()
+
+            # Create the outliers image
+            features = session['temp_df'].columns.tolist()
+            session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
 
             return redirect('/train')
         else:
@@ -939,6 +977,44 @@ def importFile():
     else:
         return render_template('import.html')
 
+@app.route("/loaddummy/<dataset>", methods=['GET'])
+def loaddummy(dataset):
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    if dataset == "iris":
+        dummydata = load_iris()
+    elif dataset == "diabetes":
+        dummydata = load_diabetes()
+    elif dataset == "digits":
+        dummydata = load_digits()
+    elif dataset == "linnerud":
+        dummydata = load_linnerud()
+    elif dataset == "wine":
+        dummydata = load_wine()
+    elif dataset == "bcancer":
+        dummydata = load_breast_cancer()
+
+    session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=dummydata.feature_names)
+
+    # Update the correlation matrix image
+    session['temp_df'].corr(method="pearson")
+    corr_matrix = session['temp_df'].corr(min_periods=1)
+    sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
+
+    # Save image data in variable
+    my_stringIObytes = io.BytesIO()
+    plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
+    my_stringIObytes.seek(0)
+    session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
+    plt.clf()
+
+    # Create the outliers image
+    features = session['temp_df'].columns.tolist()
+    session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
+
+    return redirect('/train')
+
 def UpdateModelsList():
     global modelsList
     global mm
@@ -989,6 +1065,7 @@ def Login():
         session['temp_df_y_name'] = ""
         session['temp_df_x'] = pd.DataFrame()
         session['heatmap_base64_jpgData'] = ""
+        session['outliers_base64_jpgData'] = ""
         session['temp_df_units'] = []
         session['temp_best_models'] = []
     else:
@@ -1007,6 +1084,7 @@ def Logout():
     session['temp_df_y_name'] = ""
     session['temp_df_x'] = pd.DataFrame()
     session['heatmap_base64_jpgData'] = ""
+    session['outliers_base64_jpgData'] = ""
     session['temp_df_units'] = []
     session['temp_best_models'] = []
 
@@ -1100,8 +1178,8 @@ def ApiPredict(uuid):
                     except:
                         innerResult = result[0]
                     
-                    minResult = innerResult - (innerResult * ((1-model.R2)/2))
-                    maxResult = innerResult + (innerResult * ((1-model.R2)/2))
+                    minResult = innerResult - (math.sqrt(model.MSE)/2)
+                    maxResult = innerResult + (math.sqrt(model.MSE)/2)
 
                     data = {
                         "UUID" : model.uuid,
