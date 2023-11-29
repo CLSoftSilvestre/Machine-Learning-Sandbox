@@ -10,6 +10,7 @@ from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
 from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature
 from utils import CreateImage
+from outlierextractor import OutlierExtractor
 
 
 import sys
@@ -27,6 +28,7 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
         if featureReduction:
             linear = make_pipeline(SelectKBest(f_classif, k=seleckbestk), linear_model.LinearRegression())
         else:
+            #linear = make_pipeline(OutlierExtractor() ,linear_model.LinearRegression())
             linear = linear_model.LinearRegression()
         
     # Set train/test groups
@@ -82,6 +84,7 @@ def KnnRegression(name, description, df_y, df_y_name, df_x, units, scaler=False,
             knn = make_pipeline(SelectKBest(f_classif, k=selectkbestk), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
         else:
             knn = neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size)
+            #knn = make_pipeline(steps=[('Outlier extractor',OutlierExtractor()),('KNN Estimator', neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))])
     
     # Set train/test groups
     x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=testsize, random_state=42)

@@ -4,9 +4,11 @@
   <h3 class="m-4">Train new model</h3>
   <div class="row">
     <div class="col-12">
+        <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
         <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
+                Load real datasets for real scenarios:
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
                     <div class="form-group row">
                         <label for="file" class="col-sm-1 col-form-label">Select file</label>
@@ -46,8 +48,21 @@
 
                     </div>
                 </form>
-            </div>     
+            </div> 
+            <div class="card-footer">
+                <p>Or load dummy datasets for training purposes:</p>
+
+                <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='iris')}}"><i class="fas fa-download"></i> Iris dataset</a>
+                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='diabetes')}}"><i class="fas fa-download"></i> Diabetes dataset</a>
+                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='digits')}}"><i class="fas fa-download"></i> Digits dataset</a>
+                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='linnerud')}}"><i class="fas fa-download"></i> Linnerud dataset</a>
+                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='wine')}}"><i class="fas fa-download"></i> Wine dataset</a>
+                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='bcancer')}}"><i class="fas fa-download"></i> Breast Cancer dataset</a>
+                </div>
+            </div>    
         </div>
+        <!-- When data is already imported -->
         {% else %}
         <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
@@ -133,6 +148,9 @@
                         <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true">Data properties</button>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots</button>
+                      </li>
+                    <li class="nav-item" role="presentation">
                       <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
                     </li>
                   </ul>
@@ -178,30 +196,96 @@
                                             {% endfor %}
                                             <td></td>
                                         </tr>
-                                        <!--tr>
-                                            <td class="align-middle">New data type</td>
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <select class="form-select form-select-sm" name="{{title}}" id="{{title}}" form="carform">
-                                                        <option value="object"></option>
-                                                        <option value="int64">Int</option>
-                                                        <option value="float64">Float</option>
-                                                        <option value="bool">Boolean</option>
-                                                    </select>
-                                                </td>
-                                            {% endfor %}
-                                            <td class="align-middle"><button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Apply</button></td>
-                                        </tr-->
                                         <tr id='tour-train-import-remove'>
                                             <td class="align-middle">Remove column</td>
                                             {% for title in titles %}
                                                 <td class="align-middle">
-                                                    <form method="post">
-                                                        <input hidden type="text" name="mod" value="remcol">
-                                                        <input hidden type="text" name="column" value="{{title}}">
-                                                        <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                                                    </form>
+                                                    <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{title|replace(' ','')}}"><i class="fa fa-trash"></i></a>
                                                 </td>
+                                                <!-- column Filter Modal -->
+                                                <div class="modal fade" id="deleteConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="deleteConfirmationLabel">Are you sure you want to remove the column <b>{{title}}</b> ?</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="remcol">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+
+                                                                    <p>⚠️ This action is irreversible. However you can re-import you data again by using the delete dataset button.</p>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <td></td>
+                                        </tr>
+                                        <tr id='tour-train-import-filter'>
+                                            <td class="align-middle">Filter column</td>
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#filterConfirmation{{title|replace(' ','')}}"><i class="fa fa-filter"></i></a>
+                                                </td>
+                                                <!-- column Filter Modal -->
+                                                <div class="modal fade" id="filterConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="filterConfirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="filterConfirmationLabel">Filter the column <b>{{title}}</b> data</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="filtercol">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+                                                                    
+                                                                    <div class="form-horizontal">
+                                                                        <div class="form-group row">
+                                                                            <!-- Min -->
+                                                                            <label for="minimum" class="col-sm-5 col-form-label">Minimum value inclusive</label>
+                                                                            <div class="col-sm-7">
+                                                                                <input type="number" class="form-control text-left" id="minimum" name="minimum"></input>
+                                                                            </div>
+
+                                                                            <div>&MediumSpace;</div>
+    
+                                                                            <!-- Max -->
+                                                                            <label for="maximum" class="col-sm-5 col-form-label">Maximum value inclusive</label>
+                                                                            <div class="col-sm-7">
+                                                                                <input type="number" class="form-control text-left" id="maximum" name="maximum"></input>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div>&MediumSpace;</div>
+
+                                                                    <p>⚠️ Data values >= minimum and <= maximum will be keept. Remaining rows will be removed. Leave field blank to ensure that filter is not applied.</p>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             {% endfor %}
                                             <td></td>
                                         </tr>
@@ -346,12 +430,15 @@
                                 </div>
                             </form>
                         </p>
-                    </div> 
+                    </div>
+                    <div class="tab-pane fade" id="outliers" role="tabpanel" aria-labelledby="outliers-tab">
+                        <img src="data:image/jpeg;base64,{{outliers}}" class="img-fluid" alt="..." id="outliersimg">
+                    </div>
                     <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
                         <img src="data:image/jpeg;base64,{{heatmap}}" class="img-fluid" alt="..." id="heatimg">
                     </div>
                   </div>
-            </div>   
+            </div>
         </div>
         {% endif %}    
     </div>
