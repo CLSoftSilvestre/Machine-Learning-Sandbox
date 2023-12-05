@@ -6,9 +6,12 @@
     <div class="col-12">
         <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
-        <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card bg-light ms-4 me-4 mb-4 border-primary">
             <div class="card-header">
-                Load real datasets for real scenarios:
+                Load training dataset
+            </div>
+            <div class="card-body">
+                Load datasets for real scenarios:
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
                     <div class="form-group row">
                         <label for="file" class="col-sm-1 col-form-label">Select file</label>
@@ -43,12 +46,13 @@
                         </div-->
 
                         <div class="col-sm-2 text-center">
-                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i> Parse CSV dataset</button>
+                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i> Parse CSV</button>
                         </div>
 
                     </div>
                 </form>
-            </div> 
+            </div>
+
             <div class="card-footer">
                 <p>Or load dummy datasets for training purposes:</p>
 

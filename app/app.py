@@ -60,8 +60,8 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.11"
-model_version = 4
+appversion = "1.2.12"
+model_version = 5
 
 @app.context_processor
 def inject_app_version():
@@ -511,7 +511,7 @@ def knn():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -593,7 +593,7 @@ def randomforest():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -670,7 +670,7 @@ def svmreg():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -759,7 +759,7 @@ def treereg():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -836,7 +836,7 @@ def perceptronreg():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
