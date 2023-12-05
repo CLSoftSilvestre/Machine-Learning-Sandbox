@@ -42,6 +42,7 @@ from sklearn.metrics import r2_score
 from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, Prediction, PredictionBatch
 from ModelManager import ModelManager
 from Database import UserLogin, User
+from utils import CleanColumnHeaderName
 
 import os
 import io
@@ -59,8 +60,8 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.11"
-model_version = 4
+appversion = "1.2.12"
+model_version = 5
 
 @app.context_processor
 def inject_app_version():
@@ -304,6 +305,15 @@ def uploader():
 
             session['temp_df'] = pd.read_csv(f,sep=sep, decimal=dec)
 
+            # Clean the names of the headers to avid problems in fitration and deletion
+            oldNames = session['temp_df'].columns.tolist()
+            newNames = list()
+
+            for i in range(len(oldNames)):
+                newNames.append(CleanColumnHeaderName(oldNames[i]))
+            
+            session['temp_df'].columns = newNames
+
             # Update the correlation matrix image
             session['temp_df'].corr(method="pearson")
             corr_matrix = session['temp_df'].corr(min_periods=1)
@@ -501,7 +511,7 @@ def knn():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -583,7 +593,7 @@ def randomforest():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -660,7 +670,7 @@ def svmreg():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -749,7 +759,7 @@ def treereg():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -826,7 +836,7 @@ def perceptronreg():
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+        pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
@@ -992,8 +1002,14 @@ def loaddummy(dataset):
         dummydata = load_wine()
     elif dataset == "bcancer":
         dummydata = load_breast_cancer()
+    
+    columnsName = dummydata.feature_names
 
-    session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=dummydata.feature_names)
+    for i in range(len(columnsName)):
+        cleanName = CleanColumnHeaderName(columnsName[i])
+        columnsName[i] = cleanName
+
+    session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=columnsName)
     session['temp_df']['target'] = dummydata.target
 
     # Update the correlation matrix image

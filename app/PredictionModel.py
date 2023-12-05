@@ -24,6 +24,8 @@ class PredictionModel:
         self.modelType = "regression"
         self.pVariable = "not defined"
         self.pVariableUnits = "not defined"
+        self.realTestList = list()
+        self.predTestList = list()
     
     def SetModelPath(self, path):
         self.modelPath = path
@@ -44,7 +46,11 @@ class PredictionModel:
     def SetPredictVariable(self, pVariable, pVariableUnits):
         self.pVariable = pVariable
         self.pVariableUnits = pVariableUnits
-        
+
+    def SetTestData(self, realTest, predTest):
+        self.realTestList = realTest
+        self.predTestList = predTest
+
 class InputFeature:
     
     def __init__(self, name, varType, description):

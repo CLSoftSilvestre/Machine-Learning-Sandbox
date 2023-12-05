@@ -62,6 +62,8 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
     pModel = PredictionModel()
     pModel.Setup(name,description,linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
+    pModel.SetTestData(y_test, y_pred)
+
     pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
 
     return pModel
@@ -126,7 +128,7 @@ def KnnRegression(name, description, df_y, df_y_name, df_x, units, scaler=False,
     
     pModel = PredictionModel()
     pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
-
+    pModel.SetTestData(y_test, y_pred)
     pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
 
     return pModel
