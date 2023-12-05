@@ -2,6 +2,7 @@
 import matplotlib.pylab as plt
 import base64
 import io
+import re
 
 def CreateImage(test, pred, yLabel):
     # Add train image into model
@@ -21,3 +22,8 @@ def CreateImage(test, pred, yLabel):
     plt.clf()
 
     return my_base64_jpgData
+
+def CleanColumnHeaderName(name):
+    replaced_string = re.sub(r'\W+','_', name)
+    return replaced_string
+

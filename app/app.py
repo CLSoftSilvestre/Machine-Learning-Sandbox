@@ -42,6 +42,7 @@ from sklearn.metrics import r2_score
 from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, Prediction, PredictionBatch
 from ModelManager import ModelManager
 from Database import UserLogin, User
+from utils import CleanColumnHeaderName
 
 import os
 import io
@@ -303,6 +304,15 @@ def uploader():
             dec = request.form['dec']
 
             session['temp_df'] = pd.read_csv(f,sep=sep, decimal=dec)
+
+            # Clean the names of the headers to avid problems in fitration and deletion
+            oldNames = session['temp_df'].columns.tolist()
+            newNames = list()
+
+            for i in range(len(oldNames)):
+                newNames.append(CleanColumnHeaderName(oldNames[i]))
+            
+            session['temp_df'].columns = newNames
 
             # Update the correlation matrix image
             session['temp_df'].corr(method="pearson")
@@ -992,8 +1002,14 @@ def loaddummy(dataset):
         dummydata = load_wine()
     elif dataset == "bcancer":
         dummydata = load_breast_cancer()
+    
+    columnsName = dummydata.feature_names
 
-    session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=dummydata.feature_names)
+    for i in range(len(columnsName)):
+        cleanName = CleanColumnHeaderName(columnsName[i])
+        columnsName[i] = cleanName
+
+    session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=columnsName)
     session['temp_df']['target'] = dummydata.target
 
     # Update the correlation matrix image
