@@ -60,7 +60,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.12"
+appversion = "1.2.12 - Winter"
 model_version = 5
 
 @app.context_processor
