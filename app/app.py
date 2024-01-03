@@ -13,22 +13,18 @@ import pandas as pd
 import sys
 import matplotlib.pylab as plt
 import seaborn as sn
-import numpy as np
 import math
 
 from sklearn import neighbors
-from sklearn import linear_model
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.svm import SVC
 from sklearn.svm import SVR
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPRegressor
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import accuracy_score
 
-from sklearn.datasets import load_iris, load_diabetes, load_digits, load_linnerud, load_wine, load_breast_cancer
+from sklearn.datasets import load_iris, load_diabetes, load_digits, load_wine, load_breast_cancer
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
@@ -41,7 +37,7 @@ from sklearn.metrics import r2_score
 
 from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, Prediction, PredictionBatch
 from ModelManager import ModelManager
-from Database import UserLogin, User
+from Database import UserLogin
 from utils import CleanColumnHeaderName
 
 import os

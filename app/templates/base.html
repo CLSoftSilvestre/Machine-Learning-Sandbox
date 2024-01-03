@@ -89,11 +89,6 @@
                       <input class="form-check-input" type="checkbox" id="showTutorials" name="darkmode" checked>
                       <label class="form-check-label" for="showTutorials">Show tutorials</label>
                     </div>
-                    <!-- Show snowflakes -->
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="showSnowflakes" name="darkmode" checked>
-                      <label class="form-check-label" for="showSnowflakes">Show snowflakes</label>
-                    </div>
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Dismiss</button>
@@ -230,90 +225,11 @@
                   setCookie("tourIndexComplete", !switchStatus, 90);
                   setCookie("tourTrainPart1Complete", !switchStatus, 90);
                   setCookie("tourTrainPart2Complete", !switchStatus, 90);
-                } 
-              });
-
-              // ShowHide snowflakes animation
-              let showFlake = getCookie("showSnowflakes");
-
-              if (showFlake == "false") {
-                document.getElementById("showSnowflakes").checked = false;
-                $(".snowflakes").hide()
-              } else {
-                document.getElementById("showSnowflakes").checked = true;
-                $(".snowflakes").show()
-              }
-
-              var switchShowFlakes = true;
-              $("#showSnowflakes").on('change', function() {
-                if ($(this).is(':checked')){
-                  switchShowFlakes = $(this).is(':checked');
-                  setCookie("showSnowflakes", switchShowFlakes, 90);
-                  $(".snowflakes").show()
                 }
-                else {
-                  switchShowFlakes = $(this).is(':checked');
-                  setCookie("showSnowflakes", switchShowFlakes, 90);
-                  $(".snowflakes").hide()
-                } 
               });
-
-
 
             </script>
             {% endblock %}
         </body>
-        <!-- Winter animation -->
-        <div class="snowflakes" aria-hidden="true">
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-          <div class="snowflake">
-            <div class="inner">❅</div>
-          </div>
-        </div>
-        <script>
-          $(document).ready(function() {
-            // ShowHide snowflakes animation
-            let showFlake = getCookie("showSnowflakes");
-
-            if (showFlake == "false") {
-              document.getElementById("showSnowflakes").checked = false;
-              $(".snowflakes").hide()
-
-            }
-          });
-        </script>
-        <!-- END Winter animation-->
     </head>
 </html>
