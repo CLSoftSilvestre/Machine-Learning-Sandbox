@@ -1,7 +1,7 @@
 
 import sqlite3
 from sqlite3 import Error
-
+from datetime import datetime
 import bcrypt
 
 class User:
@@ -17,18 +17,33 @@ def create_database(db_file):
     # Create the users table
     cur.execute('''CREATE TABLE IF NOT EXISTS users
                 (id integer PRIMARY KEY AUTOINCREMENT, name text NOT NULL, password text NOT NULL, role text NOT NULL)''')
+    
+    # Create the predictions table
+    cur.execute('''CREATE TABLE IF NOT EXISTS predictions
+                (id integer PRIMARY KEY AUTOINCREMENT, timestamp datetime NOT NULL, model text NOT NULL, status integer NOT NULL, type integer NOT NULL)''')
+    
+    # Create the operations table
+    cur.execute('''CREATE TABLE IF NOT EXISTS operations
+                (id integer PRIMARY KEY AUTOINCREMENT, timestamp datetime NOT NULL, user text NOT NULL, type text NOT NULL, description text)''')
 
     adminPassword = b'admin'
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(adminPassword, salt)
 
     adminUser = (1, 'admin', hashed, 'Administrator')
-    powerUser = (2, 'pu', 'pu', 'PowerUser')
+    powerUser = (2, 'root', hashed, 'PowerUser')
 
     sql = '''INSERT INTO users VALUES (?,?,?,?)'''
 
     cur.execute(sql, adminUser)
     cur.execute(sql, powerUser)
+
+    con.commit()
+
+    # Add operation of creationg database
+    data = (1, datetime.now(), "root", "DB CREATION","Creation of main database")
+    sql = '''INSERT INTO operations VALUES (?,?,?,?,?)'''
+    cur.execute(sql, data)
 
     # Save the changes
     con.commit()
@@ -42,6 +57,7 @@ def create_connection(db_file):
         conn = sqlite3.connect(db_file)
     except Error as e:
         print(e)
+        #create_database(db_file)
     
     return conn
 
@@ -68,7 +84,29 @@ def UserLogin(db_file, loginData):
             return False
     else:
         return False
-    
+
+def add_Prediction(db_file, timestamp, model, status, type):
+    con = sqlite3.connect(db_file)
+    cur = con.cursor()
+
+    data = (timestamp, model, status, type)
+
+    sql = '''INSERT INTO predictions(timestamp,model,status,type) VALUES(?,?,?,?)'''
+    cur.execute(sql, data)
+    con.commit()
+    con.close()
+
+def add_Operation(db_file, timestamp, user, type, description):
+    con = sqlite3.connect(db_file)
+    cur = con.cursor()
+
+    data = (timestamp, user, type, description)
+
+    sql = '''INSERT INTO operations(timestamp,user,type,description) VALUES(?,?,?,?)'''
+    cur.execute(sql, data)
+    con.commit()
+    con.close()
+
 
 ## TEST CODE
 #create_database(r'C:\Users\CSilvestre\Code\Machine-Learning-Sandbox\app\database\mls.db')

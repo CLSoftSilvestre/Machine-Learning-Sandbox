@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h3 class="m-4">Usage dashboard</h3>
+  <div class="row">
+    <div class="col-12">
+        <div class="container">
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header"><h4>User logins</h4></div>
+                        <div class="card-body">
+                            Card 1
+                        </div>
+                        <div class="card-footer">Resume of card 1</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header"><h4>Models created</h4></div>
+                        <div class="card-body">
+                            Card 2
+                        </div>
+                        <div class="card-footer">Resume of card 2</div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header"><h4>Models imported</h4></div>
+                        <div class="card-body">
+                            Card 3
+                        </div>
+                        <div class="card-footer">Resume of card 3</div>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="row">
+                <div class="col">
+                    <div class="card">
+                        <div class="card-header"><h4>Predictions calculated</h4></div>
+                        <div class="card-body">
+                            <canvas id="myChart" width="200" height="50"></canvas>
+                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        </div>
+                        <div class="card-footer">Resume of card 1</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+{% endblock %}
