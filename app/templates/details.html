@@ -231,9 +231,22 @@
               </div>           
             </div>
 
-          
             <hr>
-                  
+
+            <!-- Show the equation (if it's linear regression) -->
+            {% if equation != "" %}
+
+              <div class="form-group row">
+                <!-- Equation field -->
+                <label for="pEquation" class="col-sm-2 col-form-label">Model equation</label>
+                <div class="col-sm-10">
+                  <textarea type="text" class="form-control text-left" id="pEquations" disabled>{{equation}}</textarea>
+                </div>    
+              </div>
+
+              <hr>
+            {% endif %}
+            
             <div class="form-group row">
 
               <!-- MSE field -->

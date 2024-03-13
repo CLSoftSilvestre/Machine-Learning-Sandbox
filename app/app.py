@@ -37,7 +37,7 @@ from sklearn.metrics import r2_score
 
 from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, Prediction, PredictionBatch
 from ModelManager import ModelManager
-from Database import UserLogin
+from Database import UserLogin, add_Prediction, add_Operation
 from utils import CleanColumnHeaderName
 
 import os
@@ -47,6 +47,7 @@ import json
 from werkzeug.utils import secure_filename
 
 from outlierextractor import CreateOutliersBoxplot
+from datetime import datetime
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -56,7 +57,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.12 - Winter"
+appversion = "1.2.14"
 model_version = 5
 
 @app.context_processor
@@ -71,13 +72,15 @@ def inject_model_version():
 def set_global_html_variable_values():
     #session['autenticated'] = True
     if session.get('autenticated'):
+        role = session.get('role')
         admin = session.get('autenticated')
         name = session.get('user')
     else:
+        role = ""
         admin = False
         name = ""
 
-    template_config = {'admin': admin, 'username': name}
+    template_config = {'admin': admin, 'username': name, 'role': role}
 
     return template_config
 
@@ -90,6 +93,11 @@ def index():
         UpdateModelsList()
 
     return render_template('index.html', models=modelsList)
+
+@app.route("/usage/", methods=['GET'])
+def usage():
+
+    return render_template('usage.html')
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):
@@ -106,7 +114,19 @@ def details(uuid):
             except:
                 image2 = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
 
-            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2)
+            equation = ""
+            # Check if it's linear regression and calculate the equation
+            if str(model.model) == "LinearRegression()":
+                equation = "y = "
+                pos = 0
+                for variable in model.model.coef_:
+                    equation = equation + "( " + str(round(variable,3)) + " x " + model.variables[pos].name + " ) + "
+                    pos = pos+1
+                
+                equation = equation + str(round(model.model.intercept_,3))
+
+
+            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2, equation=equation)
   
     return render_template('details.html')
 
@@ -137,6 +157,9 @@ def downloadmodel(uuid):
             except:
                 modelsPath = os.path.join(os.getcwd(), 'models')
                 return send_from_directory(modelsPath,modelName, as_attachment=True)
+            finally:
+                dbPath = os.path.join(app.root_path, 'database', "mls.db")
+                add_Operation(dbPath, datetime.now(), session['user'],"MODEL DOWNLOADED",uuid)
             
     return render_template('download.html')
 
@@ -185,8 +208,14 @@ def predict(uuid):
             minResult = resultValue - (math.sqrt(activeModel.MSE)/2)
             maxResult = resultValue + (math.sqrt(activeModel.MSE)/2)
 
+            dbPath = os.path.join(app.root_path, 'database', "mls.db")
+            add_Prediction(dbPath, datetime.now(), uuid, 1, 1)
+
             return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
         else:
+            dbPath = os.path.join(app.root_path, 'database', "mls.db")
+            add_Prediction(dbPath, datetime.now(), uuid, 0, 1)
+
             return redirect(url_for('index'))
 
 @app.route("/refresh/", methods=['GET'])
@@ -380,6 +409,10 @@ def linear():
 
         mMan.SaveModel(pModel, filepath)
 
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"LINEAR MODEL CREATED",pModel.uuid)
+
         UpdateModelsList()
 
         return redirect('/index')
@@ -434,6 +467,11 @@ def knnreg():
             modelFileName = name + ".model"
             filepath = os.path.join(app.root_path, 'models', modelFileName)
             mMan.SaveModel(pModel, filepath)
+
+            #Log in the database
+            dbPath = os.path.join(app.root_path, 'database', "mls.db")
+            add_Operation(dbPath, datetime.now(), session['user'],"KNN REG MODEL CREATED",pModel.uuid)
+
             UpdateModelsList()
             return redirect('/index')
     
@@ -522,6 +560,10 @@ def knn():
 
         mMan.SaveModel(pModel, filepath)
 
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"KNN CLASS MODEL CREATED",pModel.uuid)
+
         UpdateModelsList()
 
         return redirect('/index')
@@ -604,6 +646,10 @@ def randomforest():
 
         mMan.SaveModel(pModel, filepath)
 
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"RANDOM FOREST MODEL CREATED",pModel.uuid)
+
         UpdateModelsList()
 
         return redirect('/index')
@@ -680,6 +726,10 @@ def svmreg():
         print("filepath: ", filepath, file=sys.stderr)
 
         mMan.SaveModel(pModel, filepath)
+
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"SVM REG MODEL CREATED",pModel.uuid)
 
         UpdateModelsList()
 
@@ -770,6 +820,10 @@ def treereg():
 
         mMan.SaveModel(pModel, filepath)
 
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"DECISION TREE REG MODEL CREATED",pModel.uuid)
+
         UpdateModelsList()
 
         return redirect('/index')
@@ -847,6 +901,10 @@ def perceptronreg():
 
         mMan.SaveModel(pModel, filepath)
 
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"PERCEPTRON REG MODEL CREATED",pModel.uuid)
+
         UpdateModelsList()
 
         return redirect('/index')
@@ -877,6 +935,11 @@ def save(uuid):
                 modelFileName = model.name + ".model"
                 filepath = os.path.join(app.root_path, 'models', modelFileName)
                 mMan.SaveModel(model, filepath)
+
+                #Log in the database
+                dbPath = os.path.join(app.root_path, 'database', "mls.db")
+                add_Operation(dbPath, datetime.now(), session['user'],"KNN BEST MODEL CREATED",model.uuid)
+
                 UpdateModelsList()
                 return redirect('/index')          
             except:
@@ -897,6 +960,7 @@ def batch(uuid):
                 return render_template('batch.html', Model=model, Error=False, ErrorText="")
     
     if(request.method == 'POST'):
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
         # 0 - Get the model
         for model in modelsList:
             if (model.uuid == uuid):
@@ -933,7 +997,8 @@ def batch(uuid):
                     except:
                         innerResult = result[0]
 
-                    tempPrediction.append(Prediction(innerResult, row))
+                    tempPrediction.append(Prediction(innerResult, row))           
+                    add_Prediction(dbPath, datetime.now(), uuid, 1, 3)
 
                 except:
                     return render_template('batch.html', Error=True, ErrorText="Error predicting values!")
@@ -960,6 +1025,8 @@ def delete(uuid):
             try:
                 #print(model.name, file=sys.stderr)
                 os.remove(model.modelPath)
+                dbPath = os.path.join(app.root_path, 'database', "mls.db")
+                add_Operation(dbPath, datetime.now(), session['user'],"MODEL DELETED",uuid)
             except:
                 print("Error deleting model from " + model.modelPath, file=sys.stderr)
             UpdateModelsList()
@@ -975,6 +1042,8 @@ def importFile():
         f = request.files['file']
         if f:
             f.save(os.path.join(app.root_path, 'models', secure_filename(f.filename)))
+            dbPath = os.path.join(app.root_path, 'database', "mls.db")
+            add_Operation(dbPath, datetime.now(), session['user'],"MODEL IMPORTED",f.filename)
 
             UpdateModelsList()      
             return redirect('/index')
@@ -1079,13 +1148,18 @@ def Login():
         session['outliers_base64_jpgData'] = ""
         session['temp_df_units'] = []
         session['temp_best_models'] = []
+        add_Operation(dbPath, datetime.now(), user.name,"LOGIN","User login with success")
     else:
+        add_Operation(dbPath, datetime.now(), user.name,"LOGIN","Error user login")
         session['autenticated'] = False
 
     return redirect('/index')
 
 @app.route("/logout/", methods=['GET'])
 def Logout():
+    dbPath = os.path.join(app.root_path, 'database', "mls.db")
+    add_Operation(dbPath, datetime.now(), session['user'],"LOGOUT","User logout with success")
+
     session.pop('user', None)
     session.pop('role', None)
     session.pop('autenticated', None)
@@ -1202,8 +1276,13 @@ def ApiPredict(uuid):
                         "Features": json.loads(featuresJson)
                     }
 
+                    dbPath = os.path.join(app.root_path, 'database', "mls.db")
+                    add_Prediction(dbPath, datetime.now(), uuid, 1, 2)
+
                     return jsonify(data), 200
                 except:
+                    dbPath = os.path.join(app.root_path, 'database', "mls.db")
+                    add_Prediction(dbPath, datetime.now(), uuid, 0, 2)
                     return "Error predicting value.", 404
         
         return "Model not found", 404
