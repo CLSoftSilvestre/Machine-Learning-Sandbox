@@ -57,7 +57,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.2.14"
+appversion = "1.3.0"
 model_version = 5
 
 @app.context_processor
@@ -621,13 +621,17 @@ def randomforest():
 
         
         # Calculate feature importances and update feature item.
-        importance = clf.feature_importances_
-        desc = pd.DataFrame(session['temp_df_x'])
+        try:
+            importance = clf.feature_importances_
+            desc = pd.DataFrame(session['temp_df_x'])
 
-        for i, v in enumerate(importance):
-            inputFeatures[i].setImportance(v)
-            featureName = inputFeatures[i].name
-            inputFeatures[i].setDescribe(desc[featureName].describe())
+            for i, v in enumerate(importance):
+                inputFeatures[i].setImportance(v)
+                featureName = inputFeatures[i].name
+                inputFeatures[i].setDescribe(desc[featureName].describe())
+        except:
+            print("An exception occurred during the calculation of feature importance")
+            return render_template('randomforest.html')
 
         pModel = PredictionModel()
         pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))

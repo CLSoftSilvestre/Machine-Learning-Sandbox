@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <title>Machine Learning Sandbox{% block title %} {% endblock %}</title>
-        <link rel="icon" type="image/x-icon" href="../static/img/deep-learning.png">
+        <link rel="icon" type="image/x-icon" href="../static/img/bellogo.png">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link href="../static/css/bootstrap.min.css" rel="stylesheet">
         <link href="../static/css/loader.css" rel="stylesheet">
@@ -10,12 +10,14 @@
         <link href="../static/css/rating.css" rel="stylesheet">
         <script src="../static/js/cookies.js"></script>
         <link href="../static/css/winter.css" rel="stylesheet">
+        <link href="../static/css/theme.css" rel="stylesheet">
         <body class="d-flex flex-column min-vh-100">
             <!--nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark"-->
-            <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
+            <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="{{ url_for('index') }}">
-                        <i class="fa-solid fa-magnifying-glass-chart fa-lg"></i> Machine Learning Sandbox
+                      <img class="img-fluid" src="../static/img/digitops.png" width="60">
+                      <b>Machine Learning Sandbox</b>
                     </a>
                   <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -48,7 +50,8 @@
                   </div>
                 </div>
             </nav>
-            <div class="container-fluid">
+
+            <div class="container-fluid panelmenu-content-container">
 
             {% block content %} {% endblock %}
             
@@ -67,21 +70,21 @@
                   <div class="modal-body">
                     <div class="container">
                       <div class="row">
-                        <div class="col-md-3">
-                          <img class="img-fluid" src="../static/img/deep-learning.png">
+                        <div class="col-md-4">
+                          <img class="img-fluid" src="../static/img/digitops.png">
                         </div>
-                        <div class="col-md-9">
-                          <h5><b>Machine Learning Sandbox</b></h5>
+                        <div class="col-md-8">
+                          <h4><b>Machine Learning Sandbox</b></h4>
                           <h6>App version: {{version}}</h6>
                           <h6>Model version: {{mversion}}</h6>
-                          <h6>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Azordev</h6>
+                          <h6>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Bel</h6>
                         </div>
                       </div>
                     </div>
 
                     <hr>
                     <p>For more information please contact:</p>
-                    <h6><a href = "mailto: geral@azordev.pt">geral@azordev.pt</a></h6>
+                    <h6><a href = "mailto: celso.silvestre@groupe-bel.com.pt">celso.silvestre@groupe-bel.com</a></h6>
                     <h6><a href = "https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox" target="_blank">https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox</a></h6>
                     <hr>
                     <!-- Show tutorials -->
@@ -91,7 +94,7 @@
                     </div>
                   </div>
                   <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Dismiss</button>
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Dismiss</button>
                   </div>
                 </div>
               </div>
@@ -122,8 +125,8 @@
                       </div>
 
                       <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Login</button>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Login</button>
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
                       </div>
 
                   </form>
@@ -148,8 +151,8 @@
                       </div>
 
                       <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Logout</button>
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Logout</button>
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cancel</button>
                       </div>
 
                   </form>
@@ -163,17 +166,9 @@
                   <div class="container my-auto">
                     <div class="copyright text-center my-auto" id=copyright>
     
-                      <a href="http://azordev.pt" style="padding:10px" target="_blank" rel="noopener">
-                        <img src="../static/img/azordev_logo.png" alt="azordevlogo" height="40" width="90">
+                      <a href="https://www.groupe-bel.com/en/" style="padding:10px" target="_blank" rel="noopener">
+                        <img src="../static/img/digitops.png" alt="digitopslogo" height="90">
                       </a>
-        
-                      <!--a href="https://www.python.org/" style="padding:10px" target="_blank" rel="noopener">
-                        <img src="../static/img/python.webp" alt="pythonlogo" height="40" width="40">
-                      </a-->
-        
-                      <!--a href="https://scikit-learn.org/" style="padding:10px" target="_blank" rel="noopener">
-                        <img src="../static/img/Scikit.png" alt="scikitlogo" height="40" width="70">
-                      </a-->
                       
                     </div>
                   </div>

@@ -6,7 +6,9 @@
   right: 0;
   bottom: 0;
   width: 100%;
-  background: rgba(0,0,0,.5) url(../img/wip.gif) no-repeat center center;
+  /*background: rgba(0,0,0,.5) url(../img/wip.gif) no-repeat center center;*/
+  background: rgba(0,0,0,.5) url(../img/loading.gif) no-repeat center center;
+  background-size: 250px 250px;
   z-index: 10000;
 }
 

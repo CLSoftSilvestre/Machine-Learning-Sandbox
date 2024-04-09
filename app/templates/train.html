@@ -6,12 +6,14 @@
     <div class="col-12">
         <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
-        <div class="card bg-light ms-4 me-4 mb-4 border-primary">
+        <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
-                Load training dataset
+                <h3>Load training dataset</h3>
+                
             </div>
             <div class="card-body">
-                Load datasets for real scenarios:
+                <h6>Load datasets for real scenarios:</h6>
+                
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
                     <div class="form-group row">
                         <label for="file" class="col-sm-1 col-form-label">Select file</label>
@@ -463,8 +465,6 @@
                 </p>
               </div>
             </div>
-            {% else %}
-            <h5 class="alert alert-primary ms-4 me-4" id="notuploaded">No dataset imported.</h5>
           {% endif %}            
       </div>
   </div>
