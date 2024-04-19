@@ -154,10 +154,14 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots</button>
-                      </li>
+                    </li>
                     <li class="nav-item" role="presentation">
                       <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="scatter-tab" data-bs-toggle="tab" data-bs-target="#scatter" type="button" role="tab" aria-controls="scatter" aria-selected="false">Scatter plot</button>
+                    </li>
+
                   </ul>
                   <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade" id="descri" role="tabpanel" aria-labelledby="descri-tab">
@@ -441,6 +445,173 @@
                     </div>
                     <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
                         <img src="data:image/jpeg;base64,{{heatmap}}" class="img-fluid" alt="..." id="heatimg">
+                    </div>
+                    <div class="tab-pane fade" id="scatter" role="tabpanel" aria-labelledby="scatter-tab">
+                        <br>
+
+                        <div class="d-flex flex-row gap-3">
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectedXVariable"><i class="fas fa-x"></i></label>
+                                <select class="form-select" id="selectedXVariable">
+                                    <option selected>Choose one variable...</option>
+                                    {% for title in titles %}
+                                        <option value={{loop.index-1}}>{{title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectedYVariable"><i class="fas fa-y"></i></label>
+                                <select class="form-select" id="selectedYVariable">
+                                    <option selected>Choose one variable...</option>
+                                    {% for title in titles %}
+                                        <option value={{loop.index-1}}>{{title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectedColorVariable"><i class="fas fa-palette"></i></label>
+                                <select class="form-select" id="selectedColorVariable">
+                                  <option selected>Choose one variable...</option>
+                                    {% for title in titles %}
+                                        <option value={{loop.index-1}}>{{title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <button type="button" class="btn btn-primary" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i></button>
+
+                        </div>
+
+                        <br>
+                        
+                        <!-- Line chart with results of training -->
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+                        <canvas id="myChart" style="width:100%;max-width:1200px;height:100%;padding:10px;"></canvas>
+                        
+                        <script>
+
+                            var xyValues = [
+                                {x:0, y:0}
+                            ]
+
+                            var colorPoints = [
+                            '#22bfa0'
+                            ]
+
+                            const ctx = document.getElementById('myChart').getContext('2d');
+
+                            const myChart = new Chart("myChart", {
+                                type: "scatter",
+                                data: {
+                                datasets: [{
+                                    pointRadius: 4,
+                                    pointBackgroundColor: colorPoints,
+                                    data: xyValues
+                                }]
+                                },
+                                options:{
+                                    legend: {display: false}
+                                }
+                            });
+
+                            // Get the data from Jinja2 to Javascript
+                            jsData = []
+                            {% if rawdata is defined %}
+                                {% for row in rawdata %}    
+                                    jsData.push({{row}})                          
+                                {% endfor %}
+                            {% endif %}
+
+                            const newShade = (hexColor, magnitude) => {
+                                hexColor = hexColor.replace(`#`, ``);
+                                if (hexColor.length === 6) {
+                                    const decimalColor = parseInt(hexColor, 16);
+                                    let r = (decimalColor >> 16) + magnitude;
+                                    r > 255 && (r = 255);
+                                    r < 0 && (r = 0);
+                                    let g = (decimalColor & 0x0000ff) + magnitude;
+                                    g > 255 && (g = 255);
+                                    g < 0 && (g = 0);
+                                    let b = ((decimalColor >> 8) & 0x00ff) + magnitude;
+                                    b > 255 && (b = 255);
+                                    b < 0 && (b = 0);
+                                    return `#${(g | (b << 8) | (r << 16)).toString(16)}`;
+                                } else {
+                                    return hexColor;
+                                }
+                            };
+
+                            function calculateColor(iMin, iMax, iValue){
+                                perc = (iValue-iMin)/(iMax-iMin)
+                                return newShade('#22bfa0', (perc*100)/1.5)
+
+                            }
+
+                            function UpdateChart(){
+
+                                singleColor = false
+
+                                const x_variable = document.getElementById('selectedXVariable').value;
+                                const y_variable = document.getElementById('selectedYVariable').value;
+                                const color_variable = document.getElementById('selectedColorVariable').value;
+
+                                if (x_variable=="Choose one variable..."){
+                                    alert("Please select one variable to be assigned to X axis.");
+                                    return
+                                }
+                                    
+                                if (y_variable=="Choose one variable...")
+                                {
+                                    alert("Please select one variable to be assigned to Y axis.");
+                                    return
+                                }
+
+                                if (color_variable=="Choose one variable...")
+                                {
+                                    singleColor = true
+                                } else {
+                                    //Calculate the Min and Max of the variable
+                                    var minColor = 0
+                                    var maxColor = 0
+                                    jsData.forEach(element => {
+                                        if (element[color_variable] < minColor){
+                                            minColor = element[color_variable]
+                                        }
+                                        if (element[color_variable] > minColor){
+                                            maxColor = element[color_variable]
+                                        } 
+                                    });
+                                }
+
+                                xyValues.length = 0
+                                colorPoints.length = 0
+                                
+                                jsData.forEach(line => {
+                                    // console.log("X:", line[x_variable], "Y:", line[y_variable])
+                                    xyValues.push({
+                                        'x': line[x_variable],
+                                        'y': line[y_variable]
+                                    })
+
+                                    // Cores dos pontos
+                                    if (singleColor == true){
+                                        colorPoints.push('#22bfa0')
+                                    } else {
+                                        // Criar linearização de cor
+                                        colorPoints.push(calculateColor(minColor, maxColor, line[color_variable]))
+                                    }
+                                    
+                                });
+                               
+                                // Update the chart
+                                myChart.update()
+                            }
+
+                        </script>
+                        <!-- End of chart -->
                     </div>
                   </div>
             </div>

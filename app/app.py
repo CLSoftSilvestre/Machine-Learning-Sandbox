@@ -312,9 +312,11 @@ def train():
         session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
 
     if session['temp_df'].columns.size > 0:   
-        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'])
+        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'], rawdata=list(session['temp_df'].values.tolist()))
     else:
-        return render_template('train.html')
+        emptyList = []
+        emptyList.append((0,1))
+        return render_template('train.html', rawdata=emptyList)
 
 @app.route("/uploader/", methods=['GET', 'POST'])
 def uploader():
