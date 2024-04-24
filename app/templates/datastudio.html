@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h3 class="m-4">Data Studio</h3>
-  <div class="row">
+
+<!-- content -->
+<h3 class="m-4">Data Studio</h3>
+<div class="row">
     <div class="col-12">
         <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
@@ -84,7 +86,7 @@
                         <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                      <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
+                    <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="scatter-tab" data-bs-toggle="tab" data-bs-target="#scatter" type="button" role="tab" aria-controls="scatter" aria-selected="false">Scatter plot</button>
@@ -93,8 +95,8 @@
                         <button class="nav-link" id="dataoperations-tab" data-bs-toggle="tab" data-bs-target="#dataoperations" type="button" role="tab" aria-controls="dataoperations" aria-selected="false">Data operations</button>
                     </li>
 
-                  </ul>
-                  <div class="tab-content" id="myTabContent">
+                </ul>
+                <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade" id="descri" role="tabpanel" aria-labelledby="descri-tab">
                         <p class="card-text">
                             <div class="table-responsive">
@@ -288,7 +290,7 @@
                                         </tr>
                                     </tbody>
                                 </table>
- 
+
                             </div>  
                         </p>
                     </div>
@@ -326,7 +328,7 @@
                             <div class="input-group mb-3">
                                 <label class="input-group-text" for="selectedColorVariable"><i class="fas fa-palette"></i></label>
                                 <select class="form-select" id="selectedColorVariable">
-                                  <option selected>Choose one variable...</option>
+                                <option selected>Choose one variable...</option>
                                     {% for title in titles %}
                                         <option value={{loop.index-1}}>{{title}}</option>
                                     {% endfor %}
@@ -507,42 +509,65 @@
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
-                                  <tr>
+                                <tr>
                                     <th scope="col">Pos</th>
-                                    <th scope="col">UUID</th>
+                                    <th scope="col"></th>
                                     <th scope="col">Operation type</th>
                                     <th scope="col">Parameters</th>
                                     <th scope="col">Actions</th>
-                                  </tr>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    {% for operation in datastudio.operations %}
+                                    {% for oper in datastudio.operations %}
                                     <tr>
                                         <td style="vertical-align: middle;">{{loop.index}}</td>
-                                        <td style="vertical-align: middle;">{{operation.uuid}}</td>
-                                        <td style="vertical-align: middle;">{{operation.operation}}</td>
-                                        <td style="vertical-align: middle;">{{operation.params}}</td>
+                                        <!-- Operation icon -->
+                                        {% if oper.operation == 'setdatatype' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-pen"></i></td>
+                                        <td style="vertical-align: middle;">Set column new data type</td>
+                                        {% elif oper.operation == 'remcol' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-eraser"></i></td>
+                                        <td style="vertical-align: middle;">Colum removed</td>
+                                        {% elif oper.operation == 'setcolumnname' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-font"></i></td>
+                                        <td style="vertical-align: middle;">Colum name changed</td>
+                                        {% elif oper.operation == 'clearnull' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
+                                        <td style="vertical-align: middle;">Delete rows with null data</td>
+                                        {% elif oper.operation == 'filtercol' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
+                                        <td style="vertical-align: middle;">Filter rows acording column values</td>
+                                        {% else %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-question"></i></td>
+                                        <td style="vertical-align: middle;">{{oper.operation}}</td>
+                                        {% endif %}
+
+                                        <td style="vertical-align: middle;">{{oper.params}}</td>
 
                                         <td style="vertical-align: middle;">
-                                            <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{title|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
                                         </td>
 
                                         <!-- column Delete Operation Modal -->
-                                        <div class="modal fade" id="deleteConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+                                        <div class="modal fade" id="deleteOperationConfirmation{{oper.uuid|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteOperationConfirmationLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
 
                                                 <div class="modal-content">
                                                     <form method="post">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="deleteConfirmationLabel">Are you sure you want to remove the operation <b>{{operation.operation}}</b> ?</h5>
+                                                            <h5 class="modal-title" id="deleteOperationConfirmationLabel">Are you sure you want to remove the operation <b>{{oper.operation}}</b> ?</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
 
                                                         <div class="modal-body">
                                                             <input hidden type="text" name="mod" value="deloperation">
-                                                            <input hidden type="text" name="uuid" value="{{operation.uuid}}">
+                                                            <input hidden type="text" name="uuid" value="{{oper.uuid}}">
+                                                            <input hidden type="text" name="pos" value="{{loop.index0}}">
 
                                                             <p>⚠️ This action is irreversible. However you can re-apply the data operation again.</p>
+                                                            <p> Operation UUID: {{oper.uuid}}</p>
+                                                            <p> Operation Type: {{oper.operation}}</p>
+                                                            <p> Operation Parameters: {{oper.params}}</p>
 
                                                         </div>
 
@@ -553,29 +578,28 @@
                                                     </form>
                                                 </div>
                                             </div>
-                                        </div>
-
+                                        </div>    
                                     </tr>
-      
+
                                     {% endfor %}
                                 </tbody>
-                              </table>
+                            </table>
                         </div>
                     </div>
-                  </div>
+                </div>
             </div>
         </div>
         {% endif %}    
     </div>
-  </div>
-  <div class="row">
-      <div class="col-12">
+</div>
+<div class="row">
+    <div class="col-12">
         {% if uploaded %}
             <div class="card bg-light ms-4 me-4 mb-4">
-              <div class="card-header">
-                  <i class="fa-solid fa-list fa-database"></i> Dataset preview (only first 10 records)
-              </div>
-              <div class="card-body">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-database"></i> Dataset preview (only first 10 records)
+            </div>
+            <div class="card-body">
                 <p class="card-text">
                     <div class="table-responsive">
                         {% for table in tables %}
@@ -583,11 +607,13 @@
                         {% endfor %}
                     </div>  
                 </p>
-              </div>
             </div>
-          {% endif %}            
-      </div>
-  </div>
+            </div>
+        {% endif %}            
+    </div>
+</div>
+<!-- end content-->
+
   
 {% endblock %}
 

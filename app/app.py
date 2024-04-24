@@ -424,7 +424,8 @@ def datastudio():
         
         elif(request.form['mod']=="deloperation"):
             operationUUID = request.form['uuid']
-            session['data_studio'].RemoveOperation(operationUUID)
+            id = request.form['pos']
+            session['data_studio'].RemoveOperationId(id)
 
         elif(request.form['mod']=="setdatatype"):
             columnName = request.form['column']
@@ -449,7 +450,7 @@ def datastudio():
             else:
                 newDatatype = object
 
-            params=[columnName, newDatatype]
+            params=[newName, newDatatype]
             dataOperation = DataOperation("setdatatype", params)
             session['data_studio'].AddOperation(dataOperation)
 

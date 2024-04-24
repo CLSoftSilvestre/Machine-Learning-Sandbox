@@ -26,13 +26,25 @@ class DataStudio:
         self.operations.append(operation)
         self.__performSingleOperation(operation)
     
-    def RemoveOperation(self, uuid):      
-        # Get the operation that we want to remove
+    def RemoveOperation(self, uuid):
+
+        # Get the position to POP the element
+        pos = 0
+        i = -1
         for operation in self.operations:
+            i +=1
             if operation.uuid == str(uuid):
-                self.operations.remove(operation)
-                self.__performAllOperations()
+                pos = i
+        # print("Poping element UUID ", uuid, file=sys.stderr) 
+        # print("Poping element at position ", pos, file=sys.stderr)  
+
+        self.operations.pop(pos)
+        self.__performAllOperations()
     
+    def RemoveOperationId(self, id):
+        self.operations.pop(int(id))
+        self.__performAllOperations()
+                
     def __performSingleOperation(self, operation):
         # Clear nulls operation
         if operation.operation == "clearnull":
@@ -83,7 +95,7 @@ class DataStudio:
     def __changeDatatype(self, column, datatype):
         try:
             if (datatype == datetime):
-                self.processedData[column] = pd.to_datetime(self.processedData[column], format='%d/%m/%Y')
+                self.processedData[column] = pd.to_datetime(self.processedData[column], dayfirst=True)
             else:
                 self.processedData[column] = self.processedData[column].astype(datatype)
         except Exception as error:
