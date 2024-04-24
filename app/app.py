@@ -49,6 +49,8 @@ from werkzeug.utils import secure_filename
 from outlierextractor import CreateOutliersBoxplot
 from datetime import datetime
 
+from DataStudio import DataStudio, DataOperation
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -57,7 +59,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.0"
+appversion = "1.3.1"
 model_version = 5
 
 @app.context_processor
@@ -235,12 +237,20 @@ def train():
         print(request.form['mod'], file=sys.stderr)
         print(type(request.form['mod']), file=sys.stderr)
         
-        if (request.form['mod']=="clearnull"):     
+        if (request.form['mod']=="clearnull"):
             session['temp_df'] = session['temp_df'].dropna(how='any', axis=0)
             session['temp_df'] = session['temp_df'].reset_index(drop=True)
 
+            # DataStudio Session update
+            dataOperation = DataOperation("clearnull", None)
+            session['data_studio'].AddOperation(dataOperation)
+
         elif (request.form['mod']=="remcol"):
             session['temp_df'] = session['temp_df'].drop([request.form['column']], axis=1)
+
+            # DataStudio Session update
+            dataOperation = DataOperation("remcol", request.form['column'])
+            session['data_studio'].AddOperation(dataOperation)
 
             if(session['temp_df_y_name'] != ""):
                 session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
@@ -293,7 +303,11 @@ def train():
             if(session['temp_df_y_name'] != ""):
                 session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
                 #TESTE session['temp_df_x'] = session['temp_df_x'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
-
+            
+            # DataStudio Session update
+            params = [column, min, max]
+            dataOperation = DataOperation("filtercol", params)
+            session['data_studio'].AddOperation(dataOperation)
 
         # Update the correlation matrix image
         session['temp_df'].corr(method="pearson")
@@ -312,7 +326,7 @@ def train():
         session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
 
     if session['temp_df'].columns.size > 0:   
-        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'], rawdata=list(session['temp_df'].values.tolist()))
+        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'], rawdata=list(session['temp_df'].values.tolist()), datastudio=session['data_studio'])
     else:
         emptyList = []
         emptyList.append((0,1))
@@ -331,6 +345,11 @@ def uploader():
             dec = request.form['dec']
 
             session['temp_df'] = pd.read_csv(f,sep=sep, decimal=dec)
+
+            # Start a new DataStudio Session
+            session['data_studio'] = DataStudio()
+            tempData = session['temp_df'].copy()
+            session['data_studio'].LoadData(tempData)
 
             # Clean the names of the headers to avid problems in fitration and deletion
             oldNames = session['temp_df'].columns.tolist()
@@ -357,11 +376,11 @@ def uploader():
             features = session['temp_df'].columns.tolist()
             session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
 
-            return redirect('/train')
+            return redirect('/datastudio')
         else:
-            return redirect('/train')
+            return redirect('/datastudio')
     else:
-        return redirect('/train')
+        return redirect('/datastudio')
 
 @app.route("/cleardataset/", methods=['GET'])
 def cleardataset():
@@ -372,6 +391,95 @@ def cleardataset():
     session['heatmap_base64_jpgData'] = ""
 
     return render_template('train.html')
+
+@app.route("/datastudio/", methods=['GET', 'POST'])
+def datastudio():
+
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    # acording to the command will perform mod on the data before push again to the page.
+
+    if(request.method == 'POST'):
+        if (request.form['mod']=="clearnull"):
+            # DataStudio Session update
+            dataOperation = DataOperation("clearnull", None)
+            session['data_studio'].AddOperation(dataOperation)
+
+        elif (request.form['mod']=="remcol"):
+            # DataStudio Session update
+            dataOperation = DataOperation("remcol", request.form['column'])
+            session['data_studio'].AddOperation(dataOperation)
+
+        elif(request.form['mod']=="filtercol"):
+
+            min = request.form['minimum']
+            max = request.form['maximum']
+            column = request.form['column']
+   
+            # DataStudio Session update
+            params = [column, min, max]
+            dataOperation = DataOperation("filtercol", params)
+            session['data_studio'].AddOperation(dataOperation)
+        
+        elif(request.form['mod']=="deloperation"):
+            operationUUID = request.form['uuid']
+            session['data_studio'].RemoveOperation(operationUUID)
+
+        elif(request.form['mod']=="setdatatype"):
+            columnName = request.form['column']
+            newName = request.form['newname']
+            dataType = request.form['coldatatype']
+
+            # Change columns name if the one provided is not equal
+            if(columnName != newName):
+                params = [columnName, newName]
+                dataOperation = DataOperation("setcolumnname", params)
+                session['data_studio'].AddOperation(dataOperation)
+
+            # Change the datatype according to the new type provided
+            if(dataType == "string"):
+                newDatatype = str
+            elif(dataType == "datetime"):
+                newDatatype = datetime
+            elif(dataType == "int"):
+                newDatatype = int
+            elif(dataType == "float"):
+                newDatatype = float
+            else:
+                newDatatype = object
+
+            params=[columnName, newDatatype]
+            dataOperation = DataOperation("setdatatype", params)
+            session['data_studio'].AddOperation(dataOperation)
+
+        # Update the correlation matrix image
+        session['data_studio'].processedData.corr(method="pearson")
+        corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
+        sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
+
+        # Save image data in variable
+        my_stringIObytes = io.BytesIO()
+        plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
+        my_stringIObytes.seek(0)
+        session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
+        plt.clf()
+
+        # Create the outliers image
+        features = session['data_studio'].processedData.columns.tolist()
+        session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
+
+    try:
+        if session['data_studio'].processedData.columns.size > 0:
+            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'])
+        else:
+            emptyList = []
+            emptyList.append((0,1))
+            return render_template('datastudio.html', rawdata=emptyList)
+    except:
+        emptyList = []
+        emptyList.append((0,1))
+        return render_template('datastudio.html', rawdata=emptyList)
 
 # Start of Models training
 @app.route("/linear/", methods=['GET', 'POST'])
@@ -1178,6 +1286,7 @@ def Logout():
     session['outliers_base64_jpgData'] = ""
     session['temp_df_units'] = []
     session['temp_best_models'] = []
+    session.pop('data_studio', None)
 
     return redirect('/index')
 

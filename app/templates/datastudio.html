@@ -1,19 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <h3 class="m-4">Train new model</h3>
+  <h3 class="m-4">Data Studio</h3>
   <div class="row">
     <div class="col-12">
         <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
         <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
-                <h3>Load training dataset</h3>
-                
+                <h3>Load dataset</h3>     
             </div>
-            <div class="card-body">
-                <h6>Load datasets for real scenarios:</h6>
-                
+            <div class="card-body">             
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
                     <div class="form-group row">
                         <label for="file" class="col-sm-1 col-form-label">Select file</label>
@@ -53,19 +50,7 @@
 
                     </div>
                 </form>
-            </div>
-
-            <div class="card-footer">
-                <p>Or load dummy datasets for training purposes:</p>
-
-                <div class="btn-group" role="group" aria-label="Basic outlined example">
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='iris')}}"><i class="fas fa-download"></i> Iris dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='diabetes')}}"><i class="fas fa-download"></i> Diabetes dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='digits')}}"><i class="fas fa-download"></i> Digits dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='wine')}}"><i class="fas fa-download"></i> Wine dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='bcancer')}}"><i class="fas fa-download"></i> Breast Cancer dataset</a>
-                </div>
-            </div>    
+            </div>   
         </div>
         <!-- When data is already imported -->
         {% else %}
@@ -83,60 +68,6 @@
                         <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
                         <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
                     </form>
-
-                    <div class="dropdown" id="tour-train-import-regressions">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-chart-line"></i>
-                            Regression models
-                          </button>
-                        {% if dependend == "" %} 
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item disabled" type="button" href="#">Linear regression</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">K Nearest Neighbors regressor</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine regression</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Decision tree regressor</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Neural Network MLP regressor</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
-                          </ul>
-                        {% else %}
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('linear')}}">Linear regression</a></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('knnreg')}}">K Nearest Neighbors regressor</a></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('svmreg')}}">Support Vector Machine regression</a></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('treereg')}}">Decision tree regressor</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('perceptronreg')}}">Neural Network MLP regressor</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
-                          </ul>
-                        {% endif %}
-                    </div>
-
-                    <div class="dropdown" id="tour-train-import-classifications">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-object-ungroup"></i>
-                          Classification models
-                        </button>
-                        {% if dependend == "" %} 
-                        <ul class="dropdown-menu">
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li-->
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li-->
-                          <li><a class="dropdown-item disabled" type="button" href="#">Random florest</a></li>
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li-->
-                          <li><a class="dropdown-item disabled" type="button" href="#">K Nearest Neighbors</a></li>
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li-->
-                        </ul>
-                        {% else %}
-                        <ul class="dropdown-menu">
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li-->
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li-->
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('randomforest')}}">Random florest</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li-->
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('knn')}}">K Nearest Neighbors</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li-->
-                        </ul>
-                        {% endif %}
-                    </div>
-
-
                 </div>
                     
             </div>
@@ -148,9 +79,6 @@
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Data manipulator</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true">Data properties</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots</button>
@@ -184,13 +112,7 @@
                                         <tr id='tour-train-import-variables'>
                                             <th scope="col">Variable</th>
                                             {% for title in titles %}
-                                                
-                                                {% if title == dependend %}
-                                                    <th scope="col"><i class="fa-solid fa-star"></i> {{title}}</th>
-                                                {% else %}
-                                                    <th scope="col">{{title}}</th>
-                                                {% endif %}
-
+                                                <th scope="col">{{title}}</th>
                                             {% endfor %}
                                             <th scope="col"></th>
                                         </tr>
@@ -205,6 +127,69 @@
                                                     <td class="align-middle"><span class="badge bg-success">{{dtype}}</span></td>
                                                 {% endif %}
                                                 
+                                            {% endfor %}
+                                            <td></td>
+                                        </tr>
+                                        <tr id='tour-train-import-settype'>
+                                            <td class="align-middle">Set data type</td>
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Set datatype" data-bs-toggle="modal" data-bs-target="#setTypeConfirmation{{title|replace(' ','')}}"><i class="fa fa-gear"></i></a>
+                                                </td>
+                                                <!-- set Datatype Modal -->
+                                                <div class="modal fade" id="setTypeConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setDatatypeConfirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="setDatatypeConfirmationLabel">Are you sure you want to change the type of data of column <b>{{title}}</b> ?</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="setdatatype">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+
+                                                                    <div class="form-horizontal">
+                                                                        <div class="form-group row">
+                                                                            <!-- New name -->
+                                                                            <label for="minimum" class="col-sm-5 col-form-label">Column new name</label>
+                                                                            <div class="col-sm-7">
+                                                                                <input type="text" class="form-control text-left" id="newname" name="newname" value="{{title}}"></input>
+                                                                            </div>
+
+                                                                            <div>&MediumSpace;</div>
+    
+                                                                            <!-- Data type -->
+                                                                            <label for="coldataype" class="col-sm-5 col-form-label">New data type</label>
+                                                                            <div class="col-sm-7">
+                                                                                <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
+                                                                                <select class="form-control text-left" id="coldatatype" name="coldatatype">
+                                                                                    <option value="string">String</option>
+                                                                                    <option value="datetime">Datetime</option>
+                                                                                    <option value="int">Integer</option>
+                                                                                    <option value="float">Float</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div>&MediumSpace;</div>
+
+                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             {% endfor %}
                                             <td></td>
                                         </tr>
@@ -229,7 +214,7 @@
                                                                     <input hidden type="text" name="mod" value="remcol">
                                                                     <input hidden type="text" name="column" value="{{title}}">
 
-                                                                    <p>⚠️ This action is irreversible. However you can re-import you data again by using the delete dataset button.</p>
+                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
 
                                                                 </div>
 
@@ -301,146 +286,10 @@
                                             {% endfor %}
                                             <td></td>
                                         </tr>
-                                        <tr id='tour-train-import-sety'>
-                                            <td class="align-middle">Set as Y column</td>
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <form method="post">
-                                                        <input hidden type="text" name="mod" value="setdependent">
-                                                        <input hidden type="text" name="column" value="{{title}}">
-                                                        {% if title == dependend %}
-                                                            <button type="submit" class="btn btn-warning disabled"><i class="fas fa-star"></i></button>
-                                                        {% else %}
-                                                            <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
-                                                        {% endif %}
-                                                        
-                                                    </form>
-                                                </td>
-                                            {% endfor %}
-                                            <td></td>
-
-                                            <!--td class="align-middle">Set dependend variable</td>
-                                            <form method="post">
-                                            <input hidden type="text" name="mod" value="setdependent">
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <div class="form-check">
-                                                        <input type="radio" class="form-check-input" id="{{title}}" name="{{title}}" value="{{title}}">Yes
-                                                        <label class="form-check-label" for="{{title}}"></label>
-                                                    </div>
-                                                </td>
-                                            {% endfor %}
-                                            <td class="align-middle"><button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Apply</button></td>
-                                            </form-->
-                                        </tr>
                                     </tbody>
                                 </table>
  
                             </div>  
-                        </p>
-                    </div>
-                    <div class="tab-pane fade" id="properties" role="tabpanel" aria-labelledby="properties-tab">
-                        <p class="card-text">
-                            <form method="post">
-                                <input hidden type="text" name="mod" value="setproperties">
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save properties</button>
-                                <div>&MediumSpace;</div>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered text-center w-auto">
-                                        <thead>
-                                            <tr id='tour-train-import-variables'>
-                                                <th scope="col">Variable</th>
-                                                {% for title in titles %}
-                                                    
-                                                    {% if title == dependend %}
-                                                        <th scope="col" class="th-lg"><i class="fa-solid fa-star"></i> {{title}}</th>
-                                                    {% else %}
-                                                        <th scope="col" class="th-lg">{{title}}</th>
-                                                    {% endif %}
-
-                                                {% endfor %}
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="align-middle" scope="col">Units</td>
-                                                {% for title in titles %}
-                                                    <td class="align-middle">
-                                                        <select class="form-select form-select-sm mb-3" aria-label=".form-select-sm example" name={{title}}>
-                                                            <optgroup label="Temperature">
-                                                                <option value="°C">Celsius</option>
-                                                                <option value="°F">Fahrenheit</option>
-                                                                <option value="°K">Kelvin</option>
-                                                            </optgroup>
-                                                            <optgroup label="Volume">
-                                                                <option value="L">L</option>
-                                                                <option value="m³">m³</option>
-                                                                <option value="Nm³">Nm³</option>
-                                                            </optgroup>
-                                                            <optgroup label="Mass">
-                                                                <option value="g">g</option>
-                                                                <option value="kg">Kg</option>
-                                                                <option value="t">Ton</option>
-                                                            </optgroup>
-                                                            <optgroup label="Flow">
-                                                                <option value="L/min">L/min</option>
-                                                                <option value="L/h">L/h</option>
-                                                                <option value="m³/h">m³/h</option>
-                                                                <option value="Nm³/h">Nm³/h</option>
-                                                                <option value="kg/h">kg/h</option>
-                                                                <option value="t/h">t/h</option>
-                                                            </optgroup>
-                                                            <optgroup label="Pressure and Force">
-                                                                <option value="bar">Bar</option>
-                                                                <option value="psi">Psi</option>
-                                                                <option value="Pa">Pa</option>
-                                                                <option value="N">N</option>
-                                                            </optgroup>
-                                                            <optgroup label="Electricity">
-                                                                <option value="V">Volt</option>
-                                                                <option value="A">Ampere</option>
-                                                            </optgroup>
-                                                            <optgroup label="Power and Energy">
-                                                                <option value="W">W</option>
-                                                                <option value="kW">kW</option>
-                                                                <option value="MW">MW</option>
-                                                                <option value="Wh">Wh</option>
-                                                                <option value="kWh">kWh</option>
-                                                                <option value="MWh">MWh</option>
-                                                            </optgroup>
-                                                            <optgroup label="Speed and Aceleration">
-                                                                <option value="rpm">RPM</option>
-                                                                <option value="mm/s">mm/s</option>
-                                                                <option value="m/s">m/s</option>
-                                                                <option value="mm/s²">mm/s²</option>
-                                                            </optgroup>
-                                                            <optgroup label="Time">
-                                                                <option value="sec">sec</option>
-                                                                <option value="min">min</option>
-                                                                <option value="hour">hour</option>
-                                                            </optgroup>
-                                                            <optgroup label="Lenght">
-                                                                <option value="mm">mm</option>
-                                                                <option value="cm">cm</option>
-                                                                <option value="m">m</option>
-                                                            </optgroup>
-                                                            <optgroup label="Others">
-                                                                <option value="%">Percentage</option>
-                                                                <option value="Yes/No">Yes/No</option>
-                                                                <option value="Number">Number</option>
-                                                                <option value="Status code">Status code</option>
-                                                                <option value="Not defined" selected>Not defined</option>
-                                                            </optgroup>
-                                                        </select>
-                                                    </td>
-                                                {% endfor %}
-                                            </tr>
-                                        </tbody>
-                                        
-                                    </table>
-                                    
-                                </div>
-                            </form>
                         </p>
                     </div>
                     <div class="tab-pane fade" id="outliers" role="tabpanel" aria-labelledby="outliers-tab">
@@ -675,11 +524,38 @@
                                         <td style="vertical-align: middle;">{{operation.params}}</td>
 
                                         <td style="vertical-align: middle;">
-                                          <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
-                                              <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Operation"><i class="fa fa-info-circle"></i></a> 
-                                          </div>
+                                            <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{title|replace(' ','')}}"><i class="fa fa-trash"></i></a>
                                         </td>
-                                    <tr>
+
+                                        <!-- column Delete Operation Modal -->
+                                        <div class="modal fade" id="deleteConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+
+                                                <div class="modal-content">
+                                                    <form method="post">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteConfirmationLabel">Are you sure you want to remove the operation <b>{{operation.operation}}</b> ?</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <input hidden type="text" name="mod" value="deloperation">
+                                                            <input hidden type="text" name="uuid" value="{{operation.uuid}}">
+
+                                                            <p>⚠️ This action is irreversible. However you can re-apply the data operation again.</p>
+
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </tr>
       
                                     {% endfor %}
                                 </tbody>
