@@ -6,6 +6,8 @@ Created on Fri Aug 18 10:15:25 2023
 """
 from datetime import datetime
 import uuid
+from DataStudio import DataStudio, DataOperation
+import math
 
 class PredictionModel:
     
@@ -20,12 +22,14 @@ class PredictionModel:
         self.datetime = datetime.now()
         self.variables = variables
         self.MSE = MSE
+        self.RMSE = math.sqrt(MSE)
         self.R2 = R2
         self.modelType = "regression"
         self.pVariable = "not defined"
         self.pVariableUnits = "not defined"
         self.realTestList = list()
         self.predTestList = list()
+        self.dataStudio = DataStudio()
     
     def SetModelPath(self, path):
         self.modelPath = path
@@ -50,6 +54,9 @@ class PredictionModel:
     def SetTestData(self, realTest, predTest):
         self.realTestList = realTest
         self.predTestList = predTest
+
+    def SetDataStudioData(self, data):
+        self.dataStudio = data
 
 class InputFeature:
     

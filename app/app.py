@@ -59,8 +59,8 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.1"
-model_version = 5
+appversion = "1.3.2"
+model_version = 6
 
 @app.context_processor
 def inject_app_version():
@@ -234,29 +234,10 @@ def train():
     # acording to the command will perform mod on the data before push again to the page.
 
     if(request.method == 'POST'):
-        print(request.form['mod'], file=sys.stderr)
-        print(type(request.form['mod']), file=sys.stderr)
+        # print(request.form['mod'], file=sys.stderr)
+        # print(type(request.form['mod']), file=sys.stderr)s
         
-        if (request.form['mod']=="clearnull"):
-            session['temp_df'] = session['temp_df'].dropna(how='any', axis=0)
-            session['temp_df'] = session['temp_df'].reset_index(drop=True)
-
-            # DataStudio Session update
-            dataOperation = DataOperation("clearnull", None)
-            session['data_studio'].AddOperation(dataOperation)
-
-        elif (request.form['mod']=="remcol"):
-            session['temp_df'] = session['temp_df'].drop([request.form['column']], axis=1)
-
-            # DataStudio Session update
-            dataOperation = DataOperation("remcol", request.form['column'])
-            session['data_studio'].AddOperation(dataOperation)
-
-            if(session['temp_df_y_name'] != ""):
-                session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
-                #TESTE session['temp_df_x'] = session['temp_df_x'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
-
-        elif(request.form['mod']=="setdependent"):
+        if(request.form['mod']=="setdependent"):
             session['temp_df_y'] = session['temp_df'][request.form['column']]
             session['temp_df_y_name'] = request.form['column']
             session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
@@ -280,53 +261,8 @@ def train():
             if session['temp_df_y_name'] != "":
                 session['temp_variable_units'] = request.form[session['temp_df_y_name']]
 
-        elif(request.form['mod']=="filtercol"):
-
-            min = request.form['minimum']
-            max = request.form['maximum']
-
-            column = request.form['column']
-
-            tempFilteredDf = pd.DataFrame()
-            tempFilteredDf = session['temp_df']
-
-            if min != "":
-                print("Applying filtering column " + column + " with min value", file=sys.stderr)
-                tempFilteredDf = session['temp_df'].loc[session['temp_df'][column] >= float(min)]
-            
-            if max != "":
-                print("Applying filtering column " + column + " with max value", file=sys.stderr)
-                tempFilteredDf = session['temp_df'].loc[session['temp_df'][column] <= float(max)]
-            
-            session['temp_df'] = tempFilteredDf
-
-            if(session['temp_df_y_name'] != ""):
-                session['temp_df_x'] = session['temp_df'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
-                #TESTE session['temp_df_x'] = session['temp_df_x'].loc[:,session['temp_df'].columns != session['temp_df_y_name']]
-            
-            # DataStudio Session update
-            params = [column, min, max]
-            dataOperation = DataOperation("filtercol", params)
-            session['data_studio'].AddOperation(dataOperation)
-
-        # Update the correlation matrix image
-        session['temp_df'].corr(method="pearson")
-        corr_matrix = session['temp_df'].corr(min_periods=1)
-        sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
-
-        # Save image data in variable
-        my_stringIObytes = io.BytesIO()
-        plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
-        my_stringIObytes.seek(0)
-        session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
-        plt.clf()
-
-        # Create the outliers image
-        features = session['temp_df'].columns.tolist()
-        session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
-
-    if session['temp_df'].columns.size > 0:   
-        return render_template('train.html', tables=[session['temp_df'].head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['temp_df'].columns.values, uploaded=True, descTable=[session['temp_df'].describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['temp_df'].dtypes, dependend = session['temp_df_y_name'], heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'], rawdata=list(session['temp_df'].values.tolist()), datastudio=session['data_studio'])
+    if session['temp_df'].columns.size > 0:
+        return render_template('train.html', titles=session['temp_df'].columns.values, uploaded=True, dependend = session['temp_df_y_name'], units=session['temp_df_units'])
     else:
         emptyList = []
         emptyList.append((0,1))
@@ -389,8 +325,10 @@ def cleardataset():
     session['temp_df_y_name'] = ""
     session['temp_df_x'] = pd.DataFrame()
     session['heatmap_base64_jpgData'] = ""
+    session['outliers_base64_jpgData'] = ""
+    session['data_studio'] = DataStudio()
 
-    return render_template('train.html')
+    return render_template('datastudio.html')
 
 @app.route("/datastudio/", methods=['GET', 'POST'])
 def datastudio():
@@ -454,6 +392,20 @@ def datastudio():
             dataOperation = DataOperation("setdatatype", params)
             session['data_studio'].AddOperation(dataOperation)
 
+        elif(request.form['mod']=="usedataset"):
+            # Reset variables before
+            session['temp_df'] = pd.DataFrame()
+            session['temp_df_y'] = pd.DataFrame()
+            session['temp_df_y_name'] = ""
+            session['temp_df_x'] = pd.DataFrame()
+            # session['heatmap_base64_jpgData'] = ""
+            # session['outliers_base64_jpgData'] = ""
+            session['temp_df_units'] = []
+            session['temp_best_models'] = []
+            session['temp_df'] = session['data_studio'].processedData.copy()
+
+            return redirect('/train')
+
         # Update the correlation matrix image
         session['data_studio'].processedData.corr(method="pearson")
         corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
@@ -503,6 +455,8 @@ def linear():
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
+
+        pModel.SetDataStudioData(session['data_studio'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -560,6 +514,11 @@ def knnreg():
                 # Setup the remaing data of the model
                 pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
                 pModel.SetModelVersion(model_version, appversion)
+
+                pModel.SetModelType("regression")
+                pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
+                pModel.SetDataStudioData(session['data_studio'])
+
                 bestModelsList.append(pModel)
             session['temp_best_models'] = bestModelsList
             return redirect('/best')
@@ -572,6 +531,8 @@ def knnreg():
 
             pModel.SetModelType("regression")
             pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
+
+            pModel.SetDataStudioData(session['data_studio'])
 
             # Save the model
             mMan = ModelManager()
@@ -663,6 +624,8 @@ def knn():
         pModel.SetModelType("classification")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
+        pModel.SetDataStudioData(session['data_studio'])
+
         mMan = ModelManager()
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
@@ -753,6 +716,8 @@ def randomforest():
         pModel.SetModelType("classifier")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
+        pModel.SetDataStudioData(session['data_studio'])
+
         mMan = ModelManager()
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
@@ -833,6 +798,8 @@ def svmreg():
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
+
+        pModel.SetDataStudioData(session['data_studio'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"
@@ -927,6 +894,8 @@ def treereg():
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
+        pModel.SetDataStudioData(session['data_studio'])
+
         mMan = ModelManager()
         modelFileName = name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
@@ -1007,6 +976,8 @@ def perceptronreg():
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
+
+        pModel.SetDataStudioData(session['data_studio'])
 
         mMan = ModelManager()
         modelFileName = name + ".model"

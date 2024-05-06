@@ -70,6 +70,15 @@
                         <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
                         <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
                     </form>
+
+                    <a class="btn btn-primary disabled" type="button" href="#"><i class="fas fa-download"></i> Export this dataset</a>
+
+                    <form method="post">
+                        <input hidden type="text" name="mod" value="usedataset">
+                        <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-robot"></i> Use dataset for ML model training</button>
+                    </form>
+
                 </div>
                     
             </div>
@@ -344,8 +353,25 @@
                         <!-- Line chart with results of training -->
                         <!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script-->
                         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
                         <!--canvas id="myChart" style="width:100%;max-width:1200px;height:100%;max-height:720px;padding:10px;"></canvas-->
                         <canvas id="myChart" style="width:100%;height:100%;max-height:720px;padding:10px;"></canvas>
+
+                        <canvas id="myCanvas" style="width:100%;height:100%;max-height:50px;padding:10px;"></canvas>
+
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-2">Min</div>
+                                <div class="col-8 text-center">Variable</div>
+                                <div class="col-2 text-right">Max</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-2"><h6 id="minValue">0</h6></div>
+                                <div class="col-8 text-center"><h6 id="variableName">[Variable Name]</h6></div>
+                                <div class="col-2 text-right"><h6 id="maxValue">100</h6></div>
+                            </div>
+                        </div>
                         
                         <script>
 
@@ -369,14 +395,36 @@
                                     datasets: [{
                                         pointRadius: 4,
                                         pointBackgroundColor: colorPoints,
+                                        pointsBorderColor: colorPoints,
                                         data: xyValues
                                     }]
                                 },
                                 options:{
+                                    elements:{
+                                        point:{
+                                            borderColor: colorPoints,
+                                        }
+                                    },
                                     plugins:{
                                         legend: {
                                             display: false
                                         },
+                                        zoom:{
+                                            zoom:{
+                                                wheel:{
+                                                    enabled: true,
+                                                    modifierKey: 'ctrl',
+                                                },
+                                                drag:{
+                                                    enabled: true,
+                                                    modifierKey: 'ctrl',
+                                                },
+                                                pinch:{
+                                                    enabled: true
+                                                },
+                                                mode: 'xy',
+                                            }
+                                        }
                                     },   
                                     responsive: true,
                                     scales: {
@@ -425,15 +473,16 @@
 
                             function calculateColor(iMin, iMax, iValue){
                                 perc = (iValue-iMin)/(iMax-iMin)
-                                perc +=0.2
-
-                                return newShade('#00805F', (perc*100))
-                                //return newShade('#00805F', (110))
+                                perc +=0.4
+                                // console.log("Min: ", iMin, " Max: ", iMax, " Value: ",iValue," Perc: ", perc*100)
+                                return newShade('#00805F', (perc*100))         
                             }
 
                             function UpdateChart(){
 
                                 singleColor = false
+
+                                myChart.resetZoom(mode='none')
 
                                 const x_variable = document.getElementById('selectedXVariable').value;
                                 const y_variable = document.getElementById('selectedYVariable').value;
@@ -461,7 +510,7 @@
                                         if (element[color_variable] < minColor){
                                             minColor = element[color_variable]
                                         }
-                                        if (element[color_variable] > minColor){
+                                        if (element[color_variable] > maxColor){
                                             maxColor = element[color_variable]
                                         } 
                                     });
@@ -488,7 +537,26 @@
                                             colorPoints.push(calculateColor(minColor, maxColor, line[color_variable]))
                                         } 
                                     }
-                                    
+
+                                    // Update canvas
+                                    const c = document.getElementById("myCanvas");
+                                    const ctx = c.getContext("2d");
+                                    const grad = ctx.createLinearGradient(0,0,280,0);
+                                    grad.addColorStop(0, newShade('#00805F', 40));
+                                    grad.addColorStop(1, newShade('#00805F', 140));
+                                    ctx.fillStyle = grad;
+                                    ctx.fillRect(0,0,500,130);
+
+                                    // Update the values and names
+                                    const min = document.getElementById("minValue")
+                                    const max = document.getElementById("maxValue")
+                                    const name = document.getElementById("variableName")
+                                    const variable = document.getElementById('selectedColorVariable').options[document.getElementById("selectedColorVariable").selectedIndex].text
+
+                                    min.innerText = minColor.toFixed(2)
+                                    max.innerText = maxColor.toFixed(2)
+                                    name.innerText = variable
+ 
                                 });
 
                                 // Update the labels
@@ -621,7 +689,7 @@
 <!-- Accentuate the NaN value in table-->
     <script>
         const cells = document.querySelectorAll('td');
-        console.log(cells)
+        // console.log(cells)
 
         for (let i=0; i < cells.length; i++){
             if(cells[i].innerText == "NaN"){

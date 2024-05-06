@@ -249,10 +249,10 @@
             
             <div class="form-group row">
 
-              <!-- MSE field -->
-              <label for="MSE" class="col-sm-2 col-form-label">MSE score</label>
+              <!-- RMSE field -->
+              <label for="RMSE" class="col-sm-2 col-form-label">RMSE score</label>
               <div class="col-sm-4">
-                <input type="text" class="form-control text-left" id="MSE" value="{{'%0.2f'|format(Model.MSE)}}" disabled>
+                <input type="text" class="form-control text-left" id="RMSE" value="{{ '%0.2f'|format(Model.RMSE)}} {{Model.pVariableUnits}}" disabled>
               </div>
 
               <!-- R2 field -->

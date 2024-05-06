@@ -7,7 +7,7 @@
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-body">
           {% if admin %}
-            <a class="btn btn-success" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a>
+            <!--a class="btn btn-success" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a-->
             <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
             <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
             <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
@@ -15,7 +15,7 @@
 
           {% else %}
 
-            <a class="btn btn-success disabled" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a>
+            <!--a class="btn btn-success disabled" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a-->
             <a class="btn btn-success disabled" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
             <a class="btn btn-success disabled" type="button" href="{{ url_for('importFile')}}"><i class="fas fa-file-import"></i> Import existent model</a>
             <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
@@ -44,7 +44,7 @@
                               <th scope="col">Model description</th>
                               <!--th scope="col">Algorithm type</th-->
                               <th scope="col">Train datetime</th>
-                              <th scope="col">MSE</th>
+                              <th scope="col">RMSE</th>
                               <th scope="col">R² score</th>
                               <th scope="col">Actions</th>
                             </tr>
@@ -61,7 +61,7 @@
                                   <td style="vertical-align: middle;">{{model.description}}</td>
                                   <!--td style="vertical-align: middle;">{{model.model}}</td-->
                                   <td style="vertical-align: middle;">{{model.datetime.strftime('%d/%m/%Y %H:%M')}}</td>
-                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better">{{ '%0.1f'|format(model.MSE)}}</td>
+                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better">{{ '%0.1f'|format(model.RMSE)}} {{model.pVariableUnits}}</td>
                                   <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
                                   <td style="vertical-align: middle;" id="tour-index-r2">
                                     <div class="progress">

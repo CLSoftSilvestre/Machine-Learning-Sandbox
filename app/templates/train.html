@@ -4,346 +4,35 @@
   <h3 class="m-4">Train new model</h3>
   <div class="row">
     <div class="col-12">
-        <!-- Import dataset or use dummy data for training purposes -->
-        {% if not uploaded %}
-        <div class="card bg-light ms-4 me-4 mb-4">
-            <div class="card-header">
-                <h3>Load training dataset</h3>
-                
-            </div>
-            <div class="card-body">
-                <h6>Load datasets for real scenarios:</h6>
-                
-                <form action="/uploader/" method="POST" enctype="multipart/form-data">
-                    <div class="form-group row">
-                        <label for="file" class="col-sm-1 col-form-label">Select file</label>
-                        <div class="col-sm-5" id="tour-train-import-file">
-                            <input type="file" class="form-control text-left" name = "file" id="file" accept=".csv">
-                        </div>
-
-                        <label for="sep" class="col-sm-1 col-form-label">Separator</label>
-                        <div class="col-sm-1" id="tour-train-import-separator">
-                            <input type="text" class="form-control text-left" name = "sep" id="sep" value=";">
-                        </div>
-
-                        <!--label for="sep" class="col-sm-1 col-form-label">Separator</label>
-                        <div class="col-sm-1">
-                            <select class="form-select form-select-sm" name="sep" id="sep">
-                                <option value=";">Semicolon</option>
-                                <option value=",">Comma</option>
-                            </select>
-                        </div-->
-
-                        <label for="dec" class="col-sm-1 col-form-label">Decimal</label>
-                        <div class="col-sm-1" id="tour-train-import-decimal">
-                            <input type="text" class="form-control text-left" name = "dec" id="dec" value=",">
-                        </div>
-
-                        <!--label for="dec" class="col-sm-1 col-form-label">Decimal</label>
-                        <div class="col-sm-1">
-                            <select class="form-select form-select-sm" name="dec" id="dec">
-                                <option value=",">Comma</option>
-                                <option value=".">Point</option>
-                            </select>
-                        </div-->
-
-                        <div class="col-sm-2 text-center">
-                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i> Parse CSV</button>
-                        </div>
-
-                    </div>
-                </form>
-            </div>
-
-            <div class="card-footer">
-                <p>Or load dummy datasets for training purposes:</p>
-
-                <div class="btn-group" role="group" aria-label="Basic outlined example">
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='iris')}}"><i class="fas fa-download"></i> Iris dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='diabetes')}}"><i class="fas fa-download"></i> Diabetes dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='digits')}}"><i class="fas fa-download"></i> Digits dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='wine')}}"><i class="fas fa-download"></i> Wine dataset</a>
-                    <a class="btn btn-outline-primary" type="button" href="{{ url_for('loaddummy', dataset='bcancer')}}"><i class="fas fa-download"></i> Breast Cancer dataset</a>
-                </div>
-            </div>    
-        </div>
-        <!-- When data is already imported -->
-        {% else %}
+        {% if uploaded %}
         <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
                 
                 <!-- Functionalities buttons -->
                 <div class="d-flex flex-row gap-3">
 
-                    <a class="btn btn-warning" type="button" href="{{ url_for('cleardataset')}}" id="tour-train-import-delete-dataset"><i class="fas fa-eraser"></i> Delete dataset</a>
+                    <a class="btn btn-warning" type="button" href="{{ url_for('datastudio')}}"><i class="fas fa-database"></i> Back to Data Studio</a>
 
-                    <form method="post">
-                        <input hidden type="text" name="mod" value="clearnull">
-                        <input hidden type="text" name="column" value="all">
-                        <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
-                        <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
-                    </form>
-
-                    <div class="dropdown" id="tour-train-import-regressions">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-chart-line"></i>
-                            Regression models
-                          </button>
-                        {% if dependend == "" %} 
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item disabled" type="button" href="#">Linear regression</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">K Nearest Neighbors regressor</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine regression</a></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Decision tree regressor</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item disabled" type="button" href="#">Neural Network MLP regressor</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
-                          </ul>
-                        {% else %}
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('linear')}}">Linear regression</a></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('knnreg')}}">K Nearest Neighbors regressor</a></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('svmreg')}}">Support Vector Machine regression</a></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('treereg')}}">Decision tree regressor</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('perceptronreg')}}">Neural Network MLP regressor</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Stochastic Gradient Descent regressor</a></li-->
-                          </ul>
-                        {% endif %}
-                    </div>
-
-                    <div class="dropdown" id="tour-train-import-classifications">
-                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-object-ungroup"></i>
-                          Classification models
-                        </button>
-                        {% if dependend == "" %} 
-                        <ul class="dropdown-menu">
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li-->
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li-->
-                          <li><a class="dropdown-item disabled" type="button" href="#">Random florest</a></li>
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li-->
-                          <li><a class="dropdown-item disabled" type="button" href="#">K Nearest Neighbors</a></li>
-                          <!--li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li-->
-                        </ul>
-                        {% else %}
-                        <ul class="dropdown-menu">
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Logistic regression</a></li-->
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Decision tree</a></li-->
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('randomforest')}}">Random florest</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Support Vector Machine</a></li-->
-                            <li><a class="dropdown-item" type="button" href="{{ url_for('knn')}}">K Nearest Neighbors</a></li>
-                            <!--li><a class="dropdown-item disabled" type="button" href="#">Naive Bayes</a></li-->
-                        </ul>
-                        {% endif %}
-                    </div>
-
-
-                </div>
-                    
+                </div>                  
             </div>
             <div class="card-body">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
-
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="descri-tab" data-bs-toggle="tab" data-bs-target="#descri" type="button" role="tab" aria-controls="descri" aria-selected="false">Data statistics</button>
+                        <button class="nav-link active" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true">Data properties</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Data manipulator</button>
+                        <button class="nav-link" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Variable selector</button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true">Data properties</button>
+                        <button class="nav-link" id="models-tab" data-bs-toggle="tab" data-bs-target="#models" type="button" role="tab" aria-controls="types" aria-selected="true">Model selector</button>
                     </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                      <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="scatter-tab" data-bs-toggle="tab" data-bs-target="#scatter" type="button" role="tab" aria-controls="scatter" aria-selected="false">Scatter plot</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link" id="dataoperations-tab" data-bs-toggle="tab" data-bs-target="#dataoperations" type="button" role="tab" aria-controls="dataoperations" aria-selected="false">Data operations</button>
-                    </li>
-
                   </ul>
                   <div class="tab-content" id="myTabContent">
-                    <div class="tab-pane fade" id="descri" role="tabpanel" aria-labelledby="descri-tab">
-                        <p class="card-text">
-                            <div class="table-responsive">
-                                {% for table in descTable %}
-                                    {{ table|safe }}
-                                {% endfor %}
-                            </div>  
-                        </p> 
-                    </div>
-                    <div class="tab-pane fade show active" id="types" role="tabpanel" aria-labelledby="types-tab">
-                        <p class="card-text">
-                            <div class="table-responsive">
-                                <table class="table table-bordered text-center">
-                                    <thead>
-                                        <tr id='tour-train-import-variables'>
-                                            <th scope="col">Variable</th>
-                                            {% for title in titles %}
-                                                
-                                                {% if title == dependend %}
-                                                    <th scope="col"><i class="fa-solid fa-star"></i> {{title}}</th>
-                                                {% else %}
-                                                    <th scope="col">{{title}}</th>
-                                                {% endif %}
-
-                                            {% endfor %}
-                                            <th scope="col"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr id='tour-train-import-datatypes'>
-                                            <td class="align-middle" scope="col">Current data type</td>
-                                            {% for dtype in datatypes %}
-                                                {% if dtype == "object" %}
-                                                    <td class="align-middle"><span class="badge bg-warning">{{dtype}}</span></td>
-                                                {% else %}
-                                                    <td class="align-middle"><span class="badge bg-success">{{dtype}}</span></td>
-                                                {% endif %}
-                                                
-                                            {% endfor %}
-                                            <td></td>
-                                        </tr>
-                                        <tr id='tour-train-import-remove'>
-                                            <td class="align-middle">Remove column</td>
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{title|replace(' ','')}}"><i class="fa fa-trash"></i></a>
-                                                </td>
-                                                <!-- column Filter Modal -->
-                                                <div class="modal fade" id="deleteConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered">
-
-                                                        <div class="modal-content">
-                                                            <form method="post">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="deleteConfirmationLabel">Are you sure you want to remove the column <b>{{title}}</b> ?</h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-
-                                                                <div class="modal-body">
-                                                                    <input hidden type="text" name="mod" value="remcol">
-                                                                    <input hidden type="text" name="column" value="{{title}}">
-
-                                                                    <p>⚠️ This action is irreversible. However you can re-import you data again by using the delete dataset button.</p>
-
-                                                                </div>
-
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                            <td></td>
-                                        </tr>
-                                        <tr id='tour-train-import-filter'>
-                                            <td class="align-middle">Filter column</td>
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#filterConfirmation{{title|replace(' ','')}}"><i class="fa fa-filter"></i></a>
-                                                </td>
-                                                <!-- column Filter Modal -->
-                                                <div class="modal fade" id="filterConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="filterConfirmationLabel" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered">
-
-                                                        <div class="modal-content">
-                                                            <form method="post">
-                                                                <div class="modal-header">
-                                                                    <h5 class="modal-title" id="filterConfirmationLabel">Filter the column <b>{{title}}</b> data</h5>
-                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                                </div>
-
-                                                                <div class="modal-body">
-                                                                    <input hidden type="text" name="mod" value="filtercol">
-                                                                    <input hidden type="text" name="column" value="{{title}}">
-                                                                    
-                                                                    <div class="form-horizontal">
-                                                                        <div class="form-group row">
-                                                                            <!-- Min -->
-                                                                            <label for="minimum" class="col-sm-5 col-form-label">Minimum value inclusive</label>
-                                                                            <div class="col-sm-7">
-                                                                                <input type="number" class="form-control text-left" id="minimum" name="minimum"></input>
-                                                                            </div>
-
-                                                                            <div>&MediumSpace;</div>
-    
-                                                                            <!-- Max -->
-                                                                            <label for="maximum" class="col-sm-5 col-form-label">Maximum value inclusive</label>
-                                                                            <div class="col-sm-7">
-                                                                                <input type="number" class="form-control text-left" id="maximum" name="maximum"></input>
-                                                                            </div>
-                                                                        </div>
-
-                                                                    </div>
-
-                                                                    <div>&MediumSpace;</div>
-
-                                                                    <p>⚠️ Data values >= minimum and <= maximum will be keept. Remaining rows will be removed. Leave field blank to ensure that filter is not applied.</p>
-
-                                                                </div>
-
-                                                                <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
-                                                                </div>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                            <td></td>
-                                        </tr>
-                                        <tr id='tour-train-import-sety'>
-                                            <td class="align-middle">Set as Y column</td>
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <form method="post">
-                                                        <input hidden type="text" name="mod" value="setdependent">
-                                                        <input hidden type="text" name="column" value="{{title}}">
-                                                        {% if title == dependend %}
-                                                            <button type="submit" class="btn btn-warning disabled"><i class="fas fa-star"></i></button>
-                                                        {% else %}
-                                                            <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
-                                                        {% endif %}
-                                                        
-                                                    </form>
-                                                </td>
-                                            {% endfor %}
-                                            <td></td>
-
-                                            <!--td class="align-middle">Set dependend variable</td>
-                                            <form method="post">
-                                            <input hidden type="text" name="mod" value="setdependent">
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <div class="form-check">
-                                                        <input type="radio" class="form-check-input" id="{{title}}" name="{{title}}" value="{{title}}">Yes
-                                                        <label class="form-check-label" for="{{title}}"></label>
-                                                    </div>
-                                                </td>
-                                            {% endfor %}
-                                            <td class="align-middle"><button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Apply</button></td>
-                                            </form-->
-                                        </tr>
-                                    </tbody>
-                                </table>
- 
-                            </div>  
-                        </p>
-                    </div>
-                    <div class="tab-pane fade" id="properties" role="tabpanel" aria-labelledby="properties-tab">
+                    <div class="tab-pane fade show active" id="properties" role="tabpanel" aria-labelledby="properties-tab">
                         <p class="card-text">
                             <form method="post">
                                 <input hidden type="text" name="mod" value="setproperties">
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save properties</button>
+                                
                                 <div>&MediumSpace;</div>
                                 <div class="table-responsive">
                                     <table class="table table-bordered text-center w-auto">
@@ -363,7 +52,13 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="align-middle" scope="col">Units</td>
+                                                <td class="align-middle" scope="col">Current unit</td>
+                                                {% for unit in units %}
+                                                    <td class="align-middle">{{unit}}</td>
+                                                {% endfor %}
+                                            </tr>
+                                            <tr>
+                                                <td class="align-middle" scope="col">New Unit</td>
                                                 {% for title in titles %}
                                                     <td class="align-middle">
                                                         <select class="form-select form-select-sm mb-3" aria-label=".form-select-sm example" name={{title}}>
@@ -440,294 +135,208 @@
                                     </table>
                                     
                                 </div>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update units</button>
                             </form>
                         </p>
                     </div>
-                    <div class="tab-pane fade" id="outliers" role="tabpanel" aria-labelledby="outliers-tab">
-                        <img src="data:image/jpeg;base64,{{outliers}}" class="img-fluid" alt="..." id="outliersimg">
+                    <div class="tab-pane fade" id="types" role="tabpanel" aria-labelledby="types-tab">
+                        <p class="card-text">
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-center">
+                                    <thead>
+                                        <tr id='tour-train-import-variables'>
+                                            <th scope="col">Variable</th>
+                                            {% for title in titles %}
+                                                
+                                                {% if title == dependend %}
+                                                    <th scope="col"><i class="fa-solid fa-star"></i> {{title}}</th>
+                                                {% else %}
+                                                    <th scope="col">{{title}}</th>
+                                                {% endif %}
+
+                                            {% endfor %}
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id='tour-train-import-sety'>
+                                            <td class="align-middle">Set as Y column</td>
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <form method="post">
+                                                        <input hidden type="text" name="mod" value="setdependent">
+                                                        <input hidden type="text" name="column" value="{{title}}">
+                                                        {% if title == dependend %}
+                                                            <button type="submit" class="btn btn-warning disabled"><i class="fas fa-star"></i></button>
+                                                        {% else %}
+                                                            <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                        {% endif %}
+                                                        
+                                                    </form>
+                                                </td>
+                                            {% endfor %}
+                                            <td></td>
+
+                                            <!--td class="align-middle">Set dependend variable</td>
+                                            <form method="post">
+                                            <input hidden type="text" name="mod" value="setdependent">
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <div class="form-check">
+                                                        <input type="radio" class="form-check-input" id="{{title}}" name="{{title}}" value="{{title}}">Yes
+                                                        <label class="form-check-label" for="{{title}}"></label>
+                                                    </div>
+                                                </td>
+                                            {% endfor %}
+                                            <td class="align-middle"><button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Apply</button></td>
+                                            </form-->
+                                        </tr>
+                                    </tbody>
+                                </table>
+ 
+                            </div>  
+                        </p>
                     </div>
-                    <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
-                        <img src="data:image/jpeg;base64,{{heatmap}}" class="img-fluid" alt="..." id="heatimg">
-                    </div>
-                    <div class="tab-pane fade" id="scatter" role="tabpanel" aria-labelledby="scatter-tab">
-                        <br>
-
-                        <div class="d-flex flex-row gap-3">
-
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="selectedXVariable"><i class="fas fa-x"></i></label>
-                                <select class="form-select" id="selectedXVariable">
-                                    <option selected>Choose one variable...</option>
-                                    {% for title in titles %}
-                                        <option value={{loop.index-1}}>{{title}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="selectedYVariable"><i class="fas fa-y"></i></label>
-                                <select class="form-select" id="selectedYVariable">
-                                    <option selected>Choose one variable...</option>
-                                    {% for title in titles %}
-                                        <option value={{loop.index-1}}>{{title}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="selectedColorVariable"><i class="fas fa-palette"></i></label>
-                                <select class="form-select" id="selectedColorVariable">
-                                  <option selected>Choose one variable...</option>
-                                    {% for title in titles %}
-                                        <option value={{loop.index-1}}>{{title}}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-
-                            <button type="button" class="btn btn-primary" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i></button>
-
-                        </div>
-
-                        <br>
-                        
-                        <!-- Line chart with results of training -->
-                        <!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script-->
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                        <!--canvas id="myChart" style="width:100%;max-width:1200px;height:100%;max-height:720px;padding:10px;"></canvas-->
-                        <canvas id="myChart" style="width:100%;height:100%;max-height:720px;padding:10px;"></canvas>
-                        
-                        <script>
-
-                            var xyValues = [
-                                {x:0, y:0}
-                            ]
-
-                            var colorPoints = [
-                            '#22bfa0'
-                            ]
-
-                            // Update the labels
-                            var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
-                            var labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
-
-                            const ctx = document.getElementById('myChart').getContext('2d');
-
-                            const myChart = new Chart("myChart", {
-                                type: "scatter",
-                                data: {
-                                    datasets: [{
-                                        pointRadius: 4,
-                                        pointBackgroundColor: colorPoints,
-                                        data: xyValues
-                                    }]
-                                },
-                                options:{
-                                    plugins:{
-                                        legend: {
-                                            display: false
-                                        },
-                                    },   
-                                    responsive: true,
-                                    scales: {
-                                        x: {
-                                            title: {
-                                                display: true,
-                                                text: labelX,
-                                            }
-                                        },
-                                        y: {
-                                            title: {
-                                                display: true,
-                                                text: labelY,
-                                            },
-                                        },
-                                    }
-                                }
-                            });
-
-                            // Get the data from Jinja2 to Javascript
-                            jsData = []
-                            {% if rawdata is defined %}
-                                {% for row in rawdata %}    
-                                    jsData.push({{row}})                          
-                                {% endfor %}
-                            {% endif %}
-
-                            const newShade = (hexColor, magnitude) => {
-                                hexColor = hexColor.replace(`#`, ``);
-                                if (hexColor.length === 6) {
-                                    const decimalColor = parseInt(hexColor, 16);
-                                    let r = (decimalColor >> 16) + magnitude;
-                                    r > 255 && (r = 255);
-                                    r < 0 && (r = 0);
-                                    let g = (decimalColor & 0x0000ff) + magnitude;
-                                    g > 255 && (g = 255);
-                                    g < 0 && (g = 0);
-                                    let b = ((decimalColor >> 8) & 0x00ff) + magnitude;
-                                    b > 255 && (b = 255);
-                                    b < 0 && (b = 0);
-                                    return `#${(g | (b << 8) | (r << 16)).toString(16)}`;
-                                } else {
-                                    return hexColor;
-                                }
-                            };
-
-                            function calculateColor(iMin, iMax, iValue){
-                                perc = (iValue-iMin)/(iMax-iMin)
-                                perc +=0.2
-
-                                return newShade('#00805F', (perc*100))
-                                //return newShade('#00805F', (110))
-                            }
-
-                            function UpdateChart(){
-
-                                singleColor = false
-
-                                const x_variable = document.getElementById('selectedXVariable').value;
-                                const y_variable = document.getElementById('selectedYVariable').value;
-                                const color_variable = document.getElementById('selectedColorVariable').value;
-
-                                if (x_variable=="Choose one variable..."){
-                                    alert("Please select one variable to be assigned to X axis.");
-                                    return
-                                }
+                    <div class="tab-pane fade" id="models" role="tabpanel" aria-labelledby="models-tab">
+                        <p class="card-text">
+                            <div class="content">
+                                <!-- Line 1 -->
+                                <h3>Regression models</h3>
+                                <h6>Select one of those models when the value to predict is as continuous value.</h6>
+                                <br>
+                                <div class="row">
                                     
-                                if (y_variable=="Choose one variable...")
-                                {
-                                    alert("Please select one variable to be assigned to Y axis.");
-                                    return
-                                }
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/linear_regression.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">Linear regression</h5>
+                                              <p class="card-text mb-4">A Linear Regression model is a simple and widely used supervised learning algorithm for solving regression tasks. It works by finding the linear relationship between the input features and the target variable.</p>
+                                                {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('linear')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %}   
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                if (color_variable=="Choose one variable...")
-                                {
-                                    singleColor = true
-                                } else {
-                                    //Calculate the Min and Max of the variable
-                                    var minColor = 0
-                                    var maxColor = 0
-                                    jsData.forEach(element => {
-                                        if (element[color_variable] < minColor){
-                                            minColor = element[color_variable]
-                                        }
-                                        if (element[color_variable] > minColor){
-                                            maxColor = element[color_variable]
-                                        } 
-                                    });
-                                }
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/knn_regression.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">KNN regression</h5>
+                                              <p class="card-text mb-4">A K-Nearest Neighbors (KNN) regression model is a supervised learning algorithm used for regression tasks. It works by using the K closest data points to make predictions about the target variable.</p>
+                                              
+                                                {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('knnreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %}  
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                xyValues.length = 0
-                                colorPoints.length = 0
-                                
-                                jsData.forEach(line => {
-                                    // console.log("X:", line[x_variable], "Y:", line[y_variable])
-                                    xyValues.push({
-                                        'x': line[x_variable],
-                                        'y': line[y_variable]
-                                    })
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/SVM.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">SVM regression</h5>
+                                              <p class="card-text mb-4">A Support Vector Machine regression model is a type of supervised machine learning algorithm used for regression tasks. It works by finding the best-fitting line that separates data points and uses this line to make predictions.</p>
+                                              
+                                                {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('svmreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %}  
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                    // Cores dos pontos
-                                    if (singleColor == true){
-                                        colorPoints.push('#22bfa0')
-                                    } else {
-                                        // Criar linearização de cor
-                                        if (line[color_variable] == 0){
-                                            colorPoints.push('#000000')
-                                        } else {
-                                            colorPoints.push(calculateColor(minColor, maxColor, line[color_variable]))
-                                        } 
-                                    }
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/decision_tree.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">Decision tree regression</h5>
+                                              <p class="card-text mb-4">A Decision Tree Regression model is a supervised learning algorithm used for regression tasks. It works by partitioning the feature space into regions and fitting a simple model, usually a constant, within each region.</p>
+                                              
+                                              {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('treereg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %} 
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/mlp.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">Multi-layer perceptron regressor</h5>
+                                              <p class="card-text mb-4">An MLP Regressor is a type of artificial neural network that is used for regression tasks, where the goal is to predict a continuous target variable. MLP Regressors can capture non-linear relationships in the data and are capable of learning complex patterns, making them suitable for a wide range of regression problems</p>
+                                              
+                                              {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('perceptronreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %} 
+                                            </div>
+                                        </div>
+                                    </div>
                                     
-                                });
+                                </div>
+                                <hr>
+                                <h3>Classification models</h3>
+                                <h6>Select one of those models when the value to predict is as categorical value.</h6>
+                                <br>
+                                <div class="row">
+                                    
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/random_forest.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">Random forest classifier</h5>
+                                              <p class="card-text mb-4">For a classification task, each tree in the forest predicts the class label and the class that receives the most "votes" from the trees becomes the model's prediction</p>
+                                                {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('randomforest')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %}   
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                // Update the labels
-                                labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
-                                labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
-
-                                // console.log(labelX, " - ", labelY)
-                                myChart.options.scales.y.title.text = labelY
-                                myChart.options.scales.x.title.text = labelX
-                                // Update the chart
-                                myChart.update()
-                            }
-
-                        </script>
-                        <!-- End of chart -->
-                    </div>
-                    <div class="tab-pane fade" id="dataoperations" role="tabpanel" aria-labelledby="dataoperations-tab">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                  <tr>
-                                    <th scope="col">Pos</th>
-                                    <th scope="col">UUID</th>
-                                    <th scope="col">Operation type</th>
-                                    <th scope="col">Parameters</th>
-                                    <th scope="col">Actions</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                    {% for operation in datastudio.operations %}
-                                    <tr>
-                                        <td style="vertical-align: middle;">{{loop.index}}</td>
-                                        <td style="vertical-align: middle;">{{operation.uuid}}</td>
-                                        <td style="vertical-align: middle;">{{operation.operation}}</td>
-                                        <td style="vertical-align: middle;">{{operation.params}}</td>
-
-                                        <td style="vertical-align: middle;">
-                                          <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
-                                              <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Operation"><i class="fa fa-info-circle"></i></a> 
-                                          </div>
-                                        </td>
-                                    <tr>
-      
-                                    {% endfor %}
-                                </tbody>
-                              </table>
-                        </div>
-                    </div>
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/KNN-classifier.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">KNN classifier</h5>
+                                              <p class="card-text mb-4">KNN is a type of instance-based learning or lazy learning where the function is only approximated locally and all computation is deferred until the function is needed.</p>
+                                              
+                                                {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('knn')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %}  
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </p>
+                    </div>            
                   </div>
             </div>
         </div>
         {% endif %}    
     </div>
-  </div>
-  <div class="row">
-      <div class="col-12">
-        {% if uploaded %}
-            <div class="card bg-light ms-4 me-4 mb-4">
-              <div class="card-header">
-                  <i class="fa-solid fa-list fa-database"></i> Dataset preview (only first 10 records)
-              </div>
-              <div class="card-body">
-                <p class="card-text">
-                    <div class="table-responsive">
-                        {% for table in tables %}
-                            {{ table|safe }}
-                        {% endfor %}
-                    </div>  
-                </p>
-              </div>
-            </div>
-          {% endif %}            
-      </div>
-  </div>
-  
+  </div>  
 {% endblock %}
 
 {% block scripts %}
 <!-- Accentuate the NaN value in table-->
-    <script>
-        const cells = document.querySelectorAll('td');
-        console.log(cells)
-
-        for (let i=0; i < cells.length; i++){
-            if(cells[i].innerText == "NaN"){
-                cells[i].innerText = "⚠️"
-            }
-        }
-        
-    </script>
     <script src="../static/js/intro.min.js"></script>  
     <script src="../static/js/tour-train.js"></script>
 {% endblock %}
