@@ -24,7 +24,9 @@ function getCookie(cname) {
 
 function RestartTour() {
     setCookie("tourIndexComplete", false, 90);
-    setCookie("tourTrainPart1Complete", true, 90);
+    setCookie("tourDataStudioPart1Complete", false, 90);
+    setCookie("tourDataStudioPart2Complete", false, 90);
+    setCookie("tourTrainComplete", true, 90);
 }
 
 function SelectTours(e) {
@@ -34,6 +36,8 @@ function SelectTours(e) {
     } else {
         //Disable all tours
         setCookie("tourIndexComplete", true, 90);
-        setCookie("tourTrainPart1Complete", true, 90);
+        setCookie("tourDataStudioPart1Complete", true, 90);
+        setCookie("tourDataStudioPart2Complete", true, 90);
+        setCookie("tourTrainComplete", true, 90);
     }
 }

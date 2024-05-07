@@ -10,7 +10,7 @@
         {% if not uploaded %}
         <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
-                <h3>Load dataset</h3>     
+                <h3 id="notuploaded">Load dataset</h3>     
             </div>
             <div class="card-body">             
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
@@ -71,12 +71,12 @@
                         <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
                     </form>
 
-                    <a class="btn btn-primary disabled" type="button" href="#"><i class="fas fa-download"></i> Export this dataset</a>
+                    <a class="btn btn-primary disabled" type="button" href="#" id="tour-train-import-export"><i class="fas fa-download"></i> Export this dataset</a>
 
                     <form method="post">
                         <input hidden type="text" name="mod" value="usedataset">
                         <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-robot"></i> Use dataset for ML model training</button>
+                        <button type="submit" class="btn btn-primary" id="tour-train-import-useml"><i class="fas fa-robot"></i> Use dataset for ML model training</button>
                     </form>
 
                 </div>
@@ -85,22 +85,22 @@
             <div class="card-body">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
 
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-import-desc">
                         <button class="nav-link" id="descri-tab" data-bs-toggle="tab" data-bs-target="#descri" type="button" role="tab" aria-controls="descri" aria-selected="false">Data statistics</button>
                     </li>
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Data manipulator</button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-import-outliers">
                         <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots</button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-import-correlation">
                     <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-import-scatter">
                         <button class="nav-link" id="scatter-tab" data-bs-toggle="tab" data-bs-target="#scatter" type="button" role="tab" aria-controls="scatter" aria-selected="false">Scatter plot</button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-import-operations">
                         <button class="nav-link" id="dataoperations-tab" data-bs-toggle="tab" data-bs-target="#dataoperations" type="button" role="tab" aria-controls="dataoperations" aria-selected="false">Data operations</button>
                     </li>
 
@@ -669,7 +669,7 @@
             </div>
             <div class="card-body">
                 <p class="card-text">
-                    <div class="table-responsive">
+                    <div class="table-responsive" id="tour-train-import-dataview">
                         {% for table in tables %}
                             {{ table|safe }}
                         {% endfor %}
@@ -698,6 +698,6 @@
         }
         
     </script>
-    <script src="../static/js/intro.min.js"></script>  
-    <script src="../static/js/tour-train.js"></script>
+    <script src="../static/js/intro.min.js"></script>
+    <script src="../static/js/tour-datastudio.js"></script>
 {% endblock %}

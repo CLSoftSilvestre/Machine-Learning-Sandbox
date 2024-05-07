@@ -11,19 +11,19 @@
                 <!-- Functionalities buttons -->
                 <div class="d-flex flex-row gap-3">
 
-                    <a class="btn btn-warning" type="button" href="{{ url_for('datastudio')}}"><i class="fas fa-database"></i> Back to Data Studio</a>
+                    <a class="btn btn-warning" type="button" href="{{ url_for('datastudio')}}" id="tour-train-datastudio"><i class="fas fa-database"></i> Back to Data Studio</a>
 
                 </div>                  
             </div>
             <div class="card-body">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-setunits">
                         <button class="nav-link active" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true">Data properties</button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-sety">
                         <button class="nav-link" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Variable selector</button>
                     </li>
-                    <li class="nav-item" role="presentation">
+                    <li class="nav-item" role="presentation" id="tour-train-selectmodel">
                         <button class="nav-link" id="models-tab" data-bs-toggle="tab" data-bs-target="#models" type="button" role="tab" aria-controls="types" aria-selected="true">Model selector</button>
                     </li>
                   </ul>
@@ -166,30 +166,20 @@
                                                     <form method="post">
                                                         <input hidden type="text" name="mod" value="setdependent">
                                                         <input hidden type="text" name="column" value="{{title}}">
-                                                        {% if title == dependend %}
-                                                            <button type="submit" class="btn btn-warning disabled"><i class="fas fa-star"></i></button>
+                                                        {% if units|length > 0 %}
+                                                            {% if title == dependend %}
+                                                                <button type="submit" class="btn btn-warning disabled"><i class="fas fa-star"></i></button>
+                                                            {% else %}
+                                                                <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                            {% endif %}
                                                         {% else %}
-                                                            <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                            <button type="submit" class="btn btn-success disabled"><i class="fas fa-check"></i></button>
                                                         {% endif %}
-                                                        
+                                                          
                                                     </form>
                                                 </td>
                                             {% endfor %}
                                             <td></td>
-
-                                            <!--td class="align-middle">Set dependend variable</td>
-                                            <form method="post">
-                                            <input hidden type="text" name="mod" value="setdependent">
-                                            {% for title in titles %}
-                                                <td class="align-middle">
-                                                    <div class="form-check">
-                                                        <input type="radio" class="form-check-input" id="{{title}}" name="{{title}}" value="{{title}}">Yes
-                                                        <label class="form-check-label" for="{{title}}"></label>
-                                                    </div>
-                                                </td>
-                                            {% endfor %}
-                                            <td class="align-middle"><button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Apply</button></td>
-                                            </form-->
                                         </tr>
                                     </tbody>
                                 </table>

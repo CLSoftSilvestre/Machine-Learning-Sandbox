@@ -48,7 +48,7 @@ class DataStudio:
     def __performSingleOperation(self, operation):
         # Clear nulls operation
         if operation.operation == "clearnull":
-            self.processedData.dropna(how='any', axis=0)
+            self.processedData.dropna(how='any', axis=0, inplace=True)
             self.processedData.reset_index(drop=True)
 
         # Remove column
