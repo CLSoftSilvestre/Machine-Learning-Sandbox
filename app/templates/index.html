@@ -42,7 +42,7 @@
                               <th scope="col"></th>
                               <th scope="col">Model name</th>
                               <th scope="col">Model description</th>
-                              <!--th scope="col">Algorithm type</th-->
+                              <th scope="col">Keywords</th>
                               <th scope="col">Train datetime</th>
                               <th scope="col">RMSE</th>
                               <th scope="col">R² score</th>
@@ -59,7 +59,15 @@
                                   {% endif %}
                                   <td style="vertical-align: middle;">{{model.name}}</td>
                                   <td style="vertical-align: middle;">{{model.description}}</td>
-                                  <!--td style="vertical-align: middle;">{{model.model}}</td-->
+                                  {% if model.keywords|length > 0 %}
+                                  <td style="vertical-align: middle;">
+                                    {% for keyword in model.keywords %}
+                                    <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#viewKeyword" id="tour-index-viewkeyword"><span class="badge rounded-pill bg-success">{{keyword}}</span></a>
+                                    {% endfor %}
+                                  </td>
+                                  {% else %}
+                                  <td style="vertical-align: middle;"><span class="badge rounded-pill bg-warning">Not defined</span></td>
+                                  {% endif %}
                                   <td style="vertical-align: middle;">{{model.datetime.strftime('%d/%m/%Y %H:%M')}}</td>
                                   <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better" id="tour-index-rmse">{{ '%0.1f'|format(model.RMSE)}} {{model.pVariableUnits}}</td>
                                   <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
@@ -122,6 +130,24 @@
               <h5 class="alert alert-primary ms-4 me-4">No trained models available</h5>
           {% endif %}   
       </div>
+  </div>
+
+  <!-- View models with same keyword -->
+  <div class="modal fade" id="viewKeyword" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="viewKeywordLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="viewKeywordLabel">Models with same keyword...</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5>Feature under construction...</h5>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="../static/js/intro.min.js"></script>  

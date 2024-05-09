@@ -266,7 +266,7 @@
                                                                             <!-- Min -->
                                                                             <label for="minimum" class="col-sm-5 col-form-label">Minimum value inclusive</label>
                                                                             <div class="col-sm-7">
-                                                                                <input type="number" class="form-control text-left" id="minimum" name="minimum"></input>
+                                                                                <input type="number" class="form-control text-left" id="minimum" name="minimum" step="0.1"></input>
                                                                             </div>
 
                                                                             <div>&MediumSpace;</div>
@@ -274,7 +274,7 @@
                                                                             <!-- Max -->
                                                                             <label for="maximum" class="col-sm-5 col-form-label">Maximum value inclusive</label>
                                                                             <div class="col-sm-7">
-                                                                                <input type="number" class="form-control text-left" id="maximum" name="maximum"></input>
+                                                                                <input type="number" class="form-control text-left" id="maximum" name="maximum" step="0.1"></input>
                                                                             </div>
                                                                         </div>
 
@@ -343,6 +343,12 @@
                                     {% endfor %}
                                 </select>
                             </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="colorInput"><i class="fas fa-tint"></i></label>
+                                <input type="color" class="form-control form-control-color" id="colorInput" value="#00805F" title="Choose your color">
+                            </div>
+                            
 
                             <button type="button" class="btn btn-primary" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i></button>
 
@@ -471,11 +477,11 @@
                                 }
                             };
 
-                            function calculateColor(iMin, iMax, iValue){
+                            function calculateColor(iMin, iMax, iValue, selectedColor){
                                 perc = (iValue-iMin)/(iMax-iMin)
                                 perc +=0.4
                                 // console.log("Min: ", iMin, " Max: ", iMax, " Value: ",iValue," Perc: ", perc*100)
-                                return newShade('#00805F', (perc*100))         
+                                return newShade(selectedColor, (perc*100))         
                             }
 
                             function UpdateChart(){
@@ -487,6 +493,11 @@
                                 const x_variable = document.getElementById('selectedXVariable').value;
                                 const y_variable = document.getElementById('selectedYVariable').value;
                                 const color_variable = document.getElementById('selectedColorVariable').value;
+
+                                const sel_color = document.getElementById('colorInput').value;
+
+                                var minColor = 1000000;
+                                var maxColor = 0;
 
                                 if (x_variable=="Choose one variable..."){
                                     alert("Please select one variable to be assigned to X axis.");
@@ -501,11 +512,11 @@
 
                                 if (color_variable=="Choose one variable...")
                                 {
-                                    singleColor = true
+                                    singleColor = true;
                                 } else {
                                     //Calculate the Min and Max of the variable
-                                    var minColor = 0
-                                    var maxColor = 0
+                                    minColor = 1000000;
+                                    maxColor = 0;
                                     jsData.forEach(element => {
                                         if (element[color_variable] < minColor){
                                             minColor = element[color_variable]
@@ -528,13 +539,13 @@
 
                                     // Cores dos pontos
                                     if (singleColor == true){
-                                        colorPoints.push('#22bfa0')
+                                        colorPoints.push(sel_color)
                                     } else {
                                         // Criar linearização de cor
                                         if (line[color_variable] == 0){
                                             colorPoints.push('#000000')
                                         } else {
-                                            colorPoints.push(calculateColor(minColor, maxColor, line[color_variable]))
+                                            colorPoints.push(calculateColor(minColor, maxColor, line[color_variable], sel_color))
                                         } 
                                     }
 
@@ -542,8 +553,8 @@
                                     const c = document.getElementById("myCanvas");
                                     const ctx = c.getContext("2d");
                                     const grad = ctx.createLinearGradient(0,0,280,0);
-                                    grad.addColorStop(0, newShade('#00805F', 40));
-                                    grad.addColorStop(1, newShade('#00805F', 140));
+                                    grad.addColorStop(0, newShade(sel_color, 40));
+                                    grad.addColorStop(1, newShade(sel_color, 140));
                                     ctx.fillStyle = grad;
                                     ctx.fillRect(0,0,500,130);
 

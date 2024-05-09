@@ -15,9 +15,10 @@ class PredictionModel:
         self.uuid = str(uuid.uuid4())
         pass
     
-    def Setup(self, name, description, model, variables, MSE, R2):
+    def Setup(self, name, description, keywords, model, variables, MSE, R2):
         self.name = name
         self.description = description
+        self.keywords = keywords
         self.model = model
         self.datetime = datetime.now()
         self.variables = variables

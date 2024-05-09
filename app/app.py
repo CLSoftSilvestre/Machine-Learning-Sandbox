@@ -450,7 +450,9 @@ def linear():
         selectkbestk = int(request.form['selectkbestk'])
         testsize = int(request.form['testsize']) / 100
 
-        pModel = LinearRegression(name, description, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered, selectkbestk)
+        keywords = request.form['keywords'].split(";")
+
+        pModel = LinearRegression(name, description, keywords, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered, selectkbestk)
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
@@ -506,11 +508,13 @@ def knnreg():
         findbest = bool(request.form.get('findbest'))
         testsize = int(request.form['testsize']) / 100
 
+        keywords = request.form['keywords'].split(";")
+
         session['temp_best_models'] = []
         bestModelsList = []
         if(findbest):
             for i in range(n, n+10, 1):
-                pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, i, weights, algorithm, leaf, selectkbestk, testsize)
+                pModel = KnnRegression(name, description, keywords, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, i, weights, algorithm, leaf, selectkbestk, testsize)
                 # Setup the remaing data of the model
                 pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
                 pModel.SetModelVersion(model_version, appversion)
@@ -524,7 +528,7 @@ def knnreg():
             return redirect('/best')
         else:
 
-            pModel = KnnRegression(name, description, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, n, weights, algorithm, leaf, selectkbestk, testsize)
+            pModel = KnnRegression(name, description, keywords, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, n, weights, algorithm, leaf, selectkbestk, testsize)
             # Setup the remaing data of the model
             pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
             pModel.SetModelVersion(model_version, appversion)
@@ -568,6 +572,8 @@ def knn():
         description = request.form['description']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+
+        keywords = request.form['keywords'].split(";")
 
         if scaling:
             if featurered:
@@ -616,7 +622,7 @@ def knn():
             inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
-        pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        pModel.Setup(name,description,keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
@@ -659,6 +665,7 @@ def randomforest():
         description = request.form['description']
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
+        keywords = request.form['keywords'].split(";")
 
         if scaling:
             if featurered:
@@ -708,7 +715,7 @@ def randomforest():
             return render_template('randomforest.html')
 
         pModel = PredictionModel()
-        pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
@@ -751,6 +758,7 @@ def svmreg():
         scaling = bool(request.form.get('scaling'))
         featurered = bool(request.form.get('featurered'))
         testsize = int(request.form['testsize']) / 100
+        keywords = request.form['keywords'].split(";")
 
         if scaling == True:
             if featurered == True:
@@ -791,7 +799,7 @@ def svmreg():
             inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
-        pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
@@ -836,6 +844,7 @@ def treereg():
         featurered = bool(request.form.get('featurered'))
         selectkbestk = int(request.form['selectkbestk'])
         testsize = int(request.form['testsize']) / 100
+        keywords = request.form['keywords'].split(";")
 
         if scaling:
             if featurered:
@@ -886,7 +895,7 @@ def treereg():
 
 
         pModel = PredictionModel()
-        pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
@@ -932,6 +941,7 @@ def perceptronreg():
         learningrate = request.form.get('learningrate')
         learningrateinit = float(request.form.get('learningrateinit'))
         maxiter = int(request.form.get('maxiter'))
+        keywords = request.form['keywords'].split(";")
 
         # convert hidden layers string to tupple
         try:
@@ -969,7 +979,7 @@ def perceptronreg():
             inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
-        pModel.Setup(name,description,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
         pModel.SetTrainImage(CreateImage(y_test, y_pred))
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
