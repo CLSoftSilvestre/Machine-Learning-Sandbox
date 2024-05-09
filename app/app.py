@@ -86,6 +86,15 @@ def set_global_html_variable_values():
 
     return template_config
 
+@app.context_processor
+def show_session_warning():
+    warning = session.get('warning')
+    info = session.get("information")
+    template_config = {'warning_text': warning, 'info_text':info}
+    session['warning'] = ""
+    session['information'] = ""
+    return template_config
+
 @app.route("/index")
 @app.route("/")
 def index():
@@ -367,14 +376,7 @@ def datastudio():
 
         elif(request.form['mod']=="setdatatype"):
             columnName = request.form['column']
-            newName = request.form['newname']
             dataType = request.form['coldatatype']
-
-            # Change columns name if the one provided is not equal
-            if(columnName != newName):
-                params = [columnName, newName]
-                dataOperation = DataOperation("setcolumnname", params)
-                session['data_studio'].AddOperation(dataOperation)
 
             # Change the datatype according to the new type provided
             if(dataType == "string"):
@@ -390,8 +392,21 @@ def datastudio():
 
             params=[newName, newDatatype]
             dataOperation = DataOperation("setdatatype", params)
-            session['data_studio'].AddOperation(dataOperation)
+            err = session['data_studio'].AddOperation(dataOperation)
+            print("1 - erro na add operation :" + err, file=sys.stderr)
+            session['warning'] = err
 
+        elif(request.form['mod']=="setname"):
+            columnName = request.form['column']
+            newName = request.form['newname']
+
+            # Change columns name if the one provided is not equal
+            if(columnName != newName):
+                params = [columnName, newName]
+                dataOperation = DataOperation("setcolumnname", params)
+                info = session['data_studio'].AddOperation(dataOperation)
+                session['information'] = info   
+        
         elif(request.form['mod']=="usedataset"):
             # Reset variables before
             session['temp_df'] = pd.DataFrame()

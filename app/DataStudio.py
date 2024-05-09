@@ -24,7 +24,8 @@ class DataStudio:
 
     def AddOperation(self, operation):
         self.operations.append(operation)
-        self.__performSingleOperation(operation)
+        err = self.__performSingleOperation(operation)
+        return err
     
     def RemoveOperation(self, uuid):
 
@@ -50,10 +51,12 @@ class DataStudio:
         if operation.operation == "clearnull":
             self.processedData.dropna(how='any', axis=0, inplace=True)
             self.processedData.reset_index(drop=True)
+            return ""
 
         # Remove column
         elif operation.operation == "remcol":
             self.processedData = self.processedData.drop([operation.params], axis=1)
+            return ""
         
         # Filter rows
         elif(operation.operation == "filtercol"):
@@ -74,17 +77,23 @@ class DataStudio:
             
             self.processedData = tempFilteredDf
 
+            return ""
+
         # Change column name
         elif(operation.operation == "setcolumnname"):
             column = operation.params[0]
             newname = operation.params[1]
             self.__changeColumnName(column, newname)
 
+            return "Variable [" + str(column) + "] name changed to [" + str(newname) + "]"
+
         # Change column data type
         elif(operation.operation == "setdatatype"):
             column = operation.params[0]
             datatype = operation.params[1]
-            self.__changeDatatype(column, datatype)
+            err = self.__changeDatatype(column, datatype)
+            print("3 - erro na change data type :" + err, file=sys.stderr)
+            return err
 
     def __performAllOperations(self):
         self.processedData = self.rawData.copy()
@@ -96,12 +105,13 @@ class DataStudio:
         try:
             if (datatype == datetime):
                 self.processedData[column] = pd.to_datetime(self.processedData[column], dayfirst=True)
+                # self.processedData[column] = pd.to_numeric(self.processedData[column], downcast='float')
             else:
                 self.processedData[column] = self.processedData[column].astype(datatype)
         except Exception as error:
-            print("ERROR: Updating data type of column ", column, " to .", error, datatype, file=sys.stderr)
-            return False
-        return True
+            #print("ERROR: Updating data type of column ", column, " to .", error, datatype, file=sys.stderr)
+            return "ERROR: Updating data type of column, " + str(error)
+        return ""
     
     def __changeColumnName(self, column, newname):
         self.processedData.rename(columns={column:newname}, inplace=True)

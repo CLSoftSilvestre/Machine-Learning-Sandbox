@@ -101,7 +101,7 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-settype'),
             title: "Set column datatype.",
-            intro: 'Use this command if you want to change the variable type or the variable name.',
+            intro: 'Use this command if you want to change the variable type.',
             position: 'right'
         },
         {
@@ -114,6 +114,12 @@ if ( (y== "" || y == "false") && !importView){
             element: document.getElementById('tour-train-import-filter'),
             title: "Filter column data",
             intro: 'Filter the rows according the interval of data defined.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-train-import-setname'),
+            title: "Set column name.",
+            intro: 'Use this command if you want to change the variable name. For better results dont use spaces or special characters.',
             position: 'right'
         },
         {

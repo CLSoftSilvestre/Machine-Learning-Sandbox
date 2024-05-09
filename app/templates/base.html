@@ -13,6 +13,29 @@
         <link href="../static/css/theme.css" rel="stylesheet">
         <body class="d-flex flex-column min-vh-100">
             <!--nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark"-->
+
+            <!-- Warning Alert-->
+            {% if warning_text != "" %}
+            <div class="alert myAlert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert">
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Warning:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+              <div>
+                <strong>Warning!</strong> {{warning_text}}
+              </div>
+            </div>
+            {% endif %}
+
+            <!-- Information Alert-->
+            {% if info_text != "" %}
+            <div class="alert myAlert alert-success d-flex align-items-center alert-dismissible fade show" role="alert">
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+              <div>
+                <strong>Success!</strong> {{info_text}}
+              </div>
+            </div>
+            {% endif %}
+
             <nav class="navbar navbar-expand-lg fixed-top bg-primary" data-bs-theme="dark">
                 <div class="container-fluid">
                     <a class="navbar-brand" href="{{ url_for('index') }}">
@@ -176,6 +199,9 @@
               </div>
 
             </footer>
+
+            
+
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
             <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
             <script>
@@ -199,11 +225,12 @@
 
               // Change the status of the toggle to false if all tours complete
               let a = getCookie("tourIndexComplete");
-              let b = getCookie("tourTrainPart1Complete");
-              let c = getCookie("tourTrainPart2Complete");
+              let b = getCookie("tourTrainComplete");
+              let c = getCookie("tourDataStudioPart2Complete");
+              let d = getCookie("tourDataStudioPart2Complete");
 
               //if (a == "true" && b == "true" && c == "true") {
-              if (a == "true" && b == "true" && c == "true") {
+              if (a == "true" && b == "true" && c == "true" && d == "true") {
                   document.getElementById("showTutorials").checked = false;
               }
 
@@ -212,14 +239,16 @@
                 if ($(this).is(':checked')){
                   switchStatus = $(this).is(':checked');
                   setCookie("tourIndexComplete", !switchStatus, 90);
-                  setCookie("tourTrainPart1Complete", !switchStatus, 90);
-                  setCookie("tourTrainPart2Complete", !switchStatus, 90);
+                  setCookie("tourTrainComplete", !switchStatus, 90);
+                  setCookie("tourDataStudioPart1Complete", !switchStatus, 90);
+                  setCookie("tourDataStudioPart2Complete", !switchStatus, 90);
                 }
                 else {
                   switchStatus = $(this).is(':checked');
                   setCookie("tourIndexComplete", !switchStatus, 90);
-                  setCookie("tourTrainPart1Complete", !switchStatus, 90);
-                  setCookie("tourTrainPart2Complete", !switchStatus, 90);
+                  setCookie("tourTrainComplete", !switchStatus, 90);
+                  setCookie("tourDataStudioPart2Complete", !switchStatus, 90);
+                  setCookie("tourDataStudioPart2Complete", !switchStatus, 90);
                 }
               });
 
