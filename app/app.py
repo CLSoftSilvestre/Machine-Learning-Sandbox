@@ -88,6 +88,8 @@ def set_global_html_variable_values():
 
 @app.context_processor
 def show_session_warning():
+    warning = ""
+    info = ""
     warning = session.get('warning')
     info = session.get("information")
     template_config = {'warning_text': warning, 'info_text':info}

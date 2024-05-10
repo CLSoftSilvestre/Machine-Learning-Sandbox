@@ -19,19 +19,26 @@ Sdandard scaler and feature reduction can also be applied in the pipeline by sel
 
 ### Main screen
 Management of existent models
-![alt text](./screenshots/mainscreen.png?raw=true)
+![alt text](./screenshots/index.jpg?raw=true)
+
+### Data Studio screen
+In the Data Studio the data can be imported, cleaned and analysed before imported into the model training area
+![alt text](./screenshots/datastudio.jpg?raw=true)
+
+It's also possible to add python code to perform operation in the Dataset
+![alt text](./screenshots/scripting.jpg?raw=true)
+
+And check the correlations and show a scatter plot between the available variables.
+![alt text](./screenshots/scatter.jpeg?raw=true)
 
 ### Train  models screen
-Train model with imported csv dataset. Some features implemented to clean the data, delete columns, select the Y feature. The system show the main stats of the data imported and creates a correlation matrix.
-![alt text](./screenshots/trainmodel.png?raw=true)
+After cleaned and analysed, the dataset can be imported to the model training area.
+Here the user can set the deatils of the model and select the model algorithm.
+![alt text](./screenshots/models.jpeg?raw=true)
 
 ### Check the model performance
 After training the model, it will be saved in the folder ./app/models/. The user can check the performance of the model accesing the model details in the main screen of the application. It will be visible the chart with the Real vs Predicted values (limited to 100 tests) created during the training and will be shown the R^2^ and MSE scores.
-![alt text](./screenshots/predictions.jpg?raw=true)
-
-### Download trained model
-Use the trained model in other python applications.
-![alt text](./screenshots/download.png?raw=true)
+![alt text](./screenshots/details.jpeg?raw=true)
 
 ### Using API
 The integrated API prodived methods to list the available models, get the required input fields and retrieve the prediction.
