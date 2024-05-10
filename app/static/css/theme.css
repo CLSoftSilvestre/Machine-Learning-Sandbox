@@ -1,0 +1,547 @@
+@charset "UTF-8";
+h1 {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 48px;
+  line-height: 60px;
+  letter-spacing: 0.03em;
+  margin-block-end: 0;
+  margin-block-start: 0;
+}
+
+h2 {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 32px;
+  line-height: 40px;
+  letter-spacing: 0.03em;
+  margin-block-end: 0;
+  margin-block-start: 0;
+}
+
+h3 {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 24px;
+  line-height: 28px;
+  letter-spacing: 0.02em;
+  margin-block-end: 0;
+  margin-block-start: 0;
+}
+
+h4 {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 18px;
+  line-height: 24px;
+  letter-spacing: 0.03em;
+  margin-block-end: 0;
+  margin-block-start: 0;
+}
+
+h5 {
+  font-family: Nunito;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: 0.03em;
+  font-feature-settings: "ss02" on;
+  margin-block-end: 0;
+  margin-block-start: 0;
+}
+
+:root {
+  --White: #FFFFFF;
+  --Green-buddy-800: #005C44;
+  --Green-buddy-700: #00805F;
+  --Green-buddy-600: #008F6A;
+  --Green-buddy-500: #00A87E;
+  --Green-buddy-400: #81D4C0;
+  --Green-buddy-300: #D9EDE7;
+  --Green-buddy-200: #EAF5F2;
+  --Green-buddy-100: #F8FBFA;
+  --Green-mint-500: #81D4C0;
+  --Grey-100: #FAFAFA;
+  --Grey-200: #EDF0EF;
+  --Grey-300: #E3E5E5;
+  --Grey-400: #CBCDCC;
+  --Grey-500: #B1B2B2;
+  --Grey-600: #929494;
+  --Grey-700: #747776;
+  --Grey-800: #5F6160;
+  --Grey-900: #111212;
+  --Red-danger-100: #FCF5F5;
+  --Red-danger-500: #DA3B33;
+  --Red-danger-800: #C02B24;
+  --Red-danger-900: #80140F;
+  --Green-success-900: #00751E;
+  --Green-success-500: #00A92B;
+  --Green-success-100: #F0FAF2;
+  --Blue-info-900: #007D99;
+  --Blue-info-500: #009ABD;
+  --Blue-info-100: #F0FCFF;
+  --Pink-lychee-500: #FF725E;
+  --Green-apple-900: #4B900E;
+  --Green-apple-500: #91D754;
+  --Green-apple-100: #C7EBA8;
+  --Green-forest: #005640;
+  --Blue-grape-100: #7AAAFC;
+  --Blue-grape-500: #1C6CF7;
+  --Blue-grape-900: #0241AE;
+  --Purple-fig-100: #B68AFF;
+  --Purple-fig-500: #8C4AFE;
+  --Purple-fig-900: #512799;
+  --Orange-apricot-100: #FFAC66;
+  --Orange-apricot-500: #FF7B0D;
+  --Orange-apricot-900: #813B00;
+  --Yellow-banana-100: #FFED7E;
+  --Yellow-banana-500: #FBD905;
+  --Yellow-banana-900: #BCA203;
+}
+
+.Green-buddy-800 {
+  color: var(--Green-buddy-800);
+}
+
+.Green-buddy-700 {
+  color: var(--Green-buddy-700);
+}
+
+.Green-buddy-600 {
+  color: var(--Green-buddy-600);
+}
+
+.Green-buddy-500 {
+  color: var(--Green-buddy-500);
+}
+
+.Green-buddy-400 {
+  color: var(--Green-buddy-400);
+}
+
+.Green-buddy-300 {
+  color: var(--Green-buddy-300);
+}
+
+.Green-buddy-200 {
+  color: var(--Green-buddy-200);
+}
+
+.Green-buddy-100 {
+  color: var(--Green-buddy-100);
+}
+
+.Green-mint-500 {
+  color: var(--Green-mint-500);
+}
+
+.Grey-100 {
+  color: var(--Grey-100);
+}
+
+.Grey-200 {
+  color: var(--Grey-200);
+}
+
+.Grey-300 {
+  color: var(--Grey-300);
+}
+
+.Grey-400 {
+  color: var(--Grey-400);
+}
+
+.Grey-500 {
+  color: var(--Grey-500);
+}
+
+.Grey-600 {
+  color: var(--Grey-600);
+}
+
+.Grey-700 {
+  color: var(--Grey-700);
+}
+
+.Grey-800 {
+  color: var(--Grey-800);
+}
+
+.Grey-900 {
+  color: var(--Grey-900);
+}
+
+.Blue-info-100 {
+  color: var(--Blue-info-100);
+}
+
+.Blue-info-500 {
+  color: var(--Blue-info-500);
+}
+
+.Blue-info-900 {
+  color: var(--Blue-info-900);
+}
+
+.Green-success-100 {
+  color: var(--Green-success-100);
+}
+
+.Green-success-500 {
+  color: var(--Green-success-500);
+}
+
+.Green-success-900 {
+  color: var(--Green-success-900);
+}
+
+.Red-danger-100 {
+  color: var(--Red-danger-100);
+}
+
+.Red-danger-800 {
+  color: var(--Red-danger-800);
+}
+
+.Red-danger-500 {
+  color: var(--Red-danger-500);
+}
+
+.Red-danger-900 {
+  color: var(--Red-danger-900);
+}
+
+.Pink-lychee-500 {
+  color: var(--Pink-lychee-500);
+}
+
+.Green-apple-100 {
+  color: var(--Green-apple-100);
+}
+
+.Green-apple-500 {
+  color: var(--Green-apple-500);
+}
+
+.Green-apple-900 {
+  color: var(--Green-apple-900);
+}
+
+.Green-forest {
+  color: var(--Green-forest);
+}
+
+.Blue-grape-100 {
+  color: var(--Blue-grape-100);
+}
+
+.Blue-grape-500 {
+  color: var(--Blue-grape-500);
+}
+
+.Blue-grape-900 {
+  color: var(--Blue-grape-900);
+}
+
+.Purple-fig-100 {
+  color: var(--Purple-fig-100);
+}
+
+.Purple-fig-500 {
+  color: var(--Purple-fig-500);
+}
+
+.Purple-fig-900 {
+  color: var(--Purple-fig-900);
+}
+
+.Orange-apricot-100 {
+  color: var(--Orange-apricot-100);
+}
+
+.Orange-apricot-500 {
+  color: var(--Orange-apricot-500);
+}
+
+.Orange-apricot-900 {
+  color: var(--Orange-apricot-900);
+}
+
+.Yellow-banana-100 {
+  color: var(--Yellow-banana-100);
+}
+
+.Yellow-banana-500 {
+  color: var(--Yellow-banana-500);
+}
+
+.Yellow-banana-900 {
+  color: var(--Yellow-banana-900);
+}
+
+/* nunito-sans-regular - latin */
+@font-face {
+  font-family: "Nunito Sans";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./fonts/nunito-sans-v6-latin-regular.eot");
+  /* IE9 Compat Modes */
+  src: local(""), url("./fonts/nunito-sans-v6-latin-regular.eot?#iefix") format("embedded-opentype"), url("./fonts/nunito-sans-v6-latin-regular.woff2") format("woff2"), url("./fonts/nunito-sans-v6-latin-regular.woff") format("woff"), url("./fonts/nunito-sans-v6-latin-regular.ttf") format("truetype"), url("./fonts/nunito-sans-v6-latin-regular.svg#NunitoSans") format("svg");
+  /* Legacy iOS */
+}
+/* nunito-sans-600 - latin */
+@font-face {
+  font-family: "Nunito Sans";
+  font-style: normal;
+  font-weight: 600;
+  src: url("./fonts/nunito-sans-v6-latin-600.eot");
+  /* IE9 Compat Modes */
+  src: local(""), url("./fonts/nunito-sans-v6-latin-600.eot?#iefix") format("embedded-opentype"), url("./fonts/nunito-sans-v6-latin-600.woff2") format("woff2"), url("./fonts/nunito-sans-v6-latin-600.woff") format("woff"), url("./fonts/nunito-sans-v6-latin-600.ttf") format("truetype"), url("./fonts/nunito-sans-v6-latin-600.svg#NunitoSans") format("svg");
+  /* Legacy iOS */
+}
+/* nunito-sans-700 - latin */
+@font-face {
+  font-family: "Nunito Sans";
+  font-style: normal;
+  font-weight: 700;
+  src: url("./fonts/nunito-sans-v6-latin-700.eot");
+  /* IE9 Compat Modes */
+  src: local(""), url("./fonts/nunito-sans-v6-latin-700.eot?#iefix") format("embedded-opentype"), url("./fonts/nunito-sans-v6-latin-700.woff2") format("woff2"), url("./fonts/nunito-sans-v6-latin-700.woff") format("woff"), url("./fonts/nunito-sans-v6-latin-700.ttf") format("truetype"), url("./fonts/nunito-sans-v6-latin-700.svg#NunitoSans") format("svg");
+  /* Legacy iOS */
+}
+/* nunito-300 - latin */
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 300;
+  src: url("./fonts/nunito-v16-latin-300.eot");
+  /* IE9 Compat Modes */
+  src: local(""), url("./fonts/nunito-v16-latin-300.eot?#iefix") format("embedded-opentype"), url("./fonts/nunito-v16-latin-300.woff2") format("woff2"), url("./fonts/nunito-v16-latin-300.woff") format("woff"), url("./fonts/nunito-v16-latin-300.ttf") format("truetype"), url("./fonts/nunito-v16-latin-300.svg#Nunito") format("svg");
+  /* Legacy iOS */
+}
+/* nunito-regular - latin */
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 400;
+  src: url("./fonts/nunito-v16-latin-regular.eot");
+  /* IE9 Compat Modes */
+  src: local(""), url("./fonts/nunito-v16-latin-regular.eot?#iefix") format("embedded-opentype"), url("./fonts/nunito-v16-latin-regular.woff2") format("woff2"), url("./fonts/nunito-v16-latin-regular.woff") format("woff"), url("./fonts/nunito-v16-latin-regular.ttf") format("truetype"), url("./fonts/nunito-v16-latin-regular.svg#Nunito") format("svg");
+  /* Legacy iOS */
+}
+/* nunito-700 - latin */
+@font-face {
+  font-family: "Nunito";
+  font-style: normal;
+  font-weight: 700;
+  src: url("./fonts/nunito-v16-latin-700.eot");
+  /* IE9 Compat Modes */
+  src: local(""), url("./fonts/nunito-v16-latin-700.eot?#iefix") format("embedded-opentype"), url("./fonts/nunito-v16-latin-700.woff2") format("woff2"), url("./fonts/nunito-v16-latin-700.woff") format("woff"), url("./fonts/nunito-v16-latin-700.ttf") format("truetype"), url("./fonts/nunito-v16-latin-700.svg#Nunito") format("svg");
+  /* Legacy iOS */
+}
+@font-face {
+  font-family: "icomoon";
+  src: url("fonts/bel-fonticon.eot?c9oonz");
+  src: url("fonts/bel-fonticon.eot?c9oonz#iefix") format("embedded-opentype"), url("fonts/bel-fonticon.ttf?c9oonz") format("truetype"), url("fonts/bel-fonticon.woff?c9oonz") format("woff"), url("fonts/bel-fonticon.svg?c9oonz#icomoon") format("svg");
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+[class^=icon-], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: "icomoon" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*CSS INTRO JS*/
+.introjs-helperLayer {
+  box-shadow: #00A87E 0px 0px 0px 1px, rgba(33, 33, 33, 0.5) 0px 0px 0px 5000px !important;
+}
+
+.introjs-tooltip-title {
+  font-family: "Nunito" !important;
+  font-size: 18px !important;
+  color: var(--Grey-900);
+}
+
+.introjs-tooltiptext {
+  padding: 14px 20px !important;
+  font-family: "Nunito" !important;
+  font-size: 14px !important;
+  color: var(--Grey-900);
+}
+
+.introjs-skipbutton {
+  color: #005C44 !important;
+}
+
+.introjs-tooltipbuttons {
+  border: none !important;
+  background-color: #EAF5F2 !important;
+  padding: 5px 10px !important;
+}
+
+.introjs-prevbutton {
+  display: none;
+}
+
+.introjs-button {
+  font-weight: 600 !important;
+  color: #008F6A !important;
+  border: none !important;
+  background-color: transparent !important;
+  font-family: "Nunito" !important;
+  font-size: 14px !important;
+  text-shadow: none !important;
+  outline: none !important;
+}
+
+.introjs-button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.introjs-button:hover {
+  background-color: #D9EDE7 !important;
+}
+
+.introjs-tooltip {
+  border: 1px solid #D9EDE7 !important;
+  width: 420px !important;
+  max-width: inherit !important;
+}
+
+.introjs-tooltip-header {
+  padding-top: 20px !important;
+}
+
+.introjs-dontShowAgain {
+  margin-top: 30px !important;
+  margin-bottom: 0px !important;
+  cursor: pointer !important;
+}
+
+.introjs-dontShowAgain label {
+  font-family: "Nunito" !important;
+  margin-left: 8px !important;
+  cursor: pointer !important;
+  font-size: 12px;
+}
+
+.introjs-dontShowAgain input {
+  transform: scale(1.5) translateY(1px) !important;
+  cursor: pointer !important;
+  accent-color: green;
+}
+
+/* CSS for changing the Default Theme for Bel Colors */
+
+.navbar{
+  background-color: var(--Green-buddy-100) !important;
+  border-bottom: 1px solid var(--Green-buddy-300);
+}
+
+.navbar-brand{
+  color: var(--Green-buddy-600);
+}
+
+.navbar-brand:hover{
+  color: var(--Green-buddy-600);
+}
+
+.nav-link{
+  color: var(--Green-buddy-400);
+}
+
+
+body {
+  font-family: var(--font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol");
+  background-color: var(--Green-buddy-100) !important;
+  color: var(--text-color);
+  font-size: 14px;
+  padding: 0;
+  padding-top: 4.5rem;
+  margin: 0;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+.card {
+  background: #FFFFFF !important;
+  color: var(--text-color);
+  /*width: 100%;*/
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--Green-buddy-300);
+  box-sizing: border-box;
+  box-shadow: 0px 0px 10px rgba(0, 92, 68, 0.09);
+}
+
+.card-header {
+  background: var(--Green-buddy-100) !important;
+  border-bottom: 1px solid var(--Green-buddy-200);
+}
+
+.btn { 
+  /*padding: 0.75rem 1.2rem;*/
+  font-size: 16px;
+  transition: background-color 0s, color 0s, border-color 0s, box-shadow 0s;
+  border-radius: 4px;
+}
+
+.btn-primary {
+  color: #FFFFFF;
+  background: var(--Blue-info-500);
+  border: 1px solid var(--Blue-info-500);
+}
+
+.btn-outline-primary {
+  background-color: transparent;
+  color: var(--Blue-info-500);;
+  border: 1px solid;
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--Blue-info-900);
+  color: #FFFFFF;
+  border: 1px solid;
+}
+
+
+.btn-primary:hover {
+  background-color: var(--Blue-info-900);
+  border: 1px solid var(--Blue-info-900);
+}
+
+.section-text {
+  color: var(--Grey-800);
+}
+
+.form-check-input:checked {
+  background-color: var(--Green-buddy-600);
+  border-color: var(--Green-buddy-600);
+}
+
+.myAlert{
+  z-index: 10000;
+  position: fixed;
+  bottom: 5px;
+  left: 2%;
+  width: 96%;
+}

@@ -1,0 +1,955 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css">
+<link rel="stylesheet" href="https://codemirror.net/5/theme/monokai.css" /> 
+<script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
+
+
+<!-- content -->
+<h3 class="m-4">Data Studio</h3>
+<div class="row">
+    <div class="col-12">
+        <!-- Import dataset or use dummy data for training purposes -->
+        {% if not uploaded %}
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <h3 id="notuploaded">Load dataset</h3>     
+            </div>
+            <div class="card-body">             
+                <form action="/uploader/" method="POST" enctype="multipart/form-data">
+                    <div class="form-group row">
+                        <label for="file" class="col-sm-1 col-form-label">Select file</label>
+                        <div class="col-sm-5" id="tour-train-import-file">
+                            <input type="file" class="form-control text-left" name = "file" id="file" accept=".csv">
+                        </div>
+
+                        <label for="sep" class="col-sm-1 col-form-label">Separator</label>
+                        <div class="col-sm-1" id="tour-train-import-separator">
+                            <input type="text" class="form-control text-left" name = "sep" id="sep" value=";">
+                        </div>
+
+                        <!--label for="sep" class="col-sm-1 col-form-label">Separator</label>
+                        <div class="col-sm-1">
+                            <select class="form-select form-select-sm" name="sep" id="sep">
+                                <option value=";">Semicolon</option>
+                                <option value=",">Comma</option>
+                            </select>
+                        </div-->
+
+                        <label for="dec" class="col-sm-1 col-form-label">Decimal</label>
+                        <div class="col-sm-1" id="tour-train-import-decimal">
+                            <input type="text" class="form-control text-left" name = "dec" id="dec" value=",">
+                        </div>
+
+                        <!--label for="dec" class="col-sm-1 col-form-label">Decimal</label>
+                        <div class="col-sm-1">
+                            <select class="form-select form-select-sm" name="dec" id="dec">
+                                <option value=",">Comma</option>
+                                <option value=".">Point</option>
+                            </select>
+                        </div-->
+
+                        <div class="col-sm-2 text-center">
+                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i> Parse CSV</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>   
+        </div>
+        <!-- When data is already imported -->
+        {% else %}
+        <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                
+                <!-- Functionalities buttons -->
+                <div class="d-flex flex-row gap-3">
+
+                    <a class="btn btn-warning" type="button" href="{{ url_for('cleardataset')}}" id="tour-train-import-delete-dataset"><i class="fas fa-eraser"></i> Delete dataset</a>
+
+                    <form method="post">
+                        <input hidden type="text" name="mod" value="clearnull">
+                        <input hidden type="text" name="column" value="all">
+                        <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
+                        <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
+                    </form>
+
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Script" data-bs-toggle="modal" data-bs-target="#script" id="tour-train-import-script"><i class="fa fa-code"></i> Python code</a>
+
+                    <a class="btn btn-primary disabled" type="button" href="#" id="tour-train-import-export"><i class="fas fa-download"></i> Export this dataset</a>
+
+                    <form method="post">
+                        <input hidden type="text" name="mod" value="usedataset">
+                        <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
+                        <button type="submit" class="btn btn-primary" id="tour-train-import-useml"><i class="fas fa-robot"></i> Use dataset for ML model training</button>
+                    </form>
+
+                </div>
+                    
+            </div>
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+
+                    <li class="nav-item" role="presentation" id="tour-train-import-desc">
+                        <button class="nav-link" id="descri-tab" data-bs-toggle="tab" data-bs-target="#descri" type="button" role="tab" aria-controls="descri" aria-selected="false">Data statistics</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Data manipulator</button>
+                    </li>
+                    <li class="nav-item" role="presentation" id="tour-train-import-outliers">
+                        <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots</button>
+                    </li>
+                    <li class="nav-item" role="presentation" id="tour-train-import-correlation">
+                    <button class="nav-link" id="resume-tab" data-bs-toggle="tab" data-bs-target="#resume" type="button" role="tab" aria-controls="resume" aria-selected="false">Correlation matrix</button>
+                    </li>
+                    <li class="nav-item" role="presentation" id="tour-train-import-scatter">
+                        <button class="nav-link" id="scatter-tab" data-bs-toggle="tab" data-bs-target="#scatter" type="button" role="tab" aria-controls="scatter" aria-selected="false">Scatter plot</button>
+                    </li>
+                    <li class="nav-item" role="presentation" id="tour-train-import-operations">
+                        <button class="nav-link" id="dataoperations-tab" data-bs-toggle="tab" data-bs-target="#dataoperations" type="button" role="tab" aria-controls="dataoperations" aria-selected="false">Data operations</button>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade" id="descri" role="tabpanel" aria-labelledby="descri-tab">
+                        <p class="card-text">
+                            <div class="table-responsive">
+                                {% for table in descTable %}
+                                    {{ table|safe }}
+                                {% endfor %}
+                            </div>  
+                        </p> 
+                    </div>
+                    <div class="tab-pane fade show active" id="types" role="tabpanel" aria-labelledby="types-tab">
+                        <p class="card-text">
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-center">
+                                    <thead>
+                                        <tr id='tour-train-import-variables'>
+                                            <th scope="col">Variable</th>
+                                            {% for title in titles %}
+                                                <th scope="col">{{title}}</th>
+                                            {% endfor %}
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr id='tour-train-import-datatypes'>
+                                            <td class="align-middle" scope="col">Current data type</td>
+                                            {% for dtype in datatypes %}
+                                                {% if dtype == "object" %}
+                                                    <td class="align-middle"><span class="badge bg-warning">{{dtype}}</span></td>
+                                                {% else %}
+                                                    <td class="align-middle"><span class="badge bg-success">{{dtype}}</span></td>
+                                                {% endif %}
+                                                
+                                            {% endfor %}
+                                            <td></td>
+                                        </tr>
+                                        <tr id='tour-train-import-settype'>
+                                            <td class="align-middle">Set data type</td>
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Set datatype" data-bs-toggle="modal" data-bs-target="#setTypeConfirmation{{title|replace(' ','')}}"><i class="fa fa-gear"></i></a>
+                                                </td>
+                                                <!-- set Datatype Modal -->
+                                                <div class="modal fade" id="setTypeConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setDatatypeConfirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="setDatatypeConfirmationLabel">Are you sure you want to change the type of data of column <b>{{title}}</b> ?</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="setdatatype">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+
+                                                                    <div class="form-horizontal">
+                                                                        <div class="form-group row">
+                                                                            <!-- Data type -->
+                                                                            <label for="coldataype" class="col-sm-5 col-form-label">New data type</label>
+                                                                            <div class="col-sm-7">
+                                                                                <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
+                                                                                <select class="form-control text-left" id="coldatatype" name="coldatatype">
+                                                                                    <option value="string">String</option>
+                                                                                    <option value="datetime">Datetime</option>
+                                                                                    <option value="int">Integer</option>
+                                                                                    <option value="float">Float</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div>&MediumSpace;</div>
+
+                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <td></td>
+                                        </tr>
+                                        <tr id='tour-train-import-remove'>
+                                            <td class="align-middle">Remove column</td>
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{title|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                                </td>
+                                                <!-- column Filter Modal -->
+                                                <div class="modal fade" id="deleteConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="deleteConfirmationLabel">Are you sure you want to remove the column <b>{{title}}</b> ?</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="remcol">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+
+                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <td></td>
+                                        </tr>
+                                        <tr id='tour-train-import-filter'>
+                                            <td class="align-middle">Filter column</td>
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#filterConfirmation{{title|replace(' ','')}}"><i class="fa fa-filter"></i></a>
+                                                </td>
+                                                <!-- column Filter Modal -->
+                                                <div class="modal fade" id="filterConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="filterConfirmationLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="filterConfirmationLabel">Filter the column <b>{{title}}</b> data</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="filtercol">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+                                                                    
+                                                                    <div class="form-horizontal">
+                                                                        <div class="form-group row">
+                                                                            <!-- Min -->
+                                                                            <label for="minimum" class="col-sm-5 col-form-label">Minimum value inclusive</label>
+                                                                            <div class="col-sm-7">
+                                                                                <input type="number" class="form-control text-left" id="minimum" name="minimum" step="0.1"></input>
+                                                                            </div>
+
+                                                                            <div>&MediumSpace;</div>
+    
+                                                                            <!-- Max -->
+                                                                            <label for="maximum" class="col-sm-5 col-form-label">Maximum value inclusive</label>
+                                                                            <div class="col-sm-7">
+                                                                                <input type="number" class="form-control text-left" id="maximum" name="maximum" step="0.1"></input>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div>&MediumSpace;</div>
+
+                                                                    <p>⚠️ Data values >= minimum and <= maximum will be keept. Remaining rows will be removed. Leave field blank to ensure that filter is not applied.</p>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <td></td>
+                                        </tr>
+                                        <tr id='tour-train-import-setname'>
+                                            <td class="align-middle">Set data name</td>
+                                            {% for title in titles %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Set name" data-bs-toggle="modal" data-bs-target="#setName{{title|replace(' ','')}}"><i class="fa fa-pen-to-square"></i></a>
+                                                </td>
+                                                <!-- set Name Modal -->
+                                                <div class="modal fade" id="setName{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="setNameLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="setNameLabel">Are you sure you want to change the name of column <b>{{title}}</b> ?</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="setname">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+
+                                                                    <div class="form-horizontal">
+                                                                        <div class="form-group row">
+                                                                            <!-- New name -->
+                                                                            <label for="minimum" class="col-sm-5 col-form-label">Column new name</label>
+                                                                            <div class="col-sm-7">
+                                                                                <input type="text" class="form-control text-left" id="newname" name="newname" value="{{title}}"></input>
+                                                                            </div>
+
+                                                                            <div>&MediumSpace;</div>
+    
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                    <div>&MediumSpace;</div>
+
+                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </div>  
+                        </p>
+                    </div>
+                    <div class="tab-pane fade" id="outliers" role="tabpanel" aria-labelledby="outliers-tab">
+                        <img src="data:image/jpeg;base64,{{outliers}}" class="img-fluid" alt="..." id="outliersimg">
+                    </div>
+                    <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
+                        <img src="data:image/jpeg;base64,{{heatmap}}" class="img-fluid" alt="..." id="heatimg">
+                    </div>
+                    <div class="tab-pane fade" id="scatter" role="tabpanel" aria-labelledby="scatter-tab">
+                        <br>
+
+                        <div class="d-flex flex-row gap-3">
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectedXVariable"><i class="fas fa-x"></i></label>
+                                <select class="form-select" id="selectedXVariable">
+                                    <option selected>Choose one variable...</option>
+                                    {% for title in titles %}
+                                        <option value={{loop.index-1}}>{{title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectedYVariable"><i class="fas fa-y"></i></label>
+                                <select class="form-select" id="selectedYVariable">
+                                    <option selected>Choose one variable...</option>
+                                    {% for title in titles %}
+                                        <option value={{loop.index-1}}>{{title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="selectedColorVariable"><i class="fas fa-palette"></i></label>
+                                <select class="form-select" id="selectedColorVariable">
+                                <option selected>Choose one variable...</option>
+                                    {% for title in titles %}
+                                        <option value={{loop.index-1}}>{{title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="colorInput"><i class="fas fa-tint"></i></label>
+                                <input type="color" class="form-control form-control-color" id="colorInput" value="#91d754" title="Choose initial color">
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="colorInput2"><i class="fas fa-tint"></i></label>
+                                <input type="color" class="form-control form-control-color" id="colorInput2" value="#00a7cc" title="Choose final color">
+                            </div>
+                            
+
+                            <button type="button" class="btn btn-primary" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i></button>
+
+                        </div>
+
+                        <br>
+                        
+                        <!-- Line chart with results of training -->
+                        <!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script-->
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+                        <!--canvas id="myChart" style="width:100%;max-width:1200px;height:100%;max-height:720px;padding:10px;"></canvas-->
+                        <canvas id="myChart" style="width:100%;height:100%;max-height:720px;padding:10px;"></canvas>
+
+                        <canvas id="myCanvas" style="width:100%;height:100%;max-height:50px;padding:10px;"></canvas>
+
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-2">Min</div>
+                                <div class="col-8 text-center">Variable</div>
+                                <div class="col-2 text-right">Max</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-2"><h6 id="minValue">0</h6></div>
+                                <div class="col-8 text-center"><h6 id="variableName">[Variable Name]</h6></div>
+                                <div class="col-2 text-right"><h6 id="maxValue">100</h6></div>
+                            </div>
+                        </div>
+
+                        <script src="../static/js/color-blend.js"></script>
+                        
+                        <script>
+
+                            var xyValues = [
+                                {x:0, y:0}
+                            ]
+
+                            var colorPoints = [
+                            '#91d754'
+                            ]
+
+                            // Update the labels
+                            var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
+                            var labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
+
+                            const ctx = document.getElementById('myChart').getContext('2d');
+
+                            const myChart = new Chart("myChart", {
+                                type: "scatter",
+                                data: {
+                                    datasets: [{
+                                        pointRadius: 4,
+                                        pointBackgroundColor: colorPoints,
+                                        pointsBorderColor: colorPoints,
+                                        data: xyValues
+                                    }]
+                                },
+                                options:{
+                                    elements:{
+                                        point:{
+                                            borderColor: colorPoints,
+                                        }
+                                    },
+                                    plugins:{
+                                        legend: {
+                                            display: false
+                                        },
+                                        zoom:{
+                                            zoom:{
+                                                wheel:{
+                                                    enabled: true,
+                                                    modifierKey: 'ctrl',
+                                                },
+                                                drag:{
+                                                    enabled: true,
+                                                    modifierKey: 'ctrl',
+                                                },
+                                                pinch:{
+                                                    enabled: true
+                                                },
+                                                mode: 'xy',
+                                            }
+                                        }
+                                    },   
+                                    responsive: true,
+                                    scales: {
+                                        x: {
+                                            title: {
+                                                display: true,
+                                                text: labelX,
+                                            }
+                                        },
+                                        y: {
+                                            title: {
+                                                display: true,
+                                                text: labelY,
+                                            },
+                                        },
+                                    }
+                                }
+                            });
+
+                            // Get the data from Jinja2 to Javascript
+                            jsData = []
+                            {% if rawdata is defined %}
+                                {% for row in rawdata %}
+                                    jsData.push({{row}})                 
+                                {% endfor %}
+                            {% endif %}
+
+
+
+                            function UpdateChart(){
+
+                                singleColor = false
+
+                                myChart.resetZoom(mode='none')
+
+                                const x_variable = document.getElementById('selectedXVariable').value;
+                                const y_variable = document.getElementById('selectedYVariable').value;
+                                const color_variable = document.getElementById('selectedColorVariable').value;
+
+                                const sel_color = document.getElementById('colorInput').value;
+                                const sel_color2 = document.getElementById('colorInput2').value;
+
+                                var minColor = 1000000;
+                                var maxColor = 0;
+
+                                if (x_variable=="Choose one variable..."){
+                                    alert("Please select one variable to be assigned to X axis.");
+                                    return
+                                }
+                                    
+                                if (y_variable=="Choose one variable...")
+                                {
+                                    alert("Please select one variable to be assigned to Y axis.");
+                                    return
+                                }
+
+                                if (color_variable=="Choose one variable...")
+                                {
+                                    singleColor = true;
+                                } else {
+                                    //Calculate the Min and Max of the variable
+                                    minColor = 1000000;
+                                    maxColor = 0;
+                                    jsData.forEach(element => {
+                                        if (element[color_variable] < minColor){
+                                            minColor = element[color_variable]
+                                        }
+                                        if (element[color_variable] > maxColor){
+                                            maxColor = element[color_variable]
+                                        } 
+                                    });
+                                }
+
+                                xyValues.length = 0
+                                colorPoints.length = 0
+                                
+                                jsData.forEach(line => {
+                                    // console.log("X:", line[x_variable], "Y:", line[y_variable])
+                                    xyValues.push({
+                                        'x': line[x_variable],
+                                        'y': line[y_variable]
+                                    })
+
+                                    // Cores dos pontos
+                                    if (singleColor == true){
+                                        colorPoints.push(sel_color)
+                                    } else {
+                                        // Criar linearização de cor
+                                        if (line[color_variable] == 0){
+                                            colorPoints.push('#000000')
+                                        } else {
+                                            // colorPoints.push(calculateColor(minColor, maxColor, line[color_variable], sel_color))
+                                            perc = (line[color_variable]-minColor)/(maxColor-minColor)
+                                            if (perc <0.1){
+                                                perc = 0.1
+                                            }
+                                            colorPoints.push(blend_colors(sel_color, sel_color2, perc))
+                                        } 
+                                    }
+
+                                    // Update canvas
+                                    const c = document.getElementById("myCanvas");
+                                    const ctx = c.getContext("2d");
+                                    const grad = ctx.createLinearGradient(0,0,280,0);
+                                    // grad.addColorStop(0, newShade(sel_color, 40));
+                                    // grad.addColorStop(1, newShade(sel_color, 140));
+                                    grad.addColorStop(0, sel_color);
+                                    grad.addColorStop(1, sel_color2);
+                                    ctx.fillStyle = grad;
+                                    ctx.fillRect(0,0,500,130);
+
+                                    // Update the values and names
+                                    const min = document.getElementById("minValue")
+                                    const max = document.getElementById("maxValue")
+                                    const name = document.getElementById("variableName")
+                                    const variable = document.getElementById('selectedColorVariable').options[document.getElementById("selectedColorVariable").selectedIndex].text
+
+                                    min.innerText = minColor.toFixed(2)
+                                    max.innerText = maxColor.toFixed(2)
+                                    name.innerText = variable
+ 
+                                });
+
+                                // Update the labels
+                                labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
+                                labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
+
+                                // console.log(labelX, " - ", labelY)
+                                myChart.options.scales.y.title.text = labelY
+                                myChart.options.scales.x.title.text = labelX
+                                // Update the chart
+                                myChart.update()
+                            }
+
+                        </script>
+                        <!-- End of chart -->
+                    </div>
+                    <div class="tab-pane fade" id="dataoperations" role="tabpanel" aria-labelledby="dataoperations-tab">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th scope="col">Pos</th>
+                                    <th scope="col"></th>
+                                    <th scope="col">Operation type</th>
+                                    <th scope="col">Parameters</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    {% for oper in datastudio.operations %}
+                                    <tr>
+                                        <td style="vertical-align: middle;">{{loop.index}}</td>
+                                        <!-- Operation icon -->
+                                        {% if oper.operation == 'setdatatype' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-pen"></i></td>
+                                        <td style="vertical-align: middle;">Set column new data type</td>
+                                        {% elif oper.operation == 'remcol' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-eraser"></i></td>
+                                        <td style="vertical-align: middle;">Colum removed</td>
+                                        {% elif oper.operation == 'setcolumnname' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-font"></i></td>
+                                        <td style="vertical-align: middle;">Colum name changed</td>
+                                        {% elif oper.operation == 'clearnull' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
+                                        <td style="vertical-align: middle;">Delete rows with null data</td>
+                                        {% elif oper.operation == 'filtercol' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
+                                        <td style="vertical-align: middle;">Filter rows acording column values</td>
+                                        {% elif oper.operation == 'script' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-code"></i></td>
+                                        <td style="vertical-align: middle;">Apply script to variable</td>
+                                        {% else %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-question"></i></td>
+                                        <td style="vertical-align: middle;">{{oper.operation}}</td>
+                                        {% endif %}
+
+                                        <td style="vertical-align: middle;">{{oper.params}}</td>
+
+                                        <td style="vertical-align: middle;">
+                                            <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                        </td>
+
+                                        <!-- column Delete Operation Modal -->
+                                        <div class="modal fade" id="deleteOperationConfirmation{{oper.uuid|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteOperationConfirmationLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+
+                                                <div class="modal-content">
+                                                    <form method="post">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="deleteOperationConfirmationLabel">Are you sure you want to remove the operation <b>{{oper.operation}}</b> ?</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <input hidden type="text" name="mod" value="deloperation">
+                                                            <input hidden type="text" name="uuid" value="{{oper.uuid}}">
+                                                            <input hidden type="text" name="pos" value="{{loop.index0}}">
+
+                                                            <p>⚠️ This action is irreversible. However you can re-apply the data operation again.</p>
+                                                            <p> Operation UUID: {{oper.uuid}}</p>
+                                                            <p> Operation Type: {{oper.operation}}</p>
+                                                            <p> Operation Parameters: {{oper.params}}</p>
+
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>    
+                                    </tr>
+
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}    
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        {% if uploaded %}
+            <div class="card bg-light ms-4 me-4 mb-4">
+            <div class="card-header">
+                <i class="fa-solid fa-list fa-database"></i> Dataset preview (only first 10 records)
+            </div>
+            <div class="card-body">
+                <p class="card-text">
+                    <div class="table-responsive" id="tour-train-import-dataview">
+                        {% for table in tables %}
+                            {{ table|safe }}
+                        {% endfor %}
+                    </div>  
+                </p>
+            </div>
+            </div>
+        {% endif %}            
+    </div>
+</div>
+<!-- end content-->
+
+<!-- Scripting Modal -->
+<div class="modal fade" id="script" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="scriptLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scriptLabel">Apply a Python script data operation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input hidden type="text" name="mod" value="script">
+
+                    <div class="container">
+                        <div class="row">
+                            <!-- Code column -->
+                            <div class="col-xl-8">
+                                <div class="form-horizontal">
+                                    <div class="form-group row">
+                                        
+                                        <!-- Code textarea -->
+                                        <label for="code" class="col-sm-5 col-form-label"><h6>Script code:</h6></label>
+
+                                        <div class="col-sm-12">
+                                            <textarea id="code" name="code"></textarea>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4">
+
+                                <div class="container mt-3 overflow-scroll"  style="max-height: 325px;">
+                                    <h6>Available variables and functions</h6>
+                                    <div id="accordion">
+                                        <div class="card">
+                                            <div class="card-header">
+                                            <a class="btn" data-bs-toggle="collapse" href="#collapseOne">
+                                                Data variables
+                                            </a>
+                                            </div>
+                                            <div id="collapseOne" class="collapse" data-bs-parent="#accordion">
+                                            <div class="card-body">
+                                                <ul class="list-group">
+                                                    {% for title in titles %}
+                                                    <li class="list-group-item">
+                                                        <row class="d-flex justify-content-between align-items-center">
+                                                            <h6>{{title}}</h6>
+                                                            <span class="badge bg-success rounded-pill">{{datatypes[loop.index0]}}</span>
+                                                        </row>
+                                                        <row><code>context.processedData['{{title}}']</code></row>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header">
+                                            <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseTwo">
+                                            Custom Functions
+                                            </a>
+                                            </div>
+                                            <div id="collapseTwo" class="collapse" data-bs-parent="#accordion">
+                                            <div class="card-body">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item">
+                                                        <h6>Add column to dataset</h6>
+                                                        <code>context.AddColumn(baseColumn, name)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with number</h6>
+                                                        <code>context.ReplaceNaN(column , value)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with average</h6>
+                                                        <code>context.ReplaceNaN_Average(column)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with median</h6>
+                                                        <code>context.ReplaceNaN_Median(column)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with mode</h6>
+                                                        <code>context.ReplaceNaN_Mode(column)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Remove duplicated entries</h6>
+                                                        <code>context.RemoveDuplicates()</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Set column name</h6>
+                                                        <code>context.SetColumnName(oldName, newName)</code>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <br>
+                        <div class="row overflow-scroll" style="max-height: 250px;">
+                            <div class="col-xl-12 ">
+                                <!-- Help column -->
+                                Some usage examples:
+                                    <ol class="list-group list-group-numbered">
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Copy a specific column</div>
+                                                To create a new column based on other just perform the procedure <code>context.AddColumn('BasedColumnName','NewColumnName')</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Create new column with calculated values</div>
+                                                To add a new calculated column use the following syntax <code>context.processedData['new_column_name'] = context.processedData['column_a'] + context.processedData['column_b']</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Create week number from date</div>
+                                                <span>Ensure first that the date column is set with datetime format. </span>
+                                                To add a new calculated column with the week number from date use the following syntax <code>context.processedData['week_num'] = context.processedData['date'].dt.week</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Replace NaN by zero</div>
+                                                The clear nulls removes the rows containing NaN values. However you can use this code to replace NaN by a fixed value on specific columns <code>context.processedData['column'] = context.processedData['column'].fillna(0, inplace=True)</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Units conversion from kW to MW</div>
+                                                The values can be recalculated for instance to change the units of measurement. To change from kW to MW just apply the following code <code>context.processedData['data_in_kw'] = context.processedData['data_in_kw'] / 1000</code>
+                                            </div>
+                                        </li>
+                                    </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>&MediumSpace;</div>
+
+                    <p>⚠️ The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully.</p>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-play"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Editor code -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/codemirror.min.js" integrity="sha512-XMlgZzPyVXf1I/wbGnofk1Hfdx+zAWyZjh6c21yGo/k1zNC4Ve6xcQnTDTCHrjFGsOrVicJsBURLYktVEu/8vQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/mode/python/python.min.js" integrity="sha512-/mavDpedrvPG/0Grj2Ughxte/fsm42ZmZWWpHz1jCbzd5ECv8CB7PomGtw0NAnhHmE/lkDFkRMupjoohbKNA1Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+
+    $(document).ready(function(){
+
+        const editor = CodeMirror.fromTextArea(document.getElementById("code"), { 
+        mode: { 
+            name: "python", 
+            version: 3, 
+            singleLineStringErrors: false
+        },
+        theme: "monokai",
+        lineNumbers: true,
+        indentUnit: 4, 
+        matchBrackets: true
+        });
+
+        editor.setValue('# Use the right menu to easily copy paste the variables and functions.\r\n')
+        editor.refresh();
+
+        var scriptModal = document.getElementById("script");
+        var textArea = document.getElementById("code");
+
+        scriptModal.addEventListener('shown.bs.modal', function() {
+            textArea.focus()
+        });
+
+    });
+
+</script>
+
+<!-- Accentuate the NaN value in table-->
+<script>
+    const cells = document.querySelectorAll('td');
+    // console.log(cells)
+
+    for (let i=0; i < cells.length; i++){
+        if(cells[i].innerText == "NaN"){
+            cells[i].innerText = "⚠️"
+        }
+    }
+    
+</script>
+<script src="../static/js/intro.min.js"></script>
+<script src="../static/js/tour-datastudio.js"></script>
+{% endblock %}

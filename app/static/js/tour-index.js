@@ -7,12 +7,24 @@ if ( (x== "" || x == "false")){
         showProgress: true,
         steps: [{
             title: "Main page tutorial",
-            intro: "Please take a few moment to have a quick tour on the main features of this platform."
+            intro: "Please take a few moment to have a quick tour on the main features of this platform. Here you can take a look how to easily import, prepare, model and consume your data. During this process you will also learn the key concepts of the process."
         },
         {
-            element: document.getElementById('tour-index-newmodel'),
-            title: "Create new ML model",
-            intro: 'Here you can import your training data and select the algorithm to train your new model.',
+            element: document.getElementById('tour-index-datastudio'),
+            title: "Data Studio",
+            intro: 'Here is where the process begins. In this area you can import your dataset, analyse and prepare your data before training models.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-index-importmodel'),
+            title: "Model importation",
+            intro: 'If you already have one model created in other instance (server) you can easily import to this platfom.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-index-refresh'),
+            title: "Refresh model list",
+            intro: 'Refresh the models list available in this server.',
             position: 'right'
         },
         {
@@ -22,9 +34,15 @@ if ( (x== "" || x == "false")){
             position: 'right'
         },
         {
+            element: document.getElementById('tour-index-rmse'),
+            title: "Model accuracy - RMSE",
+            intro: 'RMSE is commonly used to compare the performance of different regression models and to assess the quality of the models predictions. It measures the average magnitude of the error between the predicted values and the actual values in a regression task. Lower RMSE values indicate that the models predictions are closer to the actual values, while higher RMSE values indicate larger prediction errors',
+            position: 'left'
+        },
+        {
             element: document.getElementById('tour-index-r2'),
-            title: "Model accuracy",
-            intro: 'The model accuracy can be checked in the R2 and MSE fields. For better results use models with higher R2 and lower MSE (mean squared error).',
+            title: "Model accuracy - R^2",
+            intro: 'R-squared is a valuable metric for understanding how well a regression model captures the variation in the dependent variable and is widely used in regression analysis for evaluating model performance. It provides insight into the goodness of fit of the model, indicating how well the independent variables explain the variability of the dependent variable.',
             position: 'left'
         },
         {

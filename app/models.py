@@ -17,7 +17,7 @@ import sys
 import pandas as pd
 
 # Creates and returns one PredictionModel object with Liner regression
-def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, featureReduction=False, seleckbestk=10, testsize=0.33):
+def LinearRegression(name, description, keywords, df_y, df_y_name, df_x, scaler=False, featureReduction=False, seleckbestk=10, testsize=0.33):
 
     if scaler:
         if featureReduction:
@@ -60,7 +60,7 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
             inputFeatures[i].setDescribe(desc[featureName].describe())
 
     pModel = PredictionModel()
-    pModel.Setup(name,description,linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+    pModel.Setup(name,description, keywords, linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
     pModel.SetTestData(y_test, y_pred)
 
@@ -69,7 +69,7 @@ def LinearRegression(name, description, df_y, df_y_name, df_x, scaler=False, fea
     return pModel
     
 # Creates and returns one PredictionModel object with KNN regression
-def KnnRegression(name, description, df_y, df_y_name, df_x, units, scaler=False, featureReduction=False, n=5, weights='distance', algorithm='auto', leaf_size=30, selectkbestk=10, testsize=0.33):
+def KnnRegression(name, description, keywords, df_y, df_y_name, df_x, units, scaler=False, featureReduction=False, n=5, weights='distance', algorithm='auto', leaf_size=30, selectkbestk=10, testsize=0.33):
 
     # Check if the slectedkbestk is equal or higer thant the amount of features
     featuresCount = len(df_x.columns)
@@ -127,7 +127,7 @@ def KnnRegression(name, description, df_y, df_y_name, df_x, units, scaler=False,
         inputFeatures[i].setDescribe(desc[featureName].describe())
     
     pModel = PredictionModel()
-    pModel.Setup(name,description,knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+    pModel.Setup(name,description,keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
     pModel.SetTestData(y_test, y_pred)
     pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
 
