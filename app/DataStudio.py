@@ -3,6 +3,7 @@ from datetime import datetime
 import uuid
 import pandas as pd
 import sys
+from utils import CleanColumnHeaderName
 
 class DataStudio:
     def __init__(self):
@@ -83,7 +84,7 @@ class DataStudio:
         elif(operation.operation == "setcolumnname"):
             column = operation.params[0]
             newname = operation.params[1]
-            self.__changeColumnName(column, newname)
+            self.__changeColumnName(column, CleanColumnHeaderName(newname))
 
             return "Variable [" + str(column) + "] name changed to [" + str(newname) + "]"
 
@@ -94,6 +95,17 @@ class DataStudio:
             err = self.__changeDatatype(column, datatype)
             print("3 - erro na change data type :" + err, file=sys.stderr)
             return err
+
+        # Apply script to variable
+        elif(operation.operation == "script"):
+            # Change the variable name
+            script = operation.params[0]
+            context = operation.params[1]
+            try:
+                exec(script)
+            except Exception as error:
+                return "ERROR: Applying script. " + str(error)
+            return ""
 
     def __performAllOperations(self):
         self.processedData = self.rawData.copy()
@@ -115,6 +127,31 @@ class DataStudio:
     
     def __changeColumnName(self, column, newname):
         self.processedData.rename(columns={column:newname}, inplace=True)
+
+    # Operations to use on script
+    def AddColumn(self, baseColumn, name):
+        self.processedData[name] = self.processedData[baseColumn]
+    
+    def ReplaceNaN(self, column , value):
+        self.processedData[column] = self.processedData[column].fillna(value, inplace=True)
+    
+    def ReplaceNaN_Average(self, column):
+        x = self.processedData[column].mean()
+        self.processedData[column] = self.processedData[column].fillna(x, inplace=True)
+    
+    def ReplaceNaN_Median(self, column):
+        x = self.processedData[column].median()
+        self.processedData[column] = self.processedData[column].fillna(x, inplace=True)
+    
+    def ReplaceNaN_Mode(self, column):
+        x = self.processedData[column].mode()
+        self.processedData[column] = self.processedData[column].fillna(x, inplace=True)
+
+    def RemoveDuplicates(self):
+        self.processedData.drop_duplicates(inplace=True)
+
+    def SetColumnName(self, column, name):
+        self.__changeColumnName(column, CleanColumnHeaderName(name))
 
 class DataOperation:
     def __init__(self, operation, params):

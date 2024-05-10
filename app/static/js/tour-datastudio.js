@@ -71,7 +71,13 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-clear-nulls'),
             title: "Clear nulls",
-            intro: 'This is a very important step on the data preparation. Please ensure that your data dont contain null values. Click here to delete rows containing null values. In some cases its prefered toi use this command after filtering the data.',
+            intro: 'This is a very important step on the data preparation. Please ensure that your data dont contain null values. Click here to delete rows containing null values. In some cases its prefered to use this command after filtering the data.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-train-import-script'),
+            title: "Python scripts",
+            intro: 'Here you can perform some basic Python scripts to modify the dataset.',
             position: 'right'
         },
         {

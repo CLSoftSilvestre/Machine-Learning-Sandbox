@@ -2,6 +2,11 @@
 
 {% block content %}
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css">
+<link rel="stylesheet" href="https://codemirror.net/5/theme/monokai.css" /> 
+<script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
+
+
 <!-- content -->
 <h3 class="m-4">Data Studio</h3>
 <div class="row">
@@ -71,6 +76,8 @@
                         <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
                     </form>
 
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Script" data-bs-toggle="modal" data-bs-target="#script" id="tour-train-import-script"><i class="fa fa-code"></i> Python code</a>
+
                     <a class="btn btn-primary disabled" type="button" href="#" id="tour-train-import-export"><i class="fas fa-download"></i> Export this dataset</a>
 
                     <form method="post">
@@ -103,7 +110,6 @@
                     <li class="nav-item" role="presentation" id="tour-train-import-operations">
                         <button class="nav-link" id="dataoperations-tab" data-bs-toggle="tab" data-bs-target="#dataoperations" type="button" role="tab" aria-controls="dataoperations" aria-selected="false">Data operations</button>
                     </li>
-
                 </ul>
                 <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade" id="descri" role="tabpanel" aria-labelledby="descri-tab">
@@ -651,6 +657,9 @@
                                         {% elif oper.operation == 'filtercol' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
                                         <td style="vertical-align: middle;">Filter rows acording column values</td>
+                                        {% elif oper.operation == 'script' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-code"></i></td>
+                                        <td style="vertical-align: middle;">Apply script to variable</td>
                                         {% else %}
                                         <td style="vertical-align: middle;"><i class="fas fa-question"></i></td>
                                         <td style="vertical-align: middle;">{{oper.operation}}</td>
@@ -728,22 +737,219 @@
 </div>
 <!-- end content-->
 
-  
+<!-- Scripting Modal -->
+<div class="modal fade" id="script" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="scriptLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scriptLabel">Apply a Python script data operation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input hidden type="text" name="mod" value="script">
+
+                    <div class="container">
+                        <div class="row">
+                            <!-- Code column -->
+                            <div class="col-xl-8">
+                                <div class="form-horizontal">
+                                    <div class="form-group row">
+                                        
+                                        <!-- Code textarea -->
+                                        <label for="code" class="col-sm-5 col-form-label"><h6>Script code:</h6></label>
+
+                                        <div class="col-sm-12">
+                                            <textarea id="code" name="code"></textarea>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-4">
+
+                                <div class="container mt-3 overflow-scroll"  style="max-height: 325px;">
+                                    <h6>Available variables and functions</h6>
+                                    <div id="accordion">
+                                        <div class="card">
+                                            <div class="card-header">
+                                            <a class="btn" data-bs-toggle="collapse" href="#collapseOne">
+                                                Data variables
+                                            </a>
+                                            </div>
+                                            <div id="collapseOne" class="collapse" data-bs-parent="#accordion">
+                                            <div class="card-body">
+                                                <ul class="list-group">
+                                                    {% for title in titles %}
+                                                    <li class="list-group-item">
+                                                        <row class="d-flex justify-content-between align-items-center">
+                                                            <h6>{{title}}</h6>
+                                                            <span class="badge bg-success rounded-pill">{{datatypes[loop.index0]}}</span>
+                                                        </row>
+                                                        <row><code>context.processedData['{{title}}']</code></row>
+                                                    </li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                            </div>
+                                        </div>
+                                        <div class="card">
+                                            <div class="card-header">
+                                            <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseTwo">
+                                            Custom Functions
+                                            </a>
+                                            </div>
+                                            <div id="collapseTwo" class="collapse" data-bs-parent="#accordion">
+                                            <div class="card-body">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item">
+                                                        <h6>Add column to dataset</h6>
+                                                        <code>context.AddColumn(baseColumn, name)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with number</h6>
+                                                        <code>context.ReplaceNaN(column , value)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with average</h6>
+                                                        <code>context.ReplaceNaN_Average(column)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with median</h6>
+                                                        <code>context.ReplaceNaN_Median(column)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Replace NaN with mode</h6>
+                                                        <code>context.ReplaceNaN_Mode(column)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Remove duplicated entries</h6>
+                                                        <code>context.RemoveDuplicates()</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Set column name</h6>
+                                                        <code>context.SetColumnName(oldName, newName)</code>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <br>
+                        <div class="row overflow-scroll" style="max-height: 250px;">
+                            <div class="col-xl-12 ">
+                                <!-- Help column -->
+                                Some usage examples:
+                                    <ol class="list-group list-group-numbered">
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Copy a specific column</div>
+                                                To create a new column based on other just perform the procedure <code>context.AddColumn('BasedColumnName','NewColumnName')</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Create new column with calculated values</div>
+                                                To add a new calculated column use the following syntax <code>context.processedData['new_column_name'] = context.processedData['column_a'] + context.processedData['column_b']</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Create week number from date</div>
+                                                <span>Ensure first that the date column is set with datetime format. </span>
+                                                To add a new calculated column with the week number from date use the following syntax <code>context.processedData['week_num'] = context.processedData['date'].dt.week</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Replace NaN by zero</div>
+                                                The clear nulls removes the rows containing NaN values. However you can use this code to replace NaN by a fixed value on specific columns <code>context.processedData['column'] = context.processedData['column'].fillna(0, inplace=True)</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Units conversion from kW to MW</div>
+                                                The values can be recalculated for instance to change the units of measurement. To change from kW to MW just apply the following code <code>context.processedData['data_in_kw'] = context.processedData['data_in_kw'] / 1000</code>
+                                            </div>
+                                        </li>
+                                    </ol>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>&MediumSpace;</div>
+
+                    <p>⚠️ The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully.</p>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-play"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
-<!-- Accentuate the NaN value in table-->
-    <script>
-        const cells = document.querySelectorAll('td');
-        // console.log(cells)
 
-        for (let i=0; i < cells.length; i++){
-            if(cells[i].innerText == "NaN"){
-                cells[i].innerText = "⚠️"
-            }
+<!-- Editor code -->
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/codemirror.min.js" integrity="sha512-XMlgZzPyVXf1I/wbGnofk1Hfdx+zAWyZjh6c21yGo/k1zNC4Ve6xcQnTDTCHrjFGsOrVicJsBURLYktVEu/8vQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/mode/python/python.min.js" integrity="sha512-/mavDpedrvPG/0Grj2Ughxte/fsm42ZmZWWpHz1jCbzd5ECv8CB7PomGtw0NAnhHmE/lkDFkRMupjoohbKNA1Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+<script>
+
+    $(document).ready(function(){
+
+        const editor = CodeMirror.fromTextArea(document.getElementById("code"), { 
+        mode: { 
+            name: "python", 
+            version: 3, 
+            singleLineStringErrors: false
+        },
+        theme: "monokai",
+        lineNumbers: true,
+        indentUnit: 4, 
+        matchBrackets: true
+        });
+
+        editor.setValue('# Use the right menu to easily copy paste the variables and functions.\r\n')
+        editor.refresh();
+
+        var scriptModal = document.getElementById("script");
+        var textArea = document.getElementById("code");
+
+        scriptModal.addEventListener('shown.bs.modal', function() {
+            textArea.focus()
+        });
+
+    });
+
+</script>
+
+<!-- Accentuate the NaN value in table-->
+<script>
+    const cells = document.querySelectorAll('td');
+    // console.log(cells)
+
+    for (let i=0; i < cells.length; i++){
+        if(cells[i].innerText == "NaN"){
+            cells[i].innerText = "⚠️"
         }
-        
-    </script>
-    <script src="../static/js/intro.min.js"></script>
-    <script src="../static/js/tour-datastudio.js"></script>
+    }
+    
+</script>
+<script src="../static/js/intro.min.js"></script>
+<script src="../static/js/tour-datastudio.js"></script>
 {% endblock %}

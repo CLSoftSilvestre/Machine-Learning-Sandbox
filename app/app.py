@@ -59,7 +59,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.2"
+appversion = "1.3.3"
 model_version = 6
 
 @app.context_processor
@@ -390,7 +390,7 @@ def datastudio():
             else:
                 newDatatype = object
 
-            params=[newName, newDatatype]
+            params=[columnName, newDatatype]
             dataOperation = DataOperation("setdatatype", params)
             err = session['data_studio'].AddOperation(dataOperation)
             print("1 - erro na add operation :" + err, file=sys.stderr)
@@ -420,7 +420,16 @@ def datastudio():
             session['temp_df'] = session['data_studio'].processedData.copy()
 
             return redirect('/train')
+        
+        elif(request.form['mod']=="script"):
+            script = request.form['code']
 
+            # Apply script on variable
+            params = [script, session['data_studio']]
+            dataOperation = DataOperation("script", params)
+            err = session['data_studio'].AddOperation(dataOperation)
+            session['warning'] = err
+ 
         # Update the correlation matrix image
         session['data_studio'].processedData.corr(method="pearson")
         corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
