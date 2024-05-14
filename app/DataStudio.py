@@ -46,64 +46,116 @@ class DataStudio:
     def RemoveOperationId(self, id):
         self.operations.pop(int(id))
         self.__performAllOperations()
-                
+
+    def EditOperation(self, uuid, params):
+        # Check the operation that contains the same uuid and edit the params
+        for operation in self.operations:
+            if operation.uuid == uuid:
+                operation.params = params
+                self.error = False
+                self.errorMessage = ""
+                self.run = False
+        # Perform all operation after editing.
+        self.__performAllOperations()
+
     def __performSingleOperation(self, operation):
         # Clear nulls operation
         if operation.operation == "clearnull":
-            self.processedData.dropna(how='any', axis=0, inplace=True)
-            self.processedData.reset_index(drop=True)
+            try:
+                self.processedData.dropna(how='any', axis=0, inplace=True)
+                self.processedData.reset_index(drop=True)
+                operation.run = True
+            except Exception as error:
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = error
             return ""
 
         # Remove column
         elif operation.operation == "remcol":
-            self.processedData = self.processedData.drop([operation.params], axis=1)
+            try:
+                self.processedData = self.processedData.drop([operation.params], axis=1)
+                operation.run = True
+            except Exception as error:
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = error
             return ""
         
         # Filter rows
         elif(operation.operation == "filtercol"):
-            column = operation.params[0]
-            min = operation.params[1]
-            max = operation.params[2]
 
-            tempFilteredDf = pd.DataFrame()
-            tempFilteredDf = self.processedData
+            try:
+                column = operation.params[0]
+                operator = operation.params[1]
+                value = operation.params[2]
 
-            if min != "":
-                # print("Applying filtering column " + column + " with min value", file=sys.stderr)
-                tempFilteredDf = self.processedData.loc[self.processedData[column] >= float(min)]
-            
-            if max != "":
-                # print("Applying filtering column " + column + " with max value", file=sys.stderr)
-                tempFilteredDf = self.processedData.loc[self.processedData[column] <= float(max)]
-            
-            self.processedData = tempFilteredDf
+                tempFilteredDf = pd.DataFrame()
+                tempFilteredDf = self.processedData
 
+                if operator == "<":
+                    tempFilteredDf = self.processedData.loc[self.processedData[column] < float(value)]
+                elif operator == "<=":
+                    tempFilteredDf = self.processedData.loc[self.processedData[column] <= float(value)]
+                elif operator == ">":
+                    tempFilteredDf = self.processedData.loc[self.processedData[column] > float(value)]
+                elif operator == ">=":
+                    tempFilteredDf = self.processedData.loc[self.processedData[column] >= float(value)]
+                
+                self.processedData = tempFilteredDf
+                self.processedData.reset_index(drop=True, inplace=True)
+
+                operation.run = True
+            except Exception as error:
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = error
             return ""
 
         # Change column name
         elif(operation.operation == "setcolumnname"):
-            column = operation.params[0]
-            newname = operation.params[1]
-            self.__changeColumnName(column, CleanColumnHeaderName(newname))
+            try:
+                column = operation.params[0]
+                newname = operation.params[1]
+                self.__changeColumnName(column, CleanColumnHeaderName(newname))
+                operation.run = True
+            except Exception as error:
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = error
 
             return "Variable [" + str(column) + "] name changed to [" + str(newname) + "]"
 
         # Change column data type
         elif(operation.operation == "setdatatype"):
-            column = operation.params[0]
-            datatype = operation.params[1]
-            err = self.__changeDatatype(column, datatype)
-            print("3 - erro na change data type :" + err, file=sys.stderr)
+            try:
+                column = operation.params[0]
+                datatype = operation.params[1]
+                err = self.__changeDatatype(column, datatype)
+                print("3 - erro na change data type :" + err, file=sys.stderr)
+                operation.run = True
+            except Exception as error:
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = error
+            if err != "":
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = err
             return err
 
         # Apply script to variable
         elif(operation.operation == "script"):
-            # Change the variable name
-            script = operation.params[0]
-            context = operation.params[1]
             try:
+                # Change the variable name
+                script = operation.params[0]
+                context = operation.params[1]  
                 exec(script)
+                operation.run = True
             except Exception as error:
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = error
                 return "ERROR: Applying script. " + str(error)
             return ""
 
@@ -153,8 +205,18 @@ class DataStudio:
     def SetColumnName(self, column, name):
         self.__changeColumnName(column, CleanColumnHeaderName(name))
 
+    def ExpandCategories(self, column):
+        dummies = pd.get_dummies(self.processedData[column])
+        if( dummies.shape[1] <= 10):
+            self.processedData = pd.concat([self.processedData, dummies], axis="columns")
+        else:
+            raise Exception("More than 10 categories detected.")
+
 class DataOperation:
     def __init__(self, operation, params):
         self.uuid = str(uuid.uuid4())
         self.operation = operation
         self.params = params
+        self.error = False
+        self.errorMessage = ""
+        self.run = False

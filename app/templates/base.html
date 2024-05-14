@@ -57,7 +57,13 @@
                             <i class="fa-regular fa-circle-question"></i> About
                         </a>
                       </li>
-
+                      {% if role=='Administrator' %}
+                        <li class="nav-item">
+                          <a class="nav-link" href="{{ url_for('usermanager') }}">
+                            <i class="fa-solid fa-users"></i> User's management
+                          </a>
+                        </li>
+                      {% endif %}
                       <li class="nav-item float-right">
                         {% if admin %}
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">

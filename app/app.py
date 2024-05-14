@@ -51,6 +51,8 @@ from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
 
+import copy
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -362,12 +364,14 @@ def datastudio():
 
         elif(request.form['mod']=="filtercol"):
 
-            min = request.form['minimum']
-            max = request.form['maximum']
+            # min = request.form['minimum']
+            # max = request.form['maximum']
             column = request.form['column']
+            operator = request.form['operatortype']
+            value = request.form['filtervalue']
    
             # DataStudio Session update
-            params = [column, min, max]
+            params = [column, operator, value]
             dataOperation = DataOperation("filtercol", params)
             session['data_studio'].AddOperation(dataOperation)
         
@@ -432,6 +436,39 @@ def datastudio():
             err = session['data_studio'].AddOperation(dataOperation)
             session['warning'] = err
  
+        elif(request.form['mod']=="editoperation"):
+            operationType = request.form['type']
+            operationuuid = request.form['uuid']
+
+            # Check with kind of operation was edited:
+            if(operationType == "setdatatype"):
+                column = request.form['column']
+                coldatatype = request.form['coldatatype']
+                params = [column, coldatatype]
+                session['data_studio'].EditOperation(operationuuid, params)
+            
+            elif(operationType == "remcol"):
+                session['data_studio'].EditOperation(operationuuid, request.form['column'])
+            
+            elif(operationType == "setcolumnname"):
+                column = request.form['column']
+                newName = request.form['newname']
+                params = [column, newName]
+                session['data_studio'].EditOperation(operationuuid, params)
+
+            elif(operationType == "filtercol"):
+                column = request.form['column']
+                operator = request.form['operatortype']
+                value = request.form['value']
+                params = [column, operator, value]
+                session['data_studio'].EditOperation(operationuuid, params)
+
+            elif(operationType == "script"):
+                script = request.form['editcode']
+                params = [script, session['data_studio']]
+                session['data_studio'].EditOperation(operationuuid, params)
+
+
         # Update the correlation matrix image
         session['data_studio'].processedData.corr(method="pearson")
         corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
@@ -459,6 +496,13 @@ def datastudio():
         emptyList = []
         emptyList.append((0,1))
         return render_template('datastudio.html', rawdata=emptyList)
+
+@app.route("/usermanager/", methods=['GET', 'POST'])
+def usermanager():
+    if (session.get('role') != 'Administrator'):
+        return redirect('/notauthorized')
+
+    return render_template('usermanager.html')
 
 # Start of Models training
 @app.route("/linear/", methods=['GET', 'POST'])
@@ -1033,6 +1077,21 @@ def perceptronreg():
 
     else:
         return render_template('perceptronreg.html')
+
+@app.route("/usedataset/<uuid>", methods=['GET'])
+def usedataset(uuid):
+
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+
+    for model in modelsList:
+        if model.uuid == uuid:
+            session['data_studio'] = copy.copy(model.dataStudio)
+            session['heatmap_base64_jpgData'] = copy.copy(model.correlationMatrixImage)
+            features = session['data_studio'].processedData.columns.tolist()
+            session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
+
+    return redirect('/datastudio')
 
 # End of Models training
 

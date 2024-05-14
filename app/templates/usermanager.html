@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <!-- content -->
+  <h3 class="m-4">List of users</h3>
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card-body">
+          {% if role == 'Administrator' %}
+            <a class="btn btn-success" type="button" href="#"><i class="fas fa-add"></i> Add new user</a>
+          {% else %}
+            <a class="btn btn-success disabled" type="button" href="#"><i class="fas fa-add"></i> Add new user</a>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card-header">
+          <i class="fa-solid fa-users fa-lg"></i> User's list
+        </div>
+        <div class="card-body">
+          <div class="card-body">
+            <p class="card-text">
+              <div class="table-responsive">
+                  <table class="table table-hover" id="tour-index-modelslist">
+                      <thead>
+                        <tr>
+                          <th scope="col"></th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Email</th>
+                          <th scope="col">Role</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td style="vertical-align: middle;"></td>
+                          <td style="vertical-align: middle;">admin</td>
+                          <td style="vertical-align: middle;">admin@admin.com</td>
+                          <td style="vertical-align: middle;">Admin</td>
+                          <td style="vertical-align: middle;">
+                            <a href="#" type="button"><span class="badge rounded-pill bg-success">Active</span></a>
+                          </td>
+                          <td style="vertical-align: middle;">
+                            <div class="btn-group" role="group" aria-label="Action commands">
+                                <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit user"><i class="fa fa-edit"></i></a>
+                                <a href="#" type="button" class="btn btn-danger disabled" data-toggle="tooltip" title="Delete user"><i class="fa fa-trash"></i></a> 
+                            </div>
+                          </td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle;"></td>
+                            <td style="vertical-align: middle;">csilvestre</td>
+                            <td style="vertical-align: middle;">celso.silvestre@groupe-bel.com</td>
+                            <td style="vertical-align: middle;">Admin</td>
+                            <td style="vertical-align: middle;">
+                              <a href="#" type="button"><span class="badge rounded-pill bg-warning">Suspended</span></a>
+                            </td>
+                            <td style="vertical-align: middle;">
+                              <div class="btn-group" role="group" aria-label="Action commands">
+                                  <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit user"><i class="fa fa-edit"></i></a>
+                                  <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete user"><i class="fa fa-trash"></i></a> 
+                              </div>
+                            </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+              </div>
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+
+{% endblock %}

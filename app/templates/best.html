@@ -2,8 +2,8 @@
 
 {% block content %}
 
-<h4>Best models</h4>
-<h6>Select one to save</h6>
+<h3 class="m-4">Best models</h3>
+<h6 class="m-4">Select one to save</h6>
 
 <div class="row">
     <div class="col-12">
@@ -22,7 +22,7 @@
                             <th scope="col">Model UUID</th>
                             <th scope="col">Model name</th>
                             <th scope="col">Model description</th>
-                            <th scope="col">MSE</th>
+                            <th scope="col">RMSE</th>
                             <th scope="col">R² score</th>
                             <th scope="col">Actions</th>
                           </tr>
@@ -34,7 +34,7 @@
                                 <td style="vertical-align: middle;">{{model.uuid}}</td>
                                 <td style="vertical-align: middle;">{{model.name}}</td>
                                 <td style="vertical-align: middle;">{{model.description}}</td>
-                                <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better">{{ '%0.1f'|format(model.MSE)}}</td>
+                                <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better">{{ '%0.2f'|format(model.RMSE)}} {{model.pVariableUnits}}</td>
                                 <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
                                 <td style="vertical-align: middle;">
                                   <div class="progress">
