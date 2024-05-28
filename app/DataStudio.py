@@ -4,6 +4,7 @@ import uuid
 import pandas as pd
 import sys
 from utils import CleanColumnHeaderName
+from pandas.api.types import is_datetime64_any_dtype as is_datetime
 
 class DataStudio:
     def __init__(self):
@@ -152,6 +153,8 @@ class DataStudio:
                 context = operation.params[1]  
                 exec(script)
                 operation.run = True
+                operation.error = False
+                operation.errorMessage = ""
             except Exception as error:
                 operation.run = False
                 operation.error = True
@@ -163,6 +166,9 @@ class DataStudio:
         self.processedData = self.rawData.copy()
         # perform all operation in a single pass
         for operation in self.operations:
+            self.error = False
+            self.errorMessage = ""
+            self.run = False
             self.__performSingleOperation(operation)
 
     def __changeDatatype(self, column, datatype):
@@ -211,6 +217,30 @@ class DataStudio:
             self.processedData = pd.concat([self.processedData, dummies], axis="columns")
         else:
             raise Exception("More than 10 categories detected.")
+
+    def AggWeek(self, dateColumn, mode):
+        if (is_datetime(self.processedData[dateColumn])):
+            try:
+                if( mode == 'sum'):
+                    self.processedData= self.processedData.groupby([self.processedData[dateColumn].dt.year, self.processedData[dateColumn].dt.week], as_index=False).sum()
+                elif (mode == 'mean'):
+                    self.processedData= self.processedData.groupby([self.processedData[dateColumn].dt.year, self.processedData[dateColumn].dt.week], as_index=False).mean()
+            except:
+                print("ERROR")
+        else:
+            raise Exception("Column " + dateColumn + " is not datetime format.")
+    
+    def AggMonth(self, dateColumn, mode):
+        if (is_datetime(self.processedData[dateColumn])):
+            try:
+                if( mode == 'sum'):
+                    self.processedData= self.processedData.groupby([self.processedData[dateColumn].dt.year, self.processedData[dateColumn].dt.month], as_index=False).sum()
+                elif (mode == 'mean'):
+                    self.processedData= self.processedData.groupby([self.processedData[dateColumn].dt.year, self.processedData[dateColumn].dt.month], as_index=False).mean()
+            except:
+                print("ERROR")
+        else:
+            raise Exception("Column " + dateColumn + " is not datetime format.")
 
 class DataOperation:
     def __init__(self, operation, params):

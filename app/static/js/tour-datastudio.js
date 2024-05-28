@@ -82,8 +82,8 @@ if ( (y== "" || y == "false") && !importView){
         },
         {
             element: document.getElementById('tour-train-import-export'),
-            title: "Export dataset",
-            intro: 'Feature not available yet. This will allow the exportation of the clean dataset in CSV format.',
+            title: "Download dataset",
+            intro: 'This allows the exportation of the current state of the dataset in CSV format.',
             position: 'left'
         },
         {

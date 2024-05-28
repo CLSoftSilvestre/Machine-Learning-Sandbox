@@ -5,7 +5,7 @@ Created on Fri Aug 18 09:53:44 2023
 @author: CSilvestre
 """
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file
 from flask_session import Session
 
 from ModelManager import ModelManager
@@ -90,6 +90,11 @@ def set_global_html_variable_values():
 
 @app.context_processor
 def show_session_warning():
+    if session.get('warning') == None:
+        session['warning'] = ""
+    if session.get('information') == None:
+        session['information'] = ""
+
     warning = ""
     info = ""
     warning = session.get('warning')
@@ -156,6 +161,14 @@ def download(uuid):
             return render_template('download.html', Model=model)
         
     return render_template('download.html')
+
+@app.route("/downloaddatastudio/", methods=['GET'])
+def downloaddatastudio():
+    buffer = io.BytesIO()
+    session['data_studio'].processedData.to_csv(buffer, sep=';', decimal=',', index=False)
+    buffer.seek(0)
+
+    return send_file(buffer, download_name='dataset.csv', mimetype='text/csv')
 
 @app.route("/downloadmodel/<uuid>", methods=['GET'])
 def downloadmodel(uuid):
@@ -1331,7 +1344,8 @@ def Login():
         session['temp_best_models'] = []
         add_Operation(dbPath, datetime.now(), user.name,"LOGIN","User login with success")
     else:
-        add_Operation(dbPath, datetime.now(), user.name,"LOGIN","Error user login")
+        add_Operation(dbPath, datetime.now(), name,"LOGIN","Error user login")
+        session['warning'] = "Error login. Wrong username or password!"
         session['autenticated'] = False
 
     return redirect('/index')

@@ -81,7 +81,7 @@
 
                     <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Script" data-bs-toggle="modal" data-bs-target="#script" id="tour-train-import-script"><i class="fa fa-code"></i> Python code</a>
 
-                    <a class="btn btn-primary disabled" type="button" href="#" id="tour-train-import-export"><i class="fas fa-download"></i> Export this dataset</a>
+                    <a class="btn btn-primary" type="button" href="{{ url_for('downloaddatastudio')}}" id="tour-train-import-export"><i class="fas fa-download"></i> Download this dataset</a>
 
                     <form method="post">
                         <input hidden type="text" name="mod" value="usedataset">
@@ -243,9 +243,16 @@
                                         <tr id='tour-train-import-filter'>
                                             <td class="align-middle">Filter column</td>
                                             {% for title in titles %}
+                                                {% if datatypes[loop.index0] == 'int64' or datatypes[loop.index0] == 'float64' or datatypes[loop.index0] == 'uint8' %}
                                                 <td class="align-middle">
                                                     <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#filterConfirmation{{title|replace(' ','')}}"><i class="fa fa-filter"></i></a>
                                                 </td>
+                                                {% else %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-warning disabled" data-toggle="tooltip" title="Filter column"><i class="fa fa-filter"></i></a>
+                                                </td>
+                                                {% endif %}
+
                                                 <!-- column Filter Modal -->
                                                 <div class="modal fade" id="filterConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="filterConfirmationLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered">
@@ -286,7 +293,7 @@
                                                                             <!-- Value -->
                                                                             <label for="filtervalue" class="col-sm-5 col-form-label">Value</label>
                                                                             <div class="col-sm-7">
-                                                                                <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" step="0.1"></input>
+                                                                                <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" step="0.01"></input>
                                                                             </div>
                                                                         </div>
 
@@ -892,7 +899,7 @@
                                                                         <!-- Value -->
                                                                         <label for="filtervalue" class="col-sm-5 col-form-label">Value</label>
                                                                         <div class="col-sm-7">
-                                                                            <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" value ={{oper.params[2]}} step="0.1"></input>
+                                                                            <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" value ={{oper.params[2]}} step="0.01"></input>
                                                                         </div>
                                                                     </div>
 
@@ -1055,6 +1062,14 @@
                                                         <code>context.AddColumn(baseColumn, name)</code>
                                                     </li>
                                                     <li class="list-group-item">
+                                                        <h6>Aggregate per week</h6>
+                                                        <code>context.AggWeek(dateColumn, mode='sum')</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Aggregate per month</h6>
+                                                        <code>context.AggMonth(dateColumn, mode='sum')</code>
+                                                    </li>
+                                                    <li class="list-group-item">
                                                         <h6>Expand categories to columns</h6>
                                                         <code>context.ExpandCategories(column)</code>
                                                     </li>
@@ -1126,6 +1141,12 @@
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold">Units conversion from kW to MW</div>
                                                 The values can be recalculated for instance to change the units of measurement. To change from kW to MW just apply the following code <code>context.processedData['data_in_kw'] = context.processedData['data_in_kw'] / 1000</code>
+                                            </div>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Agregate the dataset from daily to weekly level</div>
+                                                The dataset can be agrregated at the weekly level with mode options (mode='sum') for summing or (mode='mean') for averaging the values of the columns. To aggregate apply the following code <code>context.AggWeek(date_column, mode)</code>
                                             </div>
                                         </li>
                                     </ol>
