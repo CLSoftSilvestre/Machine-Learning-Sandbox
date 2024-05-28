@@ -20,7 +20,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 from sklearn import tree
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.inspection import permutation_importance
 
@@ -61,7 +61,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.3"
+appversion = "1.3.4"
 model_version = 6
 
 @app.context_processor
@@ -826,6 +826,104 @@ def randomforest():
     
     else:
         return render_template('randomforest.html')
+
+@app.route("/randomforestreg/", methods=['GET', 'POST'])
+def randomforestreg():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    if(request.method == 'POST'):
+
+        # Set the model
+        estimators = int(request.form['estimators'])
+        maxdepth = int(request.form['maxdepth'])
+        randomstate = int(request.form['randomstate'])
+        name = request.form['name']
+        description = request.form['description']
+        scaling = bool(request.form.get('scaling'))
+        featurered = bool(request.form.get('featurered'))
+        selectkbestk = int(request.form['selectkbestk'])
+        keywords = request.form['keywords'].split(";")
+
+        if scaling:
+            if featurered:
+                clf = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=selectkbestk), RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate))
+            else:
+                clf = make_pipeline(StandardScaler(), RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate))
+        else:
+            if featurered:
+                clf = make_pipeline(SelectKBest(f_classif, k=selectkbestk), RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate))
+            else:
+                clf = RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate)
+        
+        # Set train/test groups
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
+
+        # Train model
+        clf.fit(x_train, y_train)
+        y_pred = clf.predict(x_test)
+
+
+        # Save model
+        inputFeatures = []
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
+
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
+
+        
+         # Calculate feature importances and update feature item.
+        try:     
+            importance = clf.feature_importances_
+            for i, v in enumerate(importance):
+                inputFeatures[i].setImportance(v)
+        except:
+            pass
+        
+        desc = pd.DataFrame(session['temp_df_x'])
+
+        for i in range(len(inputFeatures)):
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
+
+        pModel = PredictionModel()
+        pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        pModel.SetTestData(y_test, y_pred)
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
+
+        pModel.SetDataStudioData(session['data_studio'])
+
+        mMan = ModelManager()
+        modelFileName = name + ".model"
+        filepath = os.path.join(app.root_path, 'models', modelFileName)
+
+        print("filepath: ", filepath, file=sys.stderr)
+
+        mMan.SaveModel(pModel, filepath)
+
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"RANDOM FOREST REGRESSOR MODEL CREATED",pModel.uuid)
+
+        UpdateModelsList()
+
+        return redirect('/index')
+    
+    else:
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('randomforestreg.html', FeaturesCount = featuresCount)
+
 
 @app.route("/svmreg/", methods=['GET', 'POST'])
 def svmreg():
