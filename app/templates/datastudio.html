@@ -5,6 +5,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css">
 <link rel="stylesheet" href="https://codemirror.net/5/theme/monokai.css" /> 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/codemirror.min.js" integrity="sha512-XMlgZzPyVXf1I/wbGnofk1Hfdx+zAWyZjh6c21yGo/k1zNC4Ve6xcQnTDTCHrjFGsOrVicJsBURLYktVEu/8vQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/mode/python/python.min.js" integrity="sha512-/mavDpedrvPG/0Grj2Ughxte/fsm42ZmZWWpHz1jCbzd5ECv8CB7PomGtw0NAnhHmE/lkDFkRMupjoohbKNA1Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
 
 
 <!-- content -->
@@ -78,7 +81,7 @@
 
                     <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Script" data-bs-toggle="modal" data-bs-target="#script" id="tour-train-import-script"><i class="fa fa-code"></i> Python code</a>
 
-                    <a class="btn btn-primary disabled" type="button" href="#" id="tour-train-import-export"><i class="fas fa-download"></i> Export this dataset</a>
+                    <a class="btn btn-primary" type="button" href="{{ url_for('downloaddatastudio')}}" id="tour-train-import-export"><i class="fas fa-download"></i> Download this dataset</a>
 
                     <form method="post">
                         <input hidden type="text" name="mod" value="usedataset">
@@ -171,11 +174,10 @@
                                                                     <div class="form-horizontal">
                                                                         <div class="form-group row">
                                                                             <!-- Data type -->
-                                                                            <label for="coldataype" class="col-sm-5 col-form-label">New data type</label>
+                                                                            <label for="coldatatype" class="col-sm-5 col-form-label">New data type</label>
                                                                             <div class="col-sm-7">
                                                                                 <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
                                                                                 <select class="form-control text-left" id="coldatatype" name="coldatatype">
-                                                                                    <option value="string">String</option>
                                                                                     <option value="datetime">Datetime</option>
                                                                                     <option value="int">Integer</option>
                                                                                     <option value="float">Float</option>
@@ -241,9 +243,16 @@
                                         <tr id='tour-train-import-filter'>
                                             <td class="align-middle">Filter column</td>
                                             {% for title in titles %}
+                                                {% if datatypes[loop.index0] == 'int64' or datatypes[loop.index0] == 'float64' or datatypes[loop.index0] == 'uint8' %}
                                                 <td class="align-middle">
                                                     <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#filterConfirmation{{title|replace(' ','')}}"><i class="fa fa-filter"></i></a>
                                                 </td>
+                                                {% else %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-warning disabled" data-toggle="tooltip" title="Filter column"><i class="fa fa-filter"></i></a>
+                                                </td>
+                                                {% endif %}
+
                                                 <!-- column Filter Modal -->
                                                 <div class="modal fade" id="filterConfirmation{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="filterConfirmationLabel" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered">
@@ -261,18 +270,30 @@
                                                                     
                                                                     <div class="form-horizontal">
                                                                         <div class="form-group row">
-                                                                            <!-- Min -->
-                                                                            <label for="minimum" class="col-sm-5 col-form-label">Minimum value inclusive</label>
+                                                                            <!-- Operator -->
+                                                                            <!--label for="minimum" class="col-sm-5 col-form-label">Minimum value inclusive</label>
                                                                             <div class="col-sm-7">
                                                                                 <input type="number" class="form-control text-left" id="minimum" name="minimum" step="0.1"></input>
+                                                                            </div-->
+
+                                                                            <!-- Operator -->
+                                                                            <label for="operatortype" class="col-sm-5 col-form-label">Operator</label>
+                                                                            <div class="col-sm-7">
+                                                                                <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
+                                                                                <select class="form-control text-left" id="operatortype" name="operatortype">
+                                                                                    <option value="<">&lt;</option>
+                                                                                    <option value="<=">&lt;=</option>
+                                                                                    <option value=">">&gt;</option>
+                                                                                    <option value=">=">&gt;=</option>
+                                                                                </select>
                                                                             </div>
 
                                                                             <div>&MediumSpace;</div>
     
-                                                                            <!-- Max -->
-                                                                            <label for="maximum" class="col-sm-5 col-form-label">Maximum value inclusive</label>
+                                                                            <!-- Value -->
+                                                                            <label for="filtervalue" class="col-sm-5 col-form-label">Value</label>
                                                                             <div class="col-sm-7">
-                                                                                <input type="number" class="form-control text-left" id="maximum" name="maximum" step="0.1"></input>
+                                                                                <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" step="0.01"></input>
                                                                             </div>
                                                                         </div>
 
@@ -280,7 +301,6 @@
 
                                                                     <div>&MediumSpace;</div>
 
-                                                                    <p>⚠️ Data values >= minimum and <= maximum will be keept. Remaining rows will be removed. Leave field blank to ensure that filter is not applied.</p>
 
                                                                 </div>
 
@@ -424,7 +444,7 @@
                         <div class="container">
                             <div class="row">
                                 <div class="col-2">Min</div>
-                                <div class="col-8 text-center">Variable</div>
+                                <div class="col-8 text-center">Color variable</div>
                                 <div class="col-2 text-right">Max</div>
                             </div>
                             <div class="row">
@@ -433,6 +453,15 @@
                                 <div class="col-2 text-right"><h6 id="maxValue">100</h6></div>
                             </div>
                         </div>
+                        
+                        <!--div class="container">
+                            <div class="row">
+                                <div class="col-12">
+                                    <label for="filterPointsRange" class="form-label">Filter color variable</label>
+                                    <input type="range" class="form-range" min="0" max="100" step="10" id="filterPointsRange">
+                                </div>
+                            </div>
+                        </div-->
 
                         <script src="../static/js/color-blend.js"></script>
                         
@@ -631,6 +660,7 @@
                                 <thead>
                                 <tr>
                                     <th scope="col">Pos</th>
+                                    <th scope="col">State</th>
                                     <th scope="col"></th>
                                     <th scope="col">Operation type</th>
                                     <th scope="col">Parameters</th>
@@ -641,37 +671,88 @@
                                     {% for oper in datastudio.operations %}
                                     <tr>
                                         <td style="vertical-align: middle;">{{loop.index}}</td>
+                                        <!-- State of run -->
+                                                      
+                                        {% if oper.error %}
+                                        <td style="vertical-align: middle;"><a href="#"><span class="badge rounded-pill bg-danger" data-toggle="tooltip" title="{{oper.errorMessage}}">Error</span></a></td>
+                                        {% elif oper.run %}
+                                        <td style="vertical-align: middle;"><a href="#"><span class="badge rounded-pill bg-success">Success</span></a></td>  
+                                        {% endif %}
+
                                         <!-- Operation icon -->
                                         {% if oper.operation == 'setdatatype' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-pen"></i></td>
                                         <td style="vertical-align: middle;">Set column new data type</td>
+                                        <td style="vertical-align: middle;">{{oper.params}}</td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% elif oper.operation == 'remcol' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-eraser"></i></td>
                                         <td style="vertical-align: middle;">Colum removed</td>
+                                        <td style="vertical-align: middle;">{{oper.params}}</td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success disabled" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% elif oper.operation == 'setcolumnname' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-font"></i></td>
                                         <td style="vertical-align: middle;">Colum name changed</td>
+                                        <td style="vertical-align: middle;">Column {{oper.params[0]}} renamed to {{oper.params[1]}}</td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% elif oper.operation == 'clearnull' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
                                         <td style="vertical-align: middle;">Delete rows with null data</td>
+                                        <td style="vertical-align: middle;"></td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success disabled" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% elif oper.operation == 'filtercol' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
                                         <td style="vertical-align: middle;">Filter rows acording column values</td>
+                                        <td style="vertical-align: middle;">{{oper.params[0]}} {{oper.params[1]}} {{oper.params[2]}}</td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% elif oper.operation == 'script' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-code"></i></td>
-                                        <td style="vertical-align: middle;">Apply script to variable</td>
+                                        <td style="vertical-align: middle;">Python script applied</td>
+                                        <td style="vertical-align: middle;"><code>{{oper.params[0]}}</code></td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% else %}
                                         <td style="vertical-align: middle;"><i class="fas fa-question"></i></td>
                                         <td style="vertical-align: middle;">{{oper.operation}}</td>
+                                        <td style="vertical-align: middle;">{{oper.params}}</td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% endif %}
 
-                                        <td style="vertical-align: middle;">{{oper.params}}</td>
-
-                                        <td style="vertical-align: middle;">
-                                            <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
-                                        </td>
-
-                                        <!-- column Delete Operation Modal -->
+                                        <!-- Delete Operation Modal -->
                                         <div class="modal fade" id="deleteOperationConfirmation{{oper.uuid|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteOperationConfirmationLabel" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
 
@@ -701,9 +782,180 @@
                                                     </form>
                                                 </div>
                                             </div>
-                                        </div>    
-                                    </tr>
+                                        </div> 
+                                        
+                                        <!-- Edit Operation Modal-->
+                                        <div class="modal fade" id="editOperation{{oper.uuid|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editOperationLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
 
+                                                <div class="modal-content">
+                                                    <form method="post">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="editOperationLabel">Edit operation <b> position {{loop.index}}</b> ?</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+
+                                                        <div class="modal-body">
+                                                            <input hidden type="text" name="mod" value="editoperation">
+                                                            <input hidden type="text" name="uuid" value="{{oper.uuid}}">
+                                                            
+                                                            <h4>Editing operation {{oper.operation}}</h4>
+                                                            <!-- Check the type of operation and draw the form according to -->
+
+                                                            {% if oper.operation == 'setdatatype' %}
+                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <!-- Add code for set datatype -->
+                                                                <input hidden type="text" name="type" value="setdatatype">
+                                                                <input hidden type="text" name="column" value="{{oper.params[0]}}">
+                                                                <div>&MediumSpace;</div>
+                                                                <div class="form-horizontal">
+                                                                    <div class="form-group row">
+                                                                        <!-- Data type -->
+                                                                        <label for="coldatatype" class="col-sm-5 col-form-label">New data type</label>
+                                                                        <div class="col-sm-7">
+                                                                            <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
+                                                                            <select class="form-control text-left" id="coldatatype" name="coldatatype">
+                                                                                <option value="datetime">Datetime</option>
+                                                                                <option value="int">Integer</option>
+                                                                                <option value="float">Float</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            {% elif oper.operation == 'remcol' %}
+                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <!-- Add code for remove column -->
+                                                                <input hidden type="text" name="type" value="remcol">
+                                                                <div>&MediumSpace;</div>
+                                                                <div class="form-horizontal">
+                                                                    <div class="form-group row">
+                                                                        <!-- Data type -->
+                                                                        <label for="column" class="col-sm-5 col-form-label">Column</label>
+                                                                        <div class="col-sm-7">
+                                                                            <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
+                                                                            <select class="form-control text-left" id="column" name="column" value="{{oper.params}}">
+                                                                                {% for title in titles %}
+                                                                                <option value="{{title}}">{{title}}</option>
+                                                                                {% endfor %}
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                            {% elif oper.operation == 'setcolumnname' %}
+                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <!-- Add code for set column name -->
+                                                                <input hidden type="text" name="type" value="setcolumnname">
+                                                                <input hidden type="text" name="column" value="{{oper.params[0]}}">
+                                                                <div>&MediumSpace;</div>
+                                                                <div class="form-horizontal">
+                                                                    <div class="form-group row">
+                                                                        <!-- New name -->
+                                                                        <label for="minimum" class="col-sm-5 col-form-label">Column new name</label>
+                                                                        <div class="col-sm-7">
+                                                                            <input type="text" class="form-control text-left" id="newname" name="newname" value="{{oper.params[1]}}"></input>
+                                                                        </div>
+
+                                                                        <div>&MediumSpace;</div>
+
+                                                                    </div>
+
+                                                                </div>
+
+                                                            {% elif oper.operation == 'clearnull' %}
+                                                                <!-- Add code for clearing nulls -->
+                                                                <input hidden type="text" name="type" value="clearnull">
+                                                                <h4>This operation does not support editing. Please delete the operation.</h4>
+
+                                                            {% elif oper.operation == 'filtercol' %}
+                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <!-- Add code for filtering columns -->
+                                                                <input hidden type="text" name="type" value="filtercol">
+                                                                <input hidden type="text" name="column" value="{{oper.params[0]}}">
+                                                                <div>&MediumSpace;</div>
+                                                                <div class="form-horizontal">
+                                                                    <div class="form-group row">
+                                                                        <!-- Operator -->
+                                                                        <!--label for="minimum" class="col-sm-5 col-form-label">Minimum value inclusive</label>
+                                                                        <div class="col-sm-7">
+                                                                            <input type="number" class="form-control text-left" id="minimum" name="minimum" step="0.1"></input>
+                                                                        </div-->
+
+                                                                        <!-- Operator -->
+                                                                        <label for="operatortype" class="col-sm-5 col-form-label">Operator</label>
+                                                                        <div class="col-sm-7">
+                                                                            <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
+                                                                            <select class="form-control text-left" id="operatortype" name="operatortype" value="{{oper.params[1]}}">
+                                                                                <option value="<">&lt;</option>
+                                                                                <option value="<=">&lt;=</option>
+                                                                                <option value=">">&gt;</option>
+                                                                                <option value=">=">&gt;=</option>
+                                                                            </select>
+                                                                        </div>
+
+                                                                        <div>&MediumSpace;</div>
+
+                                                                        <!-- Value -->
+                                                                        <label for="filtervalue" class="col-sm-5 col-form-label">Value</label>
+                                                                        <div class="col-sm-7">
+                                                                            <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" value ={{oper.params[2]}} step="0.01"></input>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+
+                                                            {% elif oper.operation == 'script' %}
+                                                                <!-- Add code for script -->
+                                                                <input hidden type="text" name="type" value="script">
+                                                                <div class="form-horizontal">
+                                                                    <div class="form-group row">
+                                                                        <!-- Code -->
+                                                                        <label for="editcode" class="col-sm-5 col-form-label">Code</label>
+                                                                        <textarea class="form-control" type="text" name="editcode" id="editcode{{oper.uuid|replace('-','')}}" rows="6">
+                                                                            {{oper.params[0]}}
+                                                                        </textarea>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Scripts for code editor -->
+                                                                <script>
+
+                                                                    function convertToRtf(plain) {
+                                                                        plain = plain.replace(/\n/g, "\\par\n");
+                                                                        return "{\\rtf1\\ansi\\ansicpg1252\\deff0\\deflang2057{\\fonttbl{\\f0\\fnil\\fcharset0 Microsoft Sans Serif;}}\n\\viewkind4\\uc1\\pard\\f0\\fs17 " + plain + "\\par\n}";
+                                                                    }
+
+                                                                    const editor{{oper.uuid|replace('-','')}} = CodeMirror.fromTextArea(document.getElementById("editcode{{oper.uuid|replace('-','')}}"), { 
+                                                                    mode: { 
+                                                                        name: "python", 
+                                                                        version: 3, 
+                                                                        singleLineStringErrors: false
+                                                                    },
+                                                                    theme: "monokai",
+                                                                    lineNumbers: true,
+                                                                    indentUnit: 4, 
+                                                                    matchBrackets: true
+                                                                    });
+
+                                                                    editor{{oper.uuid|replace('-','')}}.refresh();
+                                                                
+                                                                </script>
+
+                                                            {% endif %}
+
+                                                        </div>
+
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div> 
+
+                                    </tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -810,6 +1062,18 @@
                                                         <code>context.AddColumn(baseColumn, name)</code>
                                                     </li>
                                                     <li class="list-group-item">
+                                                        <h6>Aggregate per week</h6>
+                                                        <code>context.AggWeek(dateColumn, mode='sum')</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Aggregate per month</h6>
+                                                        <code>context.AggMonth(dateColumn, mode='sum')</code>
+                                                    </li>
+                                                    <li class="list-group-item">
+                                                        <h6>Expand categories to columns</h6>
+                                                        <code>context.ExpandCategories(column)</code>
+                                                    </li>
+                                                    <li class="list-group-item">
                                                         <h6>Replace NaN with number</h6>
                                                         <code>context.ReplaceNaN(column , value)</code>
                                                     </li>
@@ -879,6 +1143,12 @@
                                                 The values can be recalculated for instance to change the units of measurement. To change from kW to MW just apply the following code <code>context.processedData['data_in_kw'] = context.processedData['data_in_kw'] / 1000</code>
                                             </div>
                                         </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Agregate the dataset from daily to weekly level</div>
+                                                The dataset can be agrregated at the weekly level with mode options (mode='sum') for summing or (mode='mean') for averaging the values of the columns. To aggregate apply the following code <code>context.AggWeek(date_column, mode)</code>
+                                            </div>
+                                        </li>
                                     </ol>
                             </div>
                         </div>
@@ -905,8 +1175,6 @@
 
 <!-- Editor code -->
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/codemirror.min.js" integrity="sha512-XMlgZzPyVXf1I/wbGnofk1Hfdx+zAWyZjh6c21yGo/k1zNC4Ve6xcQnTDTCHrjFGsOrVicJsBURLYktVEu/8vQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/mode/python/python.min.js" integrity="sha512-/mavDpedrvPG/0Grj2Ughxte/fsm42ZmZWWpHz1jCbzd5ECv8CB7PomGtw0NAnhHmE/lkDFkRMupjoohbKNA1Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
 <script>
 

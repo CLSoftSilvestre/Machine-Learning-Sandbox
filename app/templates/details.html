@@ -10,6 +10,21 @@
   </ol-->
 
   <h3 class="m-4">Model details</h3>
+
+  <div class="row">
+    <div class="col-12">
+      <div class="card bg-light ms-4 me-4 mb-4">
+        <div class="card-body">
+          {% if admin %}
+            <a class="btn btn-success" type="button" href="{{ url_for('usedataset', uuid=Model.uuid)}}"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>
+          {% else %}
+            <a class="btn btn-success disabled" type="button" href="#"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>
+          {% endif %}
+        </div>        
+      </div>     
+    </div>
+  </div>
+
   <div class="row">
     <div class="col-12">
       {% if Model %}
@@ -46,9 +61,15 @@
                 data: {
                     labels:  [
                         //for i in range(1,(Model.realTestList)| length +1)
-                                {% for i in range(1, 100 +1) %}
-                                  {{i}},
-                                {% endfor %}
+                                {% if (Model.realTestList) | length < 150 %}
+                                  {% for i in range(1,(Model.realTestList)| length +1) %}
+                                    {{i}},
+                                  {% endfor %}
+                                {% else %}
+                                  {% for i in range(1,150 + 1) %}
+                                    {{i}},
+                                  {% endfor %}
+                                {% endif %}
                               ],
                     datasets: [{
                         label: 'real',
@@ -196,13 +217,14 @@
                           <div class="timeline-date">Pipeline</div>
                         </div>
                       </div>
-
-                      
+    
                       {% for step in Model.model %}
                         <div class="timeline-item">
                           {% if "StandardScaler" in (step)|string() %}
                             <i class="fas fa-scale-balanced timeline-icon"></i>
                           {% elif "Feature" in (step)|string() %}
+                            <i class="fas fa-filter timeline-icon"></i>
+                          {% elif "SelectK" in (step)|string() %}
                             <i class="fas fa-filter timeline-icon"></i>
                           {% else %}
                             <i class="fas fa-robot timeline-icon"></i>
@@ -216,6 +238,7 @@
                           </div>
                         </div>
                       {% endfor %}
+
                     {% else %}
                       <div class="timeline-item">
                         <i class="fas fa-robot timeline-icon"></i>
@@ -321,6 +344,11 @@
                     <td style="vertical-align: middle;"> Decimal</td>
                     <td style="vertical-align: middle;">{{'%0.2f'|format(feature.describe['min'])}}</td>
                     <td style="vertical-align: middle;">{{'%0.2f'|format(feature.describe['max'])}}</td>
+
+                    {% elif "uint8" in feature.varType %}
+                    <td style="vertical-align: middle;"> Boolean</td>
+                    <td style="vertical-align: middle;">{{'%0.0f'|format(feature.describe['min'])}}</td>
+                    <td style="vertical-align: middle;">{{'%0.0f'|format(feature.describe['max'])}}</td>
 
                     {% endif %}
 

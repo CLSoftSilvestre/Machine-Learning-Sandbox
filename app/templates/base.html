@@ -57,7 +57,13 @@
                             <i class="fa-regular fa-circle-question"></i> About
                         </a>
                       </li>
-
+                      {% if role=='Administrator' %}
+                        <li class="nav-item">
+                          <a class="nav-link" href="{{ url_for('usermanager') }}">
+                            <i class="fa-solid fa-users"></i> User's management
+                          </a>
+                        </li>
+                      {% endif %}
                       <li class="nav-item float-right">
                         {% if admin %}
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
@@ -100,14 +106,14 @@
                           <h4><b>Machine Learning Sandbox</b></h4>
                           <h6>App version: {{version}}</h6>
                           <h6>Model version: {{mversion}}</h6>
-                          <h6>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Bel</h6>
+                          <h6>Copyright &copy; <script>document.write(new Date().getFullYear())</script> Azordev.pt</h6>
                         </div>
                       </div>
                     </div>
 
                     <hr>
                     <p>For more information please contact:</p>
-                    <h6><a href = "mailto: celso.silvestre@groupe-bel.com.pt">celso.silvestre@groupe-bel.com</a></h6>
+                    <h6><a href = "mailto: geral@azordev.pt">geral@azordev.pt</a></h6>
                     <h6><a href = "https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox" target="_blank">https://github.com/CLSoftSilvestre/Machine-Learning-Sandbox</a></h6>
                     <hr>
                     <!-- Show tutorials -->

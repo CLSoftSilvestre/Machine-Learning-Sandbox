@@ -113,6 +113,7 @@
                                                                 <option value="sec">sec</option>
                                                                 <option value="min">min</option>
                                                                 <option value="hour">hour</option>
+                                                                <option value="day">day</option>
                                                             </optgroup>
                                                             <optgroup label="Lenght">
                                                                 <option value="mm">mm</option>
@@ -254,6 +255,22 @@
                                                 <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
                                                 {% else %}
                                                 <a href="{{ url_for('treereg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                {% endif %} 
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/RandomForest.webp" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">Random forest regressor</h5>
+                                              <p class="card-text mb-4">Random Forest is an ensemble learning method that combines multiple decision trees to make predictions. The final prediction of the Random Forest is the average prediction of all the individual trees, resulting in a robust and accurate regression model</p>
+                                              
+                                              {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                {% else %}
+                                                <a href="{{ url_for('randomforestreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
                                                 {% endif %} 
                                             </div>
                                         </div>

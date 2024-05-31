@@ -5,7 +5,7 @@ Created on Fri Aug 18 09:53:44 2023
 @author: CSilvestre
 """
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file
 from flask_session import Session
 
 from ModelManager import ModelManager
@@ -20,7 +20,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 from sklearn import tree
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
 from sklearn.inspection import permutation_importance
 
@@ -51,6 +51,8 @@ from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
 
+import copy
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -59,7 +61,7 @@ Session(app)
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.3"
+appversion = "1.3.4"
 model_version = 6
 
 @app.context_processor
@@ -88,6 +90,11 @@ def set_global_html_variable_values():
 
 @app.context_processor
 def show_session_warning():
+    if session.get('warning') == None:
+        session['warning'] = ""
+    if session.get('information') == None:
+        session['information'] = ""
+
     warning = ""
     info = ""
     warning = session.get('warning')
@@ -154,6 +161,14 @@ def download(uuid):
             return render_template('download.html', Model=model)
         
     return render_template('download.html')
+
+@app.route("/downloaddatastudio/", methods=['GET'])
+def downloaddatastudio():
+    buffer = io.BytesIO()
+    session['data_studio'].processedData.to_csv(buffer, sep=';', decimal=',', index=False)
+    buffer.seek(0)
+
+    return send_file(buffer, download_name='dataset.csv', mimetype='text/csv')
 
 @app.route("/downloadmodel/<uuid>", methods=['GET'])
 def downloadmodel(uuid):
@@ -362,12 +377,14 @@ def datastudio():
 
         elif(request.form['mod']=="filtercol"):
 
-            min = request.form['minimum']
-            max = request.form['maximum']
+            # min = request.form['minimum']
+            # max = request.form['maximum']
             column = request.form['column']
+            operator = request.form['operatortype']
+            value = request.form['filtervalue']
    
             # DataStudio Session update
-            params = [column, min, max]
+            params = [column, operator, value]
             dataOperation = DataOperation("filtercol", params)
             session['data_studio'].AddOperation(dataOperation)
         
@@ -432,6 +449,39 @@ def datastudio():
             err = session['data_studio'].AddOperation(dataOperation)
             session['warning'] = err
  
+        elif(request.form['mod']=="editoperation"):
+            operationType = request.form['type']
+            operationuuid = request.form['uuid']
+
+            # Check with kind of operation was edited:
+            if(operationType == "setdatatype"):
+                column = request.form['column']
+                coldatatype = request.form['coldatatype']
+                params = [column, coldatatype]
+                session['data_studio'].EditOperation(operationuuid, params)
+            
+            elif(operationType == "remcol"):
+                session['data_studio'].EditOperation(operationuuid, request.form['column'])
+            
+            elif(operationType == "setcolumnname"):
+                column = request.form['column']
+                newName = request.form['newname']
+                params = [column, newName]
+                session['data_studio'].EditOperation(operationuuid, params)
+
+            elif(operationType == "filtercol"):
+                column = request.form['column']
+                operator = request.form['operatortype']
+                value = request.form['value']
+                params = [column, operator, value]
+                session['data_studio'].EditOperation(operationuuid, params)
+
+            elif(operationType == "script"):
+                script = request.form['editcode']
+                params = [script, session['data_studio']]
+                session['data_studio'].EditOperation(operationuuid, params)
+
+
         # Update the correlation matrix image
         session['data_studio'].processedData.corr(method="pearson")
         corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
@@ -459,6 +509,13 @@ def datastudio():
         emptyList = []
         emptyList.append((0,1))
         return render_template('datastudio.html', rawdata=emptyList)
+
+@app.route("/usermanager/", methods=['GET', 'POST'])
+def usermanager():
+    if (session.get('role') != 'Administrator'):
+        return redirect('/notauthorized')
+
+    return render_template('usermanager.html')
 
 # Start of Models training
 @app.route("/linear/", methods=['GET', 'POST'])
@@ -770,6 +827,104 @@ def randomforest():
     else:
         return render_template('randomforest.html')
 
+@app.route("/randomforestreg/", methods=['GET', 'POST'])
+def randomforestreg():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    if(request.method == 'POST'):
+
+        # Set the model
+        estimators = int(request.form['estimators'])
+        maxdepth = int(request.form['maxdepth'])
+        randomstate = int(request.form['randomstate'])
+        name = request.form['name']
+        description = request.form['description']
+        scaling = bool(request.form.get('scaling'))
+        featurered = bool(request.form.get('featurered'))
+        selectkbestk = int(request.form['selectkbestk'])
+        keywords = request.form['keywords'].split(";")
+
+        if scaling:
+            if featurered:
+                clf = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=selectkbestk), RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate))
+            else:
+                clf = make_pipeline(StandardScaler(), RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate))
+        else:
+            if featurered:
+                clf = make_pipeline(SelectKBest(f_classif, k=selectkbestk), RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate))
+            else:
+                clf = RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate)
+        
+        # Set train/test groups
+        x_train, x_test, y_train, y_test = train_test_split(session['temp_df_x'], session['temp_df_y'], test_size=0.33, random_state=42)
+
+        # Train model
+        clf.fit(x_train, y_train)
+        y_pred = clf.predict(x_test)
+
+
+        # Save model
+        inputFeatures = []
+        for item in session['temp_df_x']:
+            inputFeatures.append(InputFeature(item, str(type(session['temp_df_x'][item][0])), "Description of " + item))
+
+        # Set the feature unit
+        try:
+            for feature in inputFeatures:
+                for funit in session['temp_df_units']:
+                    if feature.name == funit[0]:
+                        feature.setUnit(funit[1])
+        except:
+            print("Error setting feature units.", file=sys.stderr)
+
+        
+         # Calculate feature importances and update feature item.
+        try:     
+            importance = clf.feature_importances_
+            for i, v in enumerate(importance):
+                inputFeatures[i].setImportance(v)
+        except:
+            pass
+        
+        desc = pd.DataFrame(session['temp_df_x'])
+
+        for i in range(len(inputFeatures)):
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
+
+        pModel = PredictionModel()
+        pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+        pModel.SetTestData(y_test, y_pred)
+        pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        pModel.SetModelVersion(model_version, appversion)
+        pModel.SetModelType("regression")
+        pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
+
+        pModel.SetDataStudioData(session['data_studio'])
+
+        mMan = ModelManager()
+        modelFileName = name + ".model"
+        filepath = os.path.join(app.root_path, 'models', modelFileName)
+
+        print("filepath: ", filepath, file=sys.stderr)
+
+        mMan.SaveModel(pModel, filepath)
+
+        #Log in the database
+        dbPath = os.path.join(app.root_path, 'database', "mls.db")
+        add_Operation(dbPath, datetime.now(), session['user'],"RANDOM FOREST REGRESSOR MODEL CREATED",pModel.uuid)
+
+        UpdateModelsList()
+
+        return redirect('/index')
+    
+    else:
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('randomforestreg.html', FeaturesCount = featuresCount)
+
+
 @app.route("/svmreg/", methods=['GET', 'POST'])
 def svmreg():
     if (session.get('autenticated') != True):
@@ -1034,6 +1189,21 @@ def perceptronreg():
     else:
         return render_template('perceptronreg.html')
 
+@app.route("/usedataset/<uuid>", methods=['GET'])
+def usedataset(uuid):
+
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+
+    for model in modelsList:
+        if model.uuid == uuid:
+            session['data_studio'] = copy.copy(model.dataStudio)
+            session['heatmap_base64_jpgData'] = copy.copy(model.correlationMatrixImage)
+            features = session['data_studio'].processedData.columns.tolist()
+            session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
+
+    return redirect('/datastudio')
+
 # End of Models training
 
 @app.route("/best/", methods=['GET'])
@@ -1272,7 +1442,8 @@ def Login():
         session['temp_best_models'] = []
         add_Operation(dbPath, datetime.now(), user.name,"LOGIN","User login with success")
     else:
-        add_Operation(dbPath, datetime.now(), user.name,"LOGIN","Error user login")
+        add_Operation(dbPath, datetime.now(), name,"LOGIN","Error user login")
+        session['warning'] = "Error login. Wrong username or password!"
         session['autenticated'] = False
 
     return redirect('/index')
