@@ -65,7 +65,7 @@ DATABASE = os.path.join(app.root_path, 'database', "mls.db")
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.5"
+appversion = "1.3.6"
 model_version = 6
 
 @app.context_processor
@@ -1462,8 +1462,8 @@ def Login():
     password = request.form['pswd']
 
     params = (name, password)
-    dbPath = os.path.join(app.root_path, 'database', "mls.db")
-    user = UserLogin(dbPath, params)
+    # dbPath = os.path.join(app.root_path, 'database', "mls.db")
+    user = UserLogin(DATABASE, params)
 
     if (user != False):
         session['user'] = user.name
@@ -1481,9 +1481,9 @@ def Login():
         session['outliers_base64_jpgData'] = ""
         session['temp_df_units'] = []
         session['temp_best_models'] = []
-        add_Operation(dbPath, datetime.now(), user.name,"LOGIN","User login with success")
+        add_Operation(DATABASE, datetime.now(), user.name,"LOGIN","User login with success")
     else:
-        add_Operation(dbPath, datetime.now(), name,"LOGIN","Error user login")
+        add_Operation(DATABASE, datetime.now(), name,"LOGIN","Error user login")
         session['warning'] = "Error login. Wrong username or password!"
         session['autenticated'] = False
 
