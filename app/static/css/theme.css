@@ -545,3 +545,15 @@ body {
   left: 2%;
   width: 96%;
 }
+
+.accordion-button:focus {
+  background-color: var(--Green-buddy-200);
+}
+
+.accordion-button:hover {
+  background-color: var(--Green-buddy-300);
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--Green-buddy-200);
+}

@@ -1,156 +1,28 @@
-{% extends 'base.html' %}
+{% extends 'base_clean.html' %}
 
 {% block content %}
-  <h3 class="m-4">All available models</h3>
-  <div class="row">
-    <div class="col-12">
-      <div class="card bg-light ms-4 me-4 mb-4">
-        <div class="card-body">
-          {% if admin %}
-            <!--a class="btn btn-success" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a-->
-            <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
-            <!-- a class="btn btn-primary" type="button" href="{{ url_for('usage')}}" id="tour-index-usage"><i class="fas fa-chart-line"></i> Usage dashboard</a -->
 
-          {% else %}
+  <div class="wrapper fadeInDown">
+    <div id="formContent">
+      <!-- Tabs Titles -->
+      <!-- Icon -->
+      <div class="fadeIn first">
+        <img src="../static/img/deep-learning-digitops.png" id="icon" alt="User Icon" />
+      </div>
+  
+      <!-- Login Form -->
+      <form action="{{url_for('Login')}}" method="post">
+        <input class="form-control fadeIn second" type="text" id="username" name="username" placeholder="username">
+        <input class="form-control fadeIn third" type="password" id="pwd" name="pswd" placeholder="password">
+        <input type="submit" class="fadeIn fourth" value="Log In">
+      </form>
 
-            <!--a class="btn btn-success disabled" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a-->
-            <a class="btn btn-success disabled" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
-            <a class="btn btn-success disabled" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
-            <!-- a class="btn btn-primary disabled" type="button" href="{{ url_for('usage')}}" id="tour-index-usage"><i class="fas fa-chart-line"></i> Usage dashboard</a -->
-          
-          {% endif %}
-        </div>        
-      </div>     
+      <!-- Remind Passowrd -->
+      <div id="formFooter">
+        <a class="underlineHover" href="#">Forgot Password?</a>
+      </div>
+  
     </div>
   </div>
-  <div class="row">
-      <div class="col-12">
-          {% if models %}
-          <div class="card bg-light ms-4 me-4 mb-4">
-              <div class="card-header">
-                  <i class="fa-solid fa-list fa-lg"></i> Models list
-              </div>
-              <div class="card-body">
-                <p class="card-text">
-                  <div class="table-responsive">
-                      <table class="table table-hover" id="tour-index-modelslist">
-                          <thead>
-                            <tr>
-                              <th scope="col"></th>
-                              <th scope="col">Model name</th>
-                              <th scope="col">Model description</th>
-                              <th scope="col">Keywords</th>
-                              <th scope="col">Train datetime</th>
-                              <th scope="col">RMSE</th>
-                              <th scope="col">R² score</th>
-                              <th scope="col">Actions</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                              {% for model in models %}
-                              <tr>
-                                  {% if model.modelVersion == mversion %}
-                                    <td style="vertical-align: middle;"></td>
-                                  {% else %}
-                                    <td style="vertical-align: middle;" data-toggle="tooltip" title="This model was trained in other software version. Some functionalities may not be available.">⚠️</td>
-                                  {% endif %}
-                                  <td style="vertical-align: middle;">{{model.name}}</td>
-                                  <td style="vertical-align: middle;">{{model.description}}</td>
-                                  {% if model.keywords|length > 0 %}
-                                  <td style="vertical-align: middle;">
-                                    {% for keyword in model.keywords %}
-                                    <a href="#" type="button" data-bs-toggle="modal" data-bs-target="#viewKeyword" id="tour-index-viewkeyword"><span class="badge rounded-pill bg-success">{{keyword}}</span></a>
-                                    {% endfor %}
-                                  </td>
-                                  {% else %}
-                                  <td style="vertical-align: middle;"><span class="badge rounded-pill bg-warning">Not defined</span></td>
-                                  {% endif %}
-                                  <td style="vertical-align: middle;">{{model.datetime.strftime('%d/%m/%Y %H:%M')}}</td>
-                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better" id="tour-index-rmse">{{ '%0.1f'|format(model.RMSE)}} {{model.pVariableUnits}}</td>
-                                  <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
-                                  <td style="vertical-align: middle;" id="tour-index-r2">
-                                    <div class="progress">
-                                      {% if model.R2 * 100 > 90 %}
-                                      <div class="progress-bar bg-success" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
-                                      {% elif model.R2 * 100 > 80 %}
-                                      <div class="progress-bar bg-warning" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
-                                      {% else %}
-                                      <div class="progress-bar bg-danger" style="width:{{ '%0.1f'|format(model.R2 * 100)}}%">{{ '%0.1f'|format(model.R2 * 100)}}%</div>
-                                      {% endif %}  
-                                    </div>
-                                  </td>
-                                  <td style="vertical-align: middle;">
-                                    <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
-                                        <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>
-                                        <a href="{{ url_for('batch', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Batch calculation" id="tour-index-batch-predict"><i class="fa fa-chart-line"></i></a>
-                                        <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a> 
-                                        {% if admin %}
-                                          <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
-                                          <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
-                                        {% else %}
-                                          <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary disabled" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
-                                          <a href="#" type="button" class="btn btn-danger disabled" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
-                                        {% endif %}
-
-                                    </div>
-                                  </td>
-                              <tr>
-                              
-                              <!-- Model delete confirmation Modal -->
-                              <div class="modal fade" id="deleteConfirmation{{model.uuid}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                  <div class="modal-content">
-                                    <div class="modal-header">
-                                      <h5 class="modal-title" id="deleteConfirmationLabel">Do you really want to delete this model?</h5>
-                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                      <h5>{{model.name}}</h5>
-                                      <h6>{{model.description}}</h4>
-                                    </div>
-                                    <div class="modal-footer">
-                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                      <a href="{{ url_for('delete', uuid=model.uuid)}}" type="button" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</a>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {% endfor %}
-                          </tbody>
-                        </table>
-                  </div>
-                </p>
-              </div>
-            </div>
-            {% else %}
-              <h5 class="alert alert-primary ms-4 me-4">No trained models available</h5>
-          {% endif %}   
-      </div>
-  </div>
-
-  <!-- View models with same keyword -->
-  <div class="modal fade" id="viewKeyword" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="viewKeywordLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="viewKeywordLabel">Models with same keyword...</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <h5>Feature under construction...</h5>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script src="../static/js/intro.min.js"></script>  
-  <script src="../static/js/tour-index.js"></script>
 
 {% endblock %}

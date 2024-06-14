@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block title %} Batch results {% endblock %}
+
 {% block content %}
 
 <!--ol class="breadcrumb">
@@ -121,10 +123,12 @@
                             },
                             y: {
                               display: true,
+                              Min: 100,
+                              Max: 120,
                               title: {
                                 display: true,
                                 text: "{{Predictions.model.pVariable}} ({{Predictions.model.pVariableUnits}})",
-                              } 
+                              }
                             }
                           }
                         }

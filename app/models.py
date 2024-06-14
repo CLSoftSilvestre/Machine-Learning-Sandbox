@@ -12,27 +12,91 @@ from PredictionModel import PredictionModel, InputFeature, ModelInformation, Ret
 from utils import CreateImage
 from outlierextractor import OutlierExtractor
 
-
 import sys
 import pandas as pd
 
-# Creates and returns one PredictionModel object with Liner regression
-def LinearRegression(name, description, keywords, df_y, df_y_name, df_x, scaler=False, featureReduction=False, seleckbestk=10, testsize=0.33):
+# Models Parameters
+class model_data_input():
+    def __init__(self):
+        df_y = "None"
+        df_y_name = "None"
+        df_x = "None"
+        units = "None"
 
-    if scaler:
-        if featureReduction:
-            linear = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=seleckbestk), linear_model.LinearRegression())
+class base_params():
+    def __init__(self):
+        self.name = ""
+        self.description = ""
+        self.keywords = ""
+        self.scaling = False
+        self.featureRed = False
+        self.testSize = 0.33
+        self.selectKBest = 5
+        self.data = model_data_input()
+
+class knn_regressor_params(base_params):
+    def __init__(self):
+        self.n_neighbors=5
+        self.weights='uniform'
+        self.algorithm='auto'
+        self.leaf_size=30
+        self.p=2
+        self.metric='minkowski'
+        self.metric_params=None
+        self.n_jobs=None
+
+class svm_regressor_params(base_params):
+    def __init__(self):
+        self.kernel='rbf'
+        self.degree=3
+        self.gamma='scale'
+        self.coef0=0.0
+        self.tol=0.001
+        self.C=1.0
+        self.epsilon=0.1
+        self.shrinking=True
+        self.cache_size=200
+        self.verbose=False
+        self.max_iter=-1
+
+class random_forest_regressor_params(base_params):
+    def __init__(self):
+        self.n_estimators=100
+        self.criterion='squared_error'
+        self.max_depth=None
+        self.min_samples_split=2
+        self.min_samples_leaf=1
+        self.min_weight_fraction_leaf=0.0
+        self.max_features=1.0
+        self.max_leaf_nodes=None
+        self.min_impurity_decrease=0.0
+        self.bootstrap=True
+        self.oob_score=False
+        self.n_jobs=None
+        self.random_state=None
+        self.verbose=0
+        self.warm_start=False
+        self.ccp_alpha=0.0
+        self.max_samples=None
+        self.monotonic_cst=None
+
+# Creates and returns one PredictionModel object with Linear regression
+def LinearRegression(params : base_params = 0):
+
+    if params.scaling:
+        if params.featureRed:
+            linear = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=params.selectKBest), linear_model.LinearRegression())
         else:
             linear = make_pipeline(StandardScaler(), linear_model.LinearRegression())
     else:
-        if featureReduction:
-            linear = make_pipeline(SelectKBest(f_classif, k=seleckbestk), linear_model.LinearRegression())
+        if params.featureRed:
+            linear = make_pipeline(SelectKBest(f_classif, k=params.selectKBest), linear_model.LinearRegression())
         else:
             #linear = make_pipeline(OutlierExtractor() ,linear_model.LinearRegression())
             linear = linear_model.LinearRegression()
         
     # Set train/test groups
-    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=testsize, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(params.data.df_x, params.data.df_y, test_size=params.testSize, random_state=42)
 
     # Train model
     linear.fit(x_train, y_train)
@@ -40,11 +104,11 @@ def LinearRegression(name, description, keywords, df_y, df_y_name, df_x, scaler=
 
     # Save model
     inputFeatures = []
-    for item in df_x:
-        inputFeatures.append(InputFeature(item, str(type(df_x[item][0])), "Description of " + item))
+    for item in params.data.df_x:
+        inputFeatures.append(InputFeature(item, str(type(params.data.df_x[item][0])), "Description of " + item))
     
     # Calculate feature importances and update feature item.
-    desc = pd.DataFrame(df_x)
+    desc = pd.DataFrame(params.data.df_x)
 
     try:     
         importance = linear.coef_
@@ -53,43 +117,43 @@ def LinearRegression(name, description, keywords, df_y, df_y_name, df_x, scaler=
     except:
         pass
 
-    desc = pd.DataFrame(df_x)
+    desc = pd.DataFrame(params.data.df_x)
 
     for i in range(len(inputFeatures)):
             featureName = inputFeatures[i].name
             inputFeatures[i].setDescribe(desc[featureName].describe())
 
     pModel = PredictionModel()
-    pModel.Setup(name,description, keywords, linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+    pModel.Setup(params.name, params.description, params.keywords, linear, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
 
     pModel.SetTestData(y_test, y_pred)
 
-    pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
+    pModel.SetTrainImage(CreateImage(y_test, y_pred, params.data.df_y_name))
 
     return pModel
     
 # Creates and returns one PredictionModel object with KNN regression
-def KnnRegression(name, description, keywords, df_y, df_y_name, df_x, units, scaler=False, featureReduction=False, n=5, weights='distance', algorithm='auto', leaf_size=30, selectkbestk=10, testsize=0.33):
+def KnnRegression(df_y, df_y_name, df_x, units, params : knn_regressor_params = 0):
 
     # Check if the slectedkbestk is equal or higer thant the amount of features
     featuresCount = len(df_x.columns)
-    if(selectkbestk>= featuresCount):
-        selectkbestk = featuresCount -1
+    if(params.selectKBest >= featuresCount):
+        params.selectKBest = featuresCount -1
 
-    if scaler:
-        if featureReduction:
-            knn = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=selectkbestk), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
+    if params.scaling:
+        if params.featureRed:
+            knn = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=params.selectKBest), neighbors.KNeighborsRegressor(n_neighbors=params.n_neighbors, weights=params.weights, algorithm=params.algorithm, leaf_size=params.leaf_size, p=params.p, metric=params.metric, metric_params=params.metric_params, n_jobs=params.n_jobs))
         else:
-            knn = make_pipeline(StandardScaler(), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
+            knn = make_pipeline(StandardScaler(), neighbors.KNeighborsRegressor(n_neighbors=params.n_neighbors, weights=params.weights, algorithm=params.algorithm, leaf_size=params.leaf_size, p=params.p, metric=params.metric, metric_params=params.metric_params, n_jobs=params.n_jobs))
     else:
-        if featureReduction:
-            knn = make_pipeline(SelectKBest(f_classif, k=selectkbestk), neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))
+        if params.featureRed:
+            knn = make_pipeline(SelectKBest(f_classif, k=params.selectKBest), neighbors.KNeighborsRegressor(n_neighbors=params.n_neighbors, weights=params.weights, algorithm=params.algorithm, leaf_size=params.leaf_size, p=params.p, metric=params.metric, metric_params=params.metric_params, n_jobs=params.n_jobs))
         else:
-            knn = neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size)
+            knn = neighbors.KNeighborsRegressor(n_neighbors=params.n_neighbors, weights=params.weights, algorithm=params.algorithm, leaf_size=params.leaf_size, p=params.p, metric=params.metric, metric_params=params.metric_params, n_jobs=params.n_jobs)
             #knn = make_pipeline(steps=[('Outlier extractor',OutlierExtractor()),('KNN Estimator', neighbors.KNeighborsRegressor(n_neighbors=n, weights=weights, algorithm=algorithm, leaf_size=leaf_size))])
     
     # Set train/test groups
-    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=testsize, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(df_x, df_y, test_size=params.testSize, random_state=42)
 
     # Train model
     knn.fit(x_train, y_train)
@@ -121,13 +185,13 @@ def KnnRegression(name, description, keywords, df_y, df_y_name, df_x, units, sca
     n = len(inputFeatures)
 
     for i, v in enumerate(importance):
-        if featureReduction == False:
+        if params.featureRed == False:
             inputFeatures[i].setImportance(v*n)
         featureName = inputFeatures[i].name
         inputFeatures[i].setDescribe(desc[featureName].describe())
     
     pModel = PredictionModel()
-    pModel.Setup(name,description,keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
+    pModel.Setup(params.name, params.description, params.keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
     pModel.SetTestData(y_test, y_pred)
     pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
 

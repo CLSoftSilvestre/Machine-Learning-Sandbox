@@ -5,7 +5,7 @@ Created on Fri Aug 18 09:53:44 2023
 @author: CSilvestre
 """
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file, g
 from flask_session import Session
 
 from ModelManager import ModelManager
@@ -28,7 +28,7 @@ from sklearn.datasets import load_iris, load_diabetes, load_digits, load_wine, l
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
-from models import LinearRegression, KnnRegression
+from models import LinearRegression, KnnRegression, model_data_input, knn_regressor_params, base_params, svm_regressor_params, random_forest_regressor_params
 
 
 from sklearn.model_selection import train_test_split
@@ -51,6 +51,8 @@ from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
 
+import sqlite3
+
 import copy
 
 app = Flask(__name__, instance_relative_config=True)
@@ -59,9 +61,11 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config['SECRET'] = "secret!123"
 Session(app)
 
+DATABASE = os.path.join(app.root_path, 'database', "mls.db")
+
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.4"
+appversion = "1.3.6"
 model_version = 6
 
 @app.context_processor
@@ -107,12 +111,22 @@ def show_session_warning():
 @app.route("/index")
 @app.route("/")
 def index():
+    if (session.get('autenticated') == True):
+        return redirect('/sandbox/')
+    else:
+        #return redirect('/sandbox/')
+        return render_template('index.html')
 
+@app.route("/sandbox/", methods=['GET'])
+def sandbox():
+    if (session.get('autenticated') != True):
+        return redirect('/index')
+    
     # Load the models in the first usage
     if len(modelsList) == 0:
         UpdateModelsList()
 
-    return render_template('index.html', models=modelsList)
+    return render_template('sandbox.html', models=modelsList)
 
 @app.route("/usage/", methods=['GET'])
 def usage():
@@ -472,7 +486,7 @@ def datastudio():
             elif(operationType == "filtercol"):
                 column = request.form['column']
                 operator = request.form['operatortype']
-                value = request.form['value']
+                value = request.form['filtervalue']
                 params = [column, operator, value]
                 session['data_studio'].EditOperation(operationuuid, params)
 
@@ -526,16 +540,29 @@ def linear():
     if(request.method == 'POST'):
 
         # Set the model
-        name = request.form['name']
-        description = request.form['description']
-        scaling = bool(request.form.get('scaling'))
-        featurered = bool(request.form.get('featurered'))
-        selectkbestk = int(request.form['selectkbestk'])
-        testsize = int(request.form['testsize']) / 100
+        #name = request.form['name']
+        #description = request.form['description']
+        #scaling = bool(request.form.get('scaling'))
+        #featurered = bool(request.form.get('featurered'))
+        #selectkbestk = int(request.form['selectkbestk'])
+        #testsize = int(request.form['testsize']) / 100
 
-        keywords = request.form['keywords'].split(";")
+        #keywords = request.form['keywords'].split(";")
 
-        pModel = LinearRegression(name, description, keywords, session['temp_df_y'],session['temp_df_y_name'], session['temp_df_x'], scaling, featurered, selectkbestk)
+        params = base_params()
+        params.name = request.form['name']
+        params.description = request.form['description']
+        params.keywords = request.form['keywords'].split(";")
+        params.scaling = bool(request.form.get('scaling'))
+        params.featureRed = bool(request.form.get('featurered'))
+        params.testSize = int(request.form['testsize']) / 100
+        params.selectKBest = int(request.form['selectkbestk'])
+
+        params.data.df_y = session['temp_df_y']
+        params.data.df_y_name = session['temp_df_y_name']
+        params.data.df_x = session['temp_df_x']
+
+        pModel = LinearRegression(params)
         pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
@@ -544,7 +571,7 @@ def linear():
         pModel.SetDataStudioData(session['data_studio'])
 
         mMan = ModelManager()
-        modelFileName = name + ".model"
+        modelFileName = params.name + ".model"
         filepath = os.path.join(app.root_path, 'models', modelFileName)
 
         try:
@@ -579,25 +606,37 @@ def knnreg():
     if(request.method == 'POST'):
 
         # Set the model
-        n = int(request.form['neighbors'])
-        weights = request.form['weights']
-        algorithm = request.form['algorithm']
-        leaf = int(request.form['leaf'])
-        name = request.form['name']
-        description = request.form['description']
-        scaling = bool(request.form.get('scaling'))
-        featurered = bool(request.form.get('featurered'))
-        selectkbestk = int(request.form['selectkbestk'])
         findbest = bool(request.form.get('findbest'))
-        testsize = int(request.form['testsize']) / 100
 
-        keywords = request.form['keywords'].split(";")
+        params = knn_regressor_params()
+        params.name = request.form['name']
+        params.description = request.form['description']
+        params.keywords = request.form['keywords'].split(";")
+        params.scaling = bool(request.form.get('scaling'))
+        params.featureRed = bool(request.form.get('featurered'))
+        params.testSize = int(request.form['testsize']) / 100
+        params.selectKBest = int(request.form['selectkbestk'])
+
+        params.n_neighbors = int(request.form['neighbors'])
+        params.weights = request.form['weights']
+        params.algorithm = request.form['algorithm']
+        params.leaf_size = int(request.form['leaf'])
+        params.p = int(request.form['p2'])
+        params.metric = request.form['metric']
+        params.metric_params = None
+
+        if request.form['n_jobs'] == 'none':
+            params.n_jobs = None
+        else:
+            params.n_jobs == -1
+
+        #keywords = request.form['keywords'].split(";")
 
         session['temp_best_models'] = []
         bestModelsList = []
         if(findbest):
-            for i in range(n, n+10, 1):
-                pModel = KnnRegression(name, description, keywords, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, i, weights, algorithm, leaf, selectkbestk, testsize)
+            for i in range(params.n_neighbors, params.n_neighbors+10, 1):
+                pModel = KnnRegression(session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], params)
                 # Setup the remaing data of the model
                 pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
                 pModel.SetModelVersion(model_version, appversion)
@@ -611,7 +650,7 @@ def knnreg():
             return redirect('/best')
         else:
 
-            pModel = KnnRegression(name, description, keywords, session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], scaling, featurered, n, weights, algorithm, leaf, selectkbestk, testsize)
+            pModel = KnnRegression(session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], params)
             # Setup the remaing data of the model
             pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
             pModel.SetModelVersion(model_version, appversion)
@@ -623,7 +662,7 @@ def knnreg():
 
             # Save the model
             mMan = ModelManager()
-            modelFileName = name + ".model"
+            modelFileName = params.name + ".model"
             filepath = os.path.join(app.root_path, 'models', modelFileName)
             mMan.SaveModel(pModel, filepath)
 
@@ -632,7 +671,7 @@ def knnreg():
             add_Operation(dbPath, datetime.now(), session['user'],"KNN REG MODEL CREATED",pModel.uuid)
 
             UpdateModelsList()
-            return redirect('/index')
+            return redirect('/sandbox')
     
     else:
         # TODO: Add here the code to push the max of features to the page
@@ -845,6 +884,9 @@ def randomforestreg():
         selectkbestk = int(request.form['selectkbestk'])
         keywords = request.form['keywords'].split(";")
 
+        if maxdepth == 0:
+            maxdepth = None
+
         if scaling:
             if featurered:
                 clf = make_pipeline(StandardScaler(),SelectKBest(f_classif, k=selectkbestk), RandomForestRegressor(n_estimators=estimators ,max_depth=maxdepth, random_state=randomstate))
@@ -923,7 +965,6 @@ def randomforestreg():
     else:
         featuresCount = len(session['temp_df_x'].columns)
         return render_template('randomforestreg.html', FeaturesCount = featuresCount)
-
 
 @app.route("/svmreg/", methods=['GET', 'POST'])
 def svmreg():
@@ -1290,10 +1331,10 @@ def batch(uuid):
                         innerResult = result[0]
 
                     tempPrediction.append(Prediction(innerResult, row))           
-                    add_Prediction(dbPath, datetime.now(), uuid, 1, 3)
+                    # add_Prediction(dbPath, datetime.now(), uuid, 1, 3)
 
-                except:
-                    return render_template('batch.html', Error=True, ErrorText="Error predicting values!")
+                except Exception as error:
+                    return render_template('batch.html', Error=True, ErrorText="Error predicting values! " + str(error))
                 
                 session['temp_predictions'] = PredictionBatch(tempModel, tempPrediction)
 
@@ -1421,8 +1462,8 @@ def Login():
     password = request.form['pswd']
 
     params = (name, password)
-    dbPath = os.path.join(app.root_path, 'database', "mls.db")
-    user = UserLogin(dbPath, params)
+    # dbPath = os.path.join(app.root_path, 'database', "mls.db")
+    user = UserLogin(DATABASE, params)
 
     if (user != False):
         session['user'] = user.name
@@ -1440,9 +1481,9 @@ def Login():
         session['outliers_base64_jpgData'] = ""
         session['temp_df_units'] = []
         session['temp_best_models'] = []
-        add_Operation(dbPath, datetime.now(), user.name,"LOGIN","User login with success")
+        add_Operation(DATABASE, datetime.now(), user.name,"LOGIN","User login with success")
     else:
-        add_Operation(dbPath, datetime.now(), name,"LOGIN","Error user login")
+        add_Operation(DATABASE, datetime.now(), name,"LOGIN","Error user login")
         session['warning'] = "Error login. Wrong username or password!"
         session['autenticated'] = False
 
@@ -1484,6 +1525,7 @@ def ApiGetModels():
     if(len(models) > 0):
         jsonStr = json.dumps([obj.__dict__ for obj in models])   
         return jsonStr, 200
+        #return jsonify(jsonStr)
     else:
         return "No models found.", 404
     

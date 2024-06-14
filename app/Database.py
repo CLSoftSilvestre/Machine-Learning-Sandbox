@@ -3,6 +3,7 @@ import sqlite3
 from sqlite3 import Error
 from datetime import datetime
 import bcrypt
+import uuid
 
 class User:
 
@@ -30,13 +31,11 @@ def create_database(db_file):
     salt = bcrypt.gensalt()
     hashed = bcrypt.hashpw(adminPassword, salt)
 
-    adminUser = (1, 'admin', hashed, 'Administrator')
-    powerUser = (2, 'root', hashed, 'PowerUser')
+    adminUser = (1, str(uuid.uuid4()),'admin', 'geral@azordev.pt', hashed, 'Administrator')
 
     sql = '''INSERT INTO users VALUES (?,?,?,?)'''
 
     cur.execute(sql, adminUser)
-    cur.execute(sql, powerUser)
 
     con.commit()
 
