@@ -486,7 +486,7 @@ def datastudio():
             elif(operationType == "filtercol"):
                 column = request.form['column']
                 operator = request.form['operatortype']
-                value = request.form['value']
+                value = request.form['filtervalue']
                 params = [column, operator, value]
                 session['data_studio'].EditOperation(operationuuid, params)
 
@@ -1525,6 +1525,7 @@ def ApiGetModels():
     if(len(models) > 0):
         jsonStr = json.dumps([obj.__dict__ for obj in models])   
         return jsonStr, 200
+        #return jsonify(jsonStr)
     else:
         return "No models found.", 404
     

@@ -10,7 +10,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/codemirror.min.js" integrity="sha512-XMlgZzPyVXf1I/wbGnofk1Hfdx+zAWyZjh6c21yGo/k1zNC4Ve6xcQnTDTCHrjFGsOrVicJsBURLYktVEu/8vQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/mode/python/python.min.js" integrity="sha512-/mavDpedrvPG/0Grj2Ughxte/fsm42ZmZWWpHz1jCbzd5ECv8CB7PomGtw0NAnhHmE/lkDFkRMupjoohbKNA1Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
-
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript" src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3.6.0/build/index.umd.min.js"></script>
 
 <!-- content -->
 <h3 class="m-4">Data Studio</h3>
@@ -245,7 +247,7 @@
                                         <tr id='tour-train-import-filter'>
                                             <td class="align-middle">Filter column</td>
                                             {% for title in titles %}
-                                                {% if datatypes[loop.index0] == 'int64' or datatypes[loop.index0] == 'float64' or datatypes[loop.index0] == 'uint8' %}
+                                                {% if datatypes[loop.index0] == 'int64' or datatypes[loop.index0] == 'int32' or datatypes[loop.index0] == 'float64' or datatypes[loop.index0] == 'uint8' %}
                                                 <td class="align-middle">
                                                     <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#filterConfirmation{{title|replace(' ','')}}"><i class="fa fa-filter"></i></a>
                                                 </td>
@@ -376,7 +378,131 @@
                         </p>
                     </div>
                     <div class="tab-pane fade" id="outliers" role="tabpanel" aria-labelledby="outliers-tab">
-                        <img src="data:image/jpeg;base64,{{outliers}}" class="img-fluid" alt="..." id="outliersimg">
+                        <!--img src="data:image/jpeg;base64,{{outliers}}" class="img-fluid" alt="..." id="outliersimg"-->
+                        <br>
+                        <div class="row">
+                            {% for title in titles %}
+                                <!--Boxplot -->
+                                <div class="col-md-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <b>{{title}}</b> boxplot and outliers
+                                        </div>
+                                        <div class="card-body">
+                                            <canvas id="Boxplot{{loop.index0}}"></canvas>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <script>
+
+                                    //Prepare Dataset
+                                    {% set titleLoop = loop.index0 %}
+
+                                    jsBoxData{{titleLoop}} = []
+                                    {% if rawdata is defined %}
+                                        {% for row in rawdata %}
+                                            jsBoxData{{titleLoop}}.push({{row[titleLoop]}})                
+                                        {% endfor %}
+                                    {% endif %}
+
+                                    // Data
+                                    var data = {
+                                        labels: ['{{title}}'],
+                                        datasets: [{
+                                            label: '{{title}}',
+                                            outlierColor: '#999999',
+                                            //padding: 10,
+                                            data: [
+                                                jsBoxData{{titleLoop}}
+                                            ],
+                                            medianColor: 'rgba(1, 167, 203, 1)',
+                                            backgroundColor: '#D9EDE7',
+                                            borderColor: '#005C44',
+                                            borderWidth: 2
+                                        }]
+                                    };
+
+                                    // Configure item size according ammount o items.
+                                    var itemSize{{titleLoop}} = 0;
+                                    if (jsBoxData{{titleLoop}}.length > 1000){
+                                        var itemSize{{titleLoop}} = 1;
+                                    } else if (jsBoxData{{titleLoop}}.length < 500) {
+                                        var itemSize{{titleLoop}} = 4;
+                                    } else {
+                                        var itemSize{{titleLoop}} = 3;
+                                    }
+
+                                    // config 
+                                    var config{{loop.index0}} = {
+                                        type: 'boxplot',
+                                        data,
+                                        options: {
+                                            minStats: 'min',
+                                            maxStats: 'max',
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: false
+                                                }
+                                            },
+                                            plugins: {
+                                                legend: {
+                                                    display: false
+                                                },
+                                                tooltip: {
+                                                    displayColors: false,
+                                                    callbacks: {
+                                                        label: (context) => {
+                                                            const boxplotValues = [
+                                                                `Min: ${context.parsed.min.toFixed(3)}`,
+                                                                `Whiskers min: ${context.parsed.whiskerMin.toFixed(3)}`,
+                                                                `1Q: ${context.parsed.q1.toFixed(3)}`,
+                                                                `3Q: ${context.parsed.q3.toFixed(3)}`,
+                                                                `Median: ${context.parsed.median.toFixed(3)}`,
+                                                                `Mean: ${context.parsed.mean.toFixed(3)}`,
+                                                                `Whiskers max: ${context.parsed.whiskerMax.toFixed(3)}`,
+                                                                `Max: ${context.parsed.max.toFixed(3)}`,
+                                                                `Outliers count: ${context.parsed.outliers.length}`,
+
+                                                            ];
+                                                            return boxplotValues;
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            elements: {
+                                                boxandwhiskers: {
+                                                    // Data points styling
+                                                    itemRadius: itemSize{{titleLoop}},
+                                                    itemHitRadius: 0,
+                                                    itemStyle: "triangle",
+                                                    // Mean styling
+                                                    meanRadius: 5,
+                                                    meanBorderColor: "blue",
+                                                    meanBorderWidth: 1,
+                                                    meanBackgroundColor: "white",
+                                                    // Outliers styling
+                                                    outlierBorderColor: "red",
+                                                    outlierBorderWidth: 1,
+                                                    outlierBackgroundColor: "white",
+                                                    outlierRadius: 3,
+                                                },
+                                            },
+                                        },
+                                    };
+
+
+
+
+                                    // render init block
+                                    const chartName{{loop.index0}} = new Chart(
+                                        document.getElementById('Boxplot{{loop.index0}}'),
+                                        config{{loop.index0}},
+                                    );
+
+                                </script>                
+                            {% endfor %}
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="resume" role="tabpanel" aria-labelledby="resume-tab">
                         <img src="data:image/jpeg;base64,{{heatmap}}" class="img-fluid" alt="..." id="heatimg">
@@ -418,12 +544,12 @@
 
                             <div class="input-group mb-3">
                                 <label class="input-group-text" for="colorInput"><i class="fas fa-tint"></i></label>
-                                <input type="color" class="form-control form-control-color" id="colorInput" value="#91d754" title="Choose initial color">
+                                <input type="color" class="form-control form-control-color" id="colorInput" value="#fbde4a" title="Choose initial color">
                             </div>
 
                             <div class="input-group mb-3">
                                 <label class="input-group-text" for="colorInput2"><i class="fas fa-tint"></i></label>
-                                <input type="color" class="form-control form-control-color" id="colorInput2" value="#00a7cc" title="Choose final color">
+                                <input type="color" class="form-control form-control-color" id="colorInput2" value="#01a7cb" title="Choose final color">
                             </div>
                             
 
@@ -434,11 +560,10 @@
                         <br>
                         
                         <!-- Line chart with results of training -->
-                        <!--script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script-->
-                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                        <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-                        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-                        <!--canvas id="myChart" style="width:100%;max-width:1200px;height:100%;max-height:720px;padding:10px;"></canvas-->
+                        <!--script src="https://cdn.jsdelivr.net/npm/chart.js"></script-->
+                        <!--script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script-->
+                        <!--script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script-->
+
                         <canvas id="myChart" style="width:100%;height:100%;max-height:720px;padding:10px;"></canvas>
 
                         <canvas id="myCanvas" style="width:100%;height:100%;max-height:50px;padding:10px;"></canvas>
@@ -455,17 +580,8 @@
                                 <div class="col-2 text-right"><h6 id="maxValue">100</h6></div>
                             </div>
                         </div>
-                        
-                        <!--div class="container">
-                            <div class="row">
-                                <div class="col-12">
-                                    <label for="filterPointsRange" class="form-label">Filter color variable</label>
-                                    <input type="range" class="form-range" min="0" max="100" step="10" id="filterPointsRange">
-                                </div>
-                            </div>
-                        </div-->
 
-                        <script src="../static/js/color-blend.js"></script>
+                        <!--script src="../static/js/color-blend.js"></script-->
                         
                         <script>
 
@@ -477,67 +593,71 @@
                             '#91d754'
                             ]
 
-                            // Update the labels
-                            var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
-                            var labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
 
-                            const ctx = document.getElementById('myChart').getContext('2d');
+                            
 
-                            const myChart = new Chart("myChart", {
-                                type: "scatter",
-                                data: {
-                                    datasets: [{
-                                        pointRadius: 4,
-                                        pointBackgroundColor: colorPoints,
-                                        pointsBorderColor: colorPoints,
-                                        data: xyValues
-                                    }]
-                                },
-                                options:{
-                                    elements:{
-                                        point:{
-                                            borderColor: colorPoints,
-                                        }
+                                // Update the labels
+                                var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
+                                var labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
+
+                                const ctx = document.getElementById('myChart').getContext('2d');
+
+                                const myChart = new Chart("myChart", {
+                                    type: "scatter",
+                                    data: {
+                                        datasets: [{
+                                            pointRadius: 4,
+                                            pointBackgroundColor: colorPoints,
+                                            pointsBorderColor: colorPoints,
+                                            data: xyValues
+                                        }]
                                     },
-                                    plugins:{
-                                        legend: {
-                                            display: false
-                                        },
-                                        zoom:{
-                                            zoom:{
-                                                wheel:{
-                                                    enabled: true,
-                                                    modifierKey: 'ctrl',
-                                                },
-                                                drag:{
-                                                    enabled: true,
-                                                    modifierKey: 'ctrl',
-                                                },
-                                                pinch:{
-                                                    enabled: true
-                                                },
-                                                mode: 'xy',
-                                            }
-                                        }
-                                    },   
-                                    responsive: true,
-                                    scales: {
-                                        x: {
-                                            title: {
-                                                display: true,
-                                                text: labelX,
+                                    options:{
+                                        elements:{
+                                            point:{
+                                                borderColor: colorPoints,
                                             }
                                         },
-                                        y: {
-                                            title: {
-                                                display: true,
-                                                text: labelY,
+                                        plugins:{
+                                            legend: {
+                                                display: false
                                             },
-                                        },
+                                            zoom:{
+                                                zoom:{
+                                                    wheel:{
+                                                        enabled: true,
+                                                        modifierKey: 'ctrl',
+                                                    },
+                                                    drag:{
+                                                        enabled: true,
+                                                        modifierKey: 'ctrl',
+                                                    },
+                                                    pinch:{
+                                                        enabled: true
+                                                    },
+                                                    mode: 'xy',
+                                                }
+                                            }
+                                        },   
+                                        responsive: true,
+                                        scales: {
+                                            x: {
+                                                title: {
+                                                    display: true,
+                                                    text: labelX,
+                                                }
+                                            },
+                                            y: {
+                                                title: {
+                                                    display: true,
+                                                    text: labelY,
+                                                },
+                                            },
+                                        }
                                     }
-                                }
-                            });
-
+                                });
+                            
+  
                             // Get the data from Jinja2 to Javascript
                             jsData = []
                             {% if rawdata is defined %}
@@ -545,8 +665,6 @@
                                     jsData.push({{row}})                 
                                 {% endfor %}
                             {% endif %}
-
-
 
                             function UpdateChart(){
 
@@ -1175,9 +1293,14 @@
 
 {% block scripts %}
 
+<!--script src="https://cdn.jsdelivr.net/npm/chart.js"></script-->
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="../static/js/color-blend.js"></script>
+<!--script type="text/javascript" src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3.6.0/build/index.umd.min.js"></script-->
+
+
 <!-- Editor code -->
-
-
 <script>
 
     $(document).ready(function(){
