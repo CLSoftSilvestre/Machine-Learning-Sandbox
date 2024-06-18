@@ -128,7 +128,7 @@ def LinearRegression(params : base_params = 0):
 
     pModel.SetTestData(y_test, y_pred)
 
-    pModel.SetTrainImage(CreateImage(y_test, y_pred, params.data.df_y_name))
+    #pModel.SetTrainImage(CreateImage(y_test, y_pred, params.data.df_y_name))
 
     return pModel
     
@@ -193,6 +193,6 @@ def KnnRegression(df_y, df_y_name, df_x, units, params : knn_regressor_params = 
     pModel = PredictionModel()
     pModel.Setup(params.name, params.description, params.keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
     pModel.SetTestData(y_test, y_pred)
-    pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
+    #pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
 
     return pModel

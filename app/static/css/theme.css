@@ -557,3 +557,11 @@ body {
 .accordion-button:not(.collapsed) {
   background-color: var(--Green-buddy-200);
 }
+
+table.dataframe tr {
+  text-align: center !important;
+}
+
+table.dataframe th {
+  background-color: var(--Green-buddy-100) !important;
+}

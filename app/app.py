@@ -11,8 +11,8 @@ from flask_session import Session
 from ModelManager import ModelManager
 import pandas as pd
 import sys
-import matplotlib.pylab as plt
-import seaborn as sn
+#import matplotlib.pylab as plt
+#import seaborn as sn
 import math
 
 from sklearn import neighbors
@@ -42,7 +42,7 @@ from utils import CleanColumnHeaderName
 
 import os
 import io
-import base64
+#import base64
 import json
 from werkzeug.utils import secure_filename
 
@@ -51,7 +51,7 @@ from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
 
-import sqlite3
+#import sqlite3
 
 import copy
 
@@ -65,7 +65,7 @@ DATABASE = os.path.join(app.root_path, 'database', "mls.db")
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.6"
+appversion = "1.3.7"
 model_version = 6
 
 @app.context_processor
@@ -137,17 +137,6 @@ def usage():
 def details(uuid):
     for model in modelsList:
         if (model.uuid == uuid):
-            #print(model.name, file=sys.stderr)
-            try:
-                image = model.imageData
-            except:
-                image = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
-
-            try:
-                image2 = model.correlationMatrixImage
-            except:
-                image2 = "iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg=="
-
             equation = ""
             # Check if it's linear regression and calculate the equation
             if str(model.model) == "LinearRegression()":
@@ -160,7 +149,7 @@ def details(uuid):
                 equation = equation + str(round(model.model.intercept_,3))
 
 
-            return render_template('details.html', Model=model, imageData=image, correlationImageData=image2, equation=equation)
+            return render_template('details.html', Model=model, equation=equation)
   
     return render_template('details.html')
 
@@ -337,20 +326,20 @@ def uploader():
             session['temp_df'].columns = newNames
 
             # Update the correlation matrix image
-            session['temp_df'].corr(method="pearson")
-            corr_matrix = session['temp_df'].corr(min_periods=1)
-            sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
+            #session['temp_df'].corr(method="pearson")
+            #corr_matrix = session['temp_df'].corr(min_periods=1)
+            #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
 
             # Save image data in variable
-            my_stringIObytes = io.BytesIO()
-            plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
-            my_stringIObytes.seek(0)
-            session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
-            plt.clf()
+            #my_stringIObytes = io.BytesIO()
+            #plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
+            #my_stringIObytes.seek(0)
+            #session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
+            #plt.clf()
 
             # Create the outliers image
-            features = session['temp_df'].columns.tolist()
-            session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
+            #features = session['temp_df'].columns.tolist()
+            #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
 
             return redirect('/datastudio')
         else:
@@ -497,29 +486,50 @@ def datastudio():
 
 
         # Update the correlation matrix image
-        session['data_studio'].processedData.corr(method="pearson")
-        corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
-        sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
-
+        #session['data_studio'].processedData.corr(method="pearson")
+        #corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
+        #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
+        
         # Save image data in variable
-        my_stringIObytes = io.BytesIO()
-        plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
-        my_stringIObytes.seek(0)
-        session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
-        plt.clf()
+        #my_stringIObytes = io.BytesIO()
+        #plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
+        #my_stringIObytes.seek(0)
+        #session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
+        #plt.clf()
 
         # Create the outliers image
-        features = session['data_studio'].processedData.columns.tolist()
-        session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
+        #features = session['data_studio'].processedData.columns.tolist()
+        #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
 
     try:
         if session['data_studio'].processedData.columns.size > 0:
-            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], outliers=session['outliers_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'])
+            #print(session['data_studio'].processedData.corr(method='pearson', min_periods=1, numeric_only=True), file=sys.stderr)
+            # calculate correlation array
+            matrix = []
+            matrixTitles = []
+
+            for titleX in session['data_studio'].processedData.columns.values:
+                if(session['data_studio'].processedData[titleX].dtype.kind in 'iufc'):
+                    matrixTitles.append(titleX)
+                # X
+                for titleY in session['data_studio'].processedData.columns.values:
+                    #matrix.append([titleX, titleY, session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])])
+                    if(session['data_studio'].processedData[titleX].dtype.kind in 'iufc' and session['data_studio'].processedData[titleY].dtype.kind in 'iufc'):
+                        matrix.append({
+                            "x":titleX, 
+                            "y":titleY,
+                            "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
+                            )
+            
+            # print(matrix, file=sys.stderr)
+
+            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles)
         else:
             emptyList = []
             emptyList.append((0,1))
             return render_template('datastudio.html', rawdata=emptyList)
-    except:
+    except Exception as error:
+        print(str(error), file=sys.stderr)
         emptyList = []
         emptyList.append((0,1))
         return render_template('datastudio.html', rawdata=emptyList)
@@ -563,7 +573,7 @@ def linear():
         params.data.df_x = session['temp_df_x']
 
         pModel = LinearRegression(params)
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -652,7 +662,7 @@ def knnreg():
 
             pModel = KnnRegression(session['temp_df_y'], session['temp_df_y_name'], session['temp_df_x'], session['temp_df_units'], params)
             # Setup the remaing data of the model
-            pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+            #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
             pModel.SetModelVersion(model_version, appversion)
 
             pModel.SetModelType("regression")
@@ -746,8 +756,8 @@ def knn():
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("classification")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -839,8 +849,8 @@ def randomforest():
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("classifier")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -938,8 +948,8 @@ def randomforestreg():
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -1023,8 +1033,8 @@ def svmreg():
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -1119,8 +1129,8 @@ def treereg():
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -1203,8 +1213,8 @@ def perceptronreg():
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
+        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
+        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("regression")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -1411,20 +1421,20 @@ def loaddummy(dataset):
     session['temp_df']['target'] = dummydata.target
 
     # Update the correlation matrix image
-    session['temp_df'].corr(method="pearson")
-    corr_matrix = session['temp_df'].corr(min_periods=1)
-    sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
+    #session['temp_df'].corr(method="pearson")
+    #corr_matrix = session['temp_df'].corr(min_periods=1)
+    #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
 
     # Save image data in variable
-    my_stringIObytes = io.BytesIO()
-    plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
-    my_stringIObytes.seek(0)
-    session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
-    plt.clf()
+    #my_stringIObytes = io.BytesIO()
+    #plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
+    #my_stringIObytes.seek(0)
+    #session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
+    #plt.clf()
 
     # Create the outliers image
     features = session['temp_df'].columns.tolist()
-    session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
+    #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
 
     return redirect('/train')
 
@@ -1436,24 +1446,24 @@ def UpdateModelsList():
     modelsList = mm.GetModelsList(modelspath)
     print(app.instance_path, file=sys.stderr)
 
-def CreateImage(test, pred):
+#def CreateImage(test, pred):
     # Add train image into model
-    plot_y_test = test.reset_index()
-    del plot_y_test['index']
+    #plot_y_test = test.reset_index()
+    #del plot_y_test['index']
 
-    plt.plot(plot_y_test[0:100], color='#2c3e50', label='Real')
-    plt.plot(pred[0:100], color='#18bc9c', label='Predicted')
-    plt.xlabel('Predictions')
-    plt.ylabel(session['temp_df_y_name'])
-    plt.legend(loc='lower right')
+    #plt.plot(plot_y_test[0:100], color='#2c3e50', label='Real')
+    #plt.plot(pred[0:100], color='#18bc9c', label='Predicted')
+    #plt.xlabel('Predictions')
+    #plt.ylabel(session['temp_df_y_name'])
+    #plt.legend(loc='lower right')
 
-    my_stringIObytes = io.BytesIO()
-    plt.savefig(my_stringIObytes, format='jpg')
-    my_stringIObytes.seek(0)
-    my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
-    plt.clf()
+    #my_stringIObytes = io.BytesIO()
+    #plt.savefig(my_stringIObytes, format='jpg')
+    #my_stringIObytes.seek(0)
+    #my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
+    #plt.clf()
 
-    return my_base64_jpgData
+    #return my_base64_jpgData
 
 @app.route("/login/", methods=['POST'])
 def Login():
