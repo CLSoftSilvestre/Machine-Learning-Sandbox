@@ -14,6 +14,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="text/javascript" src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3.6.0/build/index.umd.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0/dist/chartjs-chart-matrix.min.js"></script>
+<script type="text/javascript" src="../static/js/polyfit.js"></script>
 
 <!-- content -->
 <h3 class="m-4">Data Studio</h3>
@@ -953,7 +954,7 @@
                             
                         </div>
                         <br>
-                        <div class="row overflow-scroll" style="max-height: 250px;">
+                        <div class="row overflow-scroll" style="max-height: 150px;">
                             <div class="col-xl-12 ">
                                 <!-- Help column -->
                                 Some usage examples:
@@ -1199,18 +1200,18 @@
 
                         <canvas id="myChart" style="width:100%;height:100%;max-height:720px;"></canvas>
 
-                        <canvas id="myCanvas" style="width:100%;height:100%;max-height:50px;"></canvas>
+                        <canvas id="myCanvas" style="width:100%;height:100%;max-height:15px;"></canvas>
 
-                        <div class="container">
+                        <div class="container" id="color_variable_container">
                             <div class="row">
                                 <div class="col-2">Min</div>
                                 <div class="col-8 text-center">Color variable</div>
-                                <div class="col-2 text-right">Max</div>
+                                <div class="col-2" style="text-align: right;">Max</div>
                             </div>
                             <div class="row">
                                 <div class="col-2"><h6 id="minValue">0</h6></div>
                                 <div class="col-8 text-center"><h6 id="variableName">[Variable Name]</h6></div>
-                                <div class="col-2 text-right"><h6 id="maxValue">100</h6></div>
+                                <div class="col-2" style="text-align: right;"><h6 id="maxValue">100</h6></div>
                             </div>
                         </div>
                         
@@ -1220,6 +1221,9 @@
                                 {x:0, y:0}
                             ]
 
+                            var xArray = []
+                            var yArray = []
+
                             var colorPoints = [
                             '#91d754'
                             ]
@@ -1227,6 +1231,12 @@
 
                                 // Regression
                                 var regressionData = [
+                                    {x:0, y:0},
+                                    {x:1, y:1}
+                                ];
+
+                                // Regression
+                                var polyRegressionData = [
                                     {x:0, y:0},
                                     {x:1, y:1}
                                 ];
@@ -1248,13 +1258,23 @@
                                             pointsBorderColor: colorPoints,
                                             data: xyValues
                                         },{
-                                            label: 'Regression line',
+                                            label: 'Linear regression',
                                             data: regressionData,
                                             borderColor: 'red',
                                             backgroundColor: 'transparent',
                                             type: 'line',
                                             borderWidth: 1,
+                                            pointRadius: 0,
                                             borderDash: [10,10]
+                                        },{
+                                            label: 'Polynomial regression',
+                                            data: polyRegressionData,
+                                            borderColor: 'blue',
+                                            backgroundColor: 'transparent',
+                                            type: 'line',
+                                            borderWidth: 1,
+                                            pointRadius: 0,
+                                            borderDash: [10,5]
                                         }]
                                     },
                                     options:{
@@ -1290,7 +1310,8 @@
                                                         const regressionFormula = [
                                                                 `X: ${context.parsed.x}`,
                                                                 `Y: ${context.parsed.y}`,
-                                                                `Regression Y = ${m.toFixed(3) +"X + " + b.toFixed(3)}`,
+                                                                `Linear Regression Y = ${m +"x + " + b}`,
+                                                                `Polynomial Regression Y = ${expression}`,
 
                                                             ]
                                                         return regressionFormula
@@ -1339,8 +1360,8 @@
                                 const sel_color = document.getElementById('colorInput').value;
                                 const sel_color2 = document.getElementById('colorInput2').value;
 
-                                var minColor = 1000000;
-                                var maxColor = 0;
+                                var minColor = null;
+                                var maxColor = null;
 
                                 if (x_variable=="Choose one variable..."){
                                     alert("Please select one variable to be assigned to X axis.");
@@ -1358,9 +1379,17 @@
                                     singleColor = true;
                                 } else {
                                     //Calculate the Min and Max of the variable
-                                    minColor = 1000000;
-                                    maxColor = 0;
+                                    minColor = null;
+                                    maxColor = null;
                                     jsData.forEach(element => {
+                                        if (minColor == null){
+                                            minColor = element[color_variable]
+                                        }
+
+                                        if (maxColor == null){
+                                            maxColor = element[color_variable]
+                                        }
+
                                         if (element[color_variable] < minColor){
                                             minColor = element[color_variable]
                                         }
@@ -1373,6 +1402,7 @@
                                 xyValues.length = 0
                                 colorPoints.length = 0
                                 
+
                                 jsData.forEach(line => {
                                     // console.log("X:", line[x_variable], "Y:", line[y_variable])
                                     xyValues.push({
@@ -1414,10 +1444,17 @@
                                     const name = document.getElementById("variableName")
                                     const variable = document.getElementById('selectedColorVariable').options[document.getElementById("selectedColorVariable").selectedIndex].text
 
-                                    min.innerText = minColor.toFixed(2)
-                                    max.innerText = maxColor.toFixed(2)
-                                    name.innerText = variable
- 
+                                    if (minColor != null && maxColor != null){
+                                        min.innerText = minColor.toFixed(2)
+                                        max.innerText = maxColor.toFixed(2)
+                                        name.innerText = variable
+                                        c.hidden = false
+                                        document.getElementById('color_variable_container').hidden = false
+                                    } else {
+                                        c.hidden = true
+                                        document.getElementById('color_variable_container').hidden = true
+                                    }
+                                    
                                 });
 
                                 // Update the labels
@@ -1431,11 +1468,15 @@
                                 // Calculate the linear regression
                                 linearRegression()
                                 regressionData.length = 0
-                                console.log("Regression equation: y=" + m.toFixed(3) +"x +" + b.toFixed(3))
+                                // console.log("Regression equation: y=" + m.toFixed(3) +"x +" + b.toFixed(3))
 
                                 // Get the min and max of th X axis
                                 tempXMin=1000000
                                 tempXMax=-1000000
+
+                                xArray.length = 0
+                                yArray.length = 0
+
                                 xyValues.forEach(line => {
                                     //console.log("Line: " + line.x)
                                     if (line.x < tempXMin){
@@ -1444,7 +1485,25 @@
                                     if (line.x > tempXMax){
                                         tempXMax = line.x
                                     }
+
+                                    // set the X and Y array for polynomial
+                                    xArray.push(line.x)
+                                    yArray.push(line.y)
                                 })
+
+                                // Polymonial regression
+                                // https://observablehq.com/@christophe-yamahata/polynomial-regression-in-javascript
+                                // Test polyfit
+                                var poly = Polyfit(xArray, yArray)
+                                var solver = poly.getPolynomial(3)
+                                expression = poly.toExpression(3)
+                                // console.log(expression)
+
+                                polyRegressionData.length = 0
+                                // Update regression
+                                for (let i=tempXMin; i<tempXMax; i++){
+                                    polyRegressionData.push({x: i, y: solver(i)})
+                                }
 
                                 regressionData.push({x: tempXMin, y: (m * tempXMin) + b})
                                 regressionData.push({x: tempXMax, y: (m * tempXMax) + b})

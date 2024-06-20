@@ -11,8 +11,6 @@ from flask_session import Session
 from ModelManager import ModelManager
 import pandas as pd
 import sys
-#import matplotlib.pylab as plt
-#import seaborn as sn
 import math
 
 from sklearn import neighbors
@@ -42,7 +40,6 @@ from utils import CleanColumnHeaderName
 
 import os
 import io
-#import base64
 import json
 from werkzeug.utils import secure_filename
 
@@ -50,8 +47,6 @@ from outlierextractor import CreateOutliersBoxplot
 from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
-
-#import sqlite3
 
 import copy
 
@@ -301,50 +296,41 @@ def train():
 def uploader():
     if (session.get('autenticated') != True):
         return redirect('/notauthorized')
+    
+    try:
 
-    if request.method == 'POST':
-        f = request.files['file']
-        if f:
-            # Process the file
-            sep = request.form['sep']
-            dec = request.form['dec']
+        if request.method == 'POST':
+            f = request.files['file']
+            if f:
+                # Process the file
+                sep = request.form['sep']
+                dec = request.form['dec']
 
-            session['temp_df'] = pd.read_csv(f,sep=sep, decimal=dec)
+                session['temp_df'] = pd.read_csv(f,sep=sep, decimal=dec)
 
-            # Start a new DataStudio Session
-            session['data_studio'] = DataStudio()
-            tempData = session['temp_df'].copy()
-            session['data_studio'].LoadData(tempData)
+                # Clean the names of the headers to avid problems in fitration and deletion
+                oldNames = session['temp_df'].columns.tolist()
+                newNames = list()
 
-            # Clean the names of the headers to avid problems in fitration and deletion
-            oldNames = session['temp_df'].columns.tolist()
-            newNames = list()
+                for i in range(len(oldNames)):
+                    newNames.append(CleanColumnHeaderName(oldNames[i]))
+                
+                session['temp_df'].columns = newNames
 
-            for i in range(len(oldNames)):
-                newNames.append(CleanColumnHeaderName(oldNames[i]))
-            
-            session['temp_df'].columns = newNames
+                # Start a new DataStudio Session
+                session['data_studio'] = DataStudio()
+                tempData = session['temp_df'].copy()
+                session['data_studio'].LoadData(tempData)
 
-            # Update the correlation matrix image
-            #session['temp_df'].corr(method="pearson")
-            #corr_matrix = session['temp_df'].corr(min_periods=1)
-            #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
 
-            # Save image data in variable
-            #my_stringIObytes = io.BytesIO()
-            #plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
-            #my_stringIObytes.seek(0)
-            #session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
-            #plt.clf()
-
-            # Create the outliers image
-            #features = session['temp_df'].columns.tolist()
-            #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
-
-            return redirect('/datastudio')
+                return redirect('/datastudio')
+            else:
+                return redirect('/datastudio')
         else:
             return redirect('/datastudio')
-    else:
+    
+    except Exception as error:
+        session['warning'] = "Error: " + str(error)
         return redirect('/datastudio')
 
 @app.route("/cleardataset/", methods=['GET'])
@@ -427,7 +413,7 @@ def datastudio():
                 params = [columnName, newName]
                 dataOperation = DataOperation("setcolumnname", params)
                 info = session['data_studio'].AddOperation(dataOperation)
-                session['information'] = info   
+                #session['information'] = info
         
         elif(request.form['mod']=="usedataset"):
             # Reset variables before
@@ -484,26 +470,8 @@ def datastudio():
                 params = [script, session['data_studio']]
                 session['data_studio'].EditOperation(operationuuid, params)
 
-
-        # Update the correlation matrix image
-        #session['data_studio'].processedData.corr(method="pearson")
-        #corr_matrix = session['data_studio'].processedData.corr(min_periods=1)
-        #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
-        
-        # Save image data in variable
-        #my_stringIObytes = io.BytesIO()
-        #plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
-        #my_stringIObytes.seek(0)
-        #session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
-        #plt.clf()
-
-        # Create the outliers image
-        #features = session['data_studio'].processedData.columns.tolist()
-        #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
-
     try:
         if session['data_studio'].processedData.columns.size > 0:
-            #print(session['data_studio'].processedData.corr(method='pearson', min_periods=1, numeric_only=True), file=sys.stderr)
             # calculate correlation array
             matrix = []
             matrixTitles = []
@@ -513,15 +481,12 @@ def datastudio():
                     matrixTitles.append(titleX)
                 # X
                 for titleY in session['data_studio'].processedData.columns.values:
-                    #matrix.append([titleX, titleY, session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])])
                     if(session['data_studio'].processedData[titleX].dtype.kind in 'iufc' and session['data_studio'].processedData[titleY].dtype.kind in 'iufc'):
                         matrix.append({
                             "x":titleX, 
                             "y":titleY,
                             "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
                             )
-            
-            # print(matrix, file=sys.stderr)
 
             return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles)
         else:
@@ -530,6 +495,10 @@ def datastudio():
             return render_template('datastudio.html', rawdata=emptyList)
     except Exception as error:
         print(str(error), file=sys.stderr)
+
+        #if error != 'data_studio':
+            #session['warning'] = "Error: " + str(error)
+
         emptyList = []
         emptyList.append((0,1))
         return render_template('datastudio.html', rawdata=emptyList)
@@ -1249,9 +1218,9 @@ def usedataset(uuid):
     for model in modelsList:
         if model.uuid == uuid:
             session['data_studio'] = copy.copy(model.dataStudio)
-            session['heatmap_base64_jpgData'] = copy.copy(model.correlationMatrixImage)
+            #session['heatmap_base64_jpgData'] = copy.copy(model.correlationMatrixImage)
             features = session['data_studio'].processedData.columns.tolist()
-            session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
+            #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
 
     return redirect('/datastudio')
 
@@ -1420,50 +1389,14 @@ def loaddummy(dataset):
     session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=columnsName)
     session['temp_df']['target'] = dummydata.target
 
-    # Update the correlation matrix image
-    #session['temp_df'].corr(method="pearson")
-    #corr_matrix = session['temp_df'].corr(min_periods=1)
-    #sn.heatmap(corr_matrix, cbar=0, annot=True, fmt=".1f", linewidths=2,vmax=1, vmin=0, square=True, cmap='Greens')
-
-    # Save image data in variable
-    #my_stringIObytes = io.BytesIO()
-    #plt.savefig(my_stringIObytes, format='jpg', bbox_inches='tight', pad_inches=0.0)
-    #my_stringIObytes.seek(0)
-    #session['heatmap_base64_jpgData'] = base64.b64encode(my_stringIObytes.read()).decode()
-    #plt.clf()
-
-    # Create the outliers image
-    features = session['temp_df'].columns.tolist()
-    #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['temp_df'])
-
     return redirect('/train')
 
 def UpdateModelsList():
     global modelsList
     global mm
     modelspath = os.path.join(app.root_path, 'models', "*.model")
-    #modelspath = os.path.join(app.instance_path, 'models', "*.model")
     modelsList = mm.GetModelsList(modelspath)
     print(app.instance_path, file=sys.stderr)
-
-#def CreateImage(test, pred):
-    # Add train image into model
-    #plot_y_test = test.reset_index()
-    #del plot_y_test['index']
-
-    #plt.plot(plot_y_test[0:100], color='#2c3e50', label='Real')
-    #plt.plot(pred[0:100], color='#18bc9c', label='Predicted')
-    #plt.xlabel('Predictions')
-    #plt.ylabel(session['temp_df_y_name'])
-    #plt.legend(loc='lower right')
-
-    #my_stringIObytes = io.BytesIO()
-    #plt.savefig(my_stringIObytes, format='jpg')
-    #my_stringIObytes.seek(0)
-    #my_base64_jpgData = base64.b64encode(my_stringIObytes.read()).decode()
-    #plt.clf()
-
-    #return my_base64_jpgData
 
 @app.route("/login/", methods=['POST'])
 def Login():
