@@ -798,7 +798,8 @@ def randomforest():
                 for funit in session['temp_df_units']:
                     if feature.name == funit[0]:
                         feature.setUnit(funit[1])
-        except:
+        except Exception as error:
+            session['warning'] = "Error: " + str(error)
             print("Error setting feature units.", file=sys.stderr)
 
         
@@ -811,7 +812,8 @@ def randomforest():
                 inputFeatures[i].setImportance(v)
                 featureName = inputFeatures[i].name
                 inputFeatures[i].setDescribe(desc[featureName].describe())
-        except:
+        except Exception as error:
+            session['warning'] = "Error: " + str(error)
             print("An exception occurred during the calculation of feature importance")
             return render_template('randomforest.html')
 
