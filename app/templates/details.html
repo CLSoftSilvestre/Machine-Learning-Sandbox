@@ -39,16 +39,141 @@
           <!-- Controlos para selecionar projecto a visualizar -->
           <div class="form-horizontal">
 
-            {% if (Model.realTestList)| length == 0 %}
+            <!-- Line chart with results of training -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            <img src="data:image/jpeg;base64,{{imageData}}" class="img-fluid mx-auto d-block img-thumbnail" alt="trainImage">
+            {% if Model.modelType == 'classification' %}
+
+            <div class="content">
+              <div class="row">
+                <div class="col-lg-3">
+                  <canvas id="myDonut"></canvas> 
+                </div>
+
+                <div class="col-lg-3">
+                  <div class="card ">
+                    <div class="card-header"><i class="fa-solid fa-bullseye"></i> Accurate predictions</div>
+                    <div class="card-body"><h1 class="text-center text-success" id="accuratePredictions"></h1></div>
+                    <div class="card-footer"><h6 class="text-center" id="percOfAccurate"></h6></div>      
+                  </div>
+                </div>
+
+                <div class="col-lg-3">
+                  <div class="card">
+                    <div class="card-header"><i class="fa-solid fa-thumbs-up"></i> False positive</div>
+                    <div class="card-body"><h1 class="text-center text-warning" id="falsePositive"></h1></div>
+                    <div class="card-footer"><h6 class="text-center" id="percOfFalsePositive"></h6></div>  
+                  </div>
+                </div>
+      
+                <div class="col-lg-3">
+                  <div class="card">
+                    <div class="card-header"><i class="fa-solid fa-thumbs-down"></i> False negative</div>
+                    <div class="card-body"><h1 class="text-center text-warning" id="falseNegative"></h1></div>
+                    <div class="card-footer"><h6 class="text-center" id="percOfFalseNegative"></h6></div>
+                  </div>
+                </div>
+    
+              </div>
+
+            </div>
+               
+            <script>
+
+              // Get the data from Jinja2 to Javascript
+              jsRealTestData = []
+              {% if Model.realTestList is defined %}
+                  {% for row in Model.realTestList %}
+                    jsRealTestData.push({{row}})          
+                  {% endfor %}
+              {% endif %}
+
+              jsPredTestData = []
+              {% if Model.predTestList is defined %}
+                  {% for row in Model.predTestList %}
+                    jsPredTestData.push({{row}})          
+                  {% endfor %}
+              {% endif %}
+
+              // Show data in console
+              console.log(jsRealTestData)
+              console.log(jsPredTestData)
+
+              var accurate = 0;
+              var falsePositive = 0;
+              var falseNegative = 0;
+              var incorrect = 0;
+
+              // Calculate accurate predictions, false positives and false negatives
+              for (let i=0; i< jsRealTestData.length +1; i++){
+                if (jsRealTestData[i] == jsPredTestData[i]){
+                  accurate++;
+                }
+                if (jsRealTestData[i] < jsPredTestData[i]){
+                  falsePositive++;
+                  incorrect++;
+                }
+                if (jsRealTestData[i] > jsPredTestData[i]){
+                  falseNegative++; 
+                  incorrect++;
+                }
+              }
+
+              totalPrediction = accurate + incorrect;
+              accuratePerc = (accurate/totalPrediction) * 100;
+              errorPerc = (incorrect/totalPrediction) * 100;
+
+              fNegativePerc = (falseNegative/totalPrediction) * 100;
+              fPositivePerc = (falsePositive/totalPrediction) * 100;
+
+
+              const dataDonught = {
+                labels: ['Correct', 'Incorrect'],
+                datasets: [
+                  {
+                    label: 'Dataset 1',
+                    data: [accuratePerc.toFixed(2), errorPerc.toFixed(2)],
+                    backgroundColor: ['#22bfa0','#C02B24']
+                  }
+                ]
+              };
+
+              const ctx2 = document.getElementById('myDonut').getContext('2d');
+              
+              const myDonut = new Chart (ctx2, {
+                type: 'doughnut',
+                data: dataDonught,
+                options: {
+                  responsive: true,
+                  plugins: {
+                    legend: {
+                      position: 'top',
+                    },
+                    title: {
+                      display: true,
+                      text: 'Classification tests output'
+                    }
+                  }
+                }
+              });
+
+              document.getElementById('accuratePredictions').innerText = accurate;
+              document.getElementById('falsePositive').innerText = falsePositive;
+              document.getElementById('falseNegative').innerText = falseNegative;
+
+              document.getElementById('percOfAccurate').innerText = accurate + " of " + totalPrediction + " (" + accuratePerc.toFixed(2) +"%)";
+              document.getElementById('percOfFalsePositive').innerText = falsePositive + " of " + totalPrediction + " (" + fPositivePerc.toFixed(2) +"%)";
+              document.getElementById('percOfFalseNegative').innerText = falseNegative + " of " + totalPrediction + " (" + fNegativePerc.toFixed(2) +"%)";
+
+            </script>
 
             {% else %}
+            <div class="row">
+              <div class="col-lg-12">
+                <canvas id="myChart" width="200" height="50"></canvas>
+              </div>
+            </div>
 
-            <!-- Line chart with results of training -->
-            <canvas id="myChart" width="200" height="50"></canvas>
-
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
             <script>
 
               const footer = (tooltipItems) => {
@@ -58,6 +183,7 @@
               };
 
               const ctx = document.getElementById('myChart').getContext('2d');
+
               const myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -144,9 +270,9 @@
 
             </script>
 
-            <!-- End of chart -->
-
             {% endif %}
+
+            <!-- End of chart -->
 
             <hr>
 

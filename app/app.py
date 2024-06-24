@@ -708,25 +708,15 @@ def knn():
         except:
             print("Error setting feature units.", file=sys.stderr)
         
-        # Calculate feature importances and update feature item.
-        for i in enumerate(inputFeatures):
-            inputFeatures[i].setImportance(0)
-        
-        # Calculate feature importances and update feature item.
-        results = permutation_importance(knn, x_train, y_train, scoring='accuracy')
-        importance = results.importances_mean
         desc = pd.DataFrame(session['temp_df_x'])
 
-        for i, v in enumerate(importance):
-            inputFeatures[i].setImportance(v)
+        for i in range(len(inputFeatures)):
             featureName = inputFeatures[i].name
             inputFeatures[i].setDescribe(desc[featureName].describe())
 
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
         pModel.SetModelType("classification")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
@@ -802,28 +792,17 @@ def randomforest():
             session['warning'] = "Error: " + str(error)
             print("Error setting feature units.", file=sys.stderr)
 
+        desc = pd.DataFrame(session['temp_df_x'])
+
+        for i in range(len(inputFeatures)):
+            featureName = inputFeatures[i].name
+            inputFeatures[i].setDescribe(desc[featureName].describe())
         
-        # Calculate feature importances and update feature item.
-        try:
-            importance = clf.feature_importances_
-            desc = pd.DataFrame(session['temp_df_x'])
-
-            for i, v in enumerate(importance):
-                inputFeatures[i].setImportance(v)
-                featureName = inputFeatures[i].name
-                inputFeatures[i].setDescribe(desc[featureName].describe())
-        except Exception as error:
-            session['warning'] = "Error: " + str(error)
-            print("An exception occurred during the calculation of feature importance")
-            return render_template('randomforest.html')
-
         pModel = PredictionModel()
         pModel.Setup(name,description,keywords,clf, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
         pModel.SetTestData(y_test, y_pred)
-        #pModel.SetTrainImage(CreateImage(y_test, y_pred))
-        #pModel.SetCorrelationMatrixImage(session['heatmap_base64_jpgData'])
         pModel.SetModelVersion(model_version, appversion)
-        pModel.SetModelType("classifier")
+        pModel.SetModelType("classification")
         pModel.SetPredictVariable(session['temp_df_y_name'], session['temp_variable_units'])
 
         pModel.SetDataStudioData(session['data_studio'])
