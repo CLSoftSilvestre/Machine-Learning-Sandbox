@@ -43,7 +43,7 @@ import io
 import json
 from werkzeug.utils import secure_filename
 
-from outlierextractor import CreateOutliersBoxplot
+# from outlierextractor import CreateOutliersBoxplot
 from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
@@ -60,7 +60,7 @@ DATABASE = os.path.join(app.root_path, 'database', "mls.db")
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.7"
+appversion = "1.3.8"
 model_version = 6
 
 @app.context_processor

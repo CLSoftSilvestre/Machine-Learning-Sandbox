@@ -1224,6 +1224,14 @@
                         <canvas id="myCanvas" style="width:100%;height:100%;max-height:15px;"></canvas>
 
                         <div class="container" id="color_variable_container" hidden>
+                            <!-- Double slider filter -->
+                            <div class="row">
+                                <!--label for="filterColorRange" class="form-label">Filter color variable</label-->
+                                <input type="range" class="form-range" min="0" max="100" step="10" defaultValue="100" id="filterColorRange" onchange = "changeValue(this.value)">
+                             </div>
+                            
+                            <!-- End of Double slider -->
+
                             <div class="row">
                                 <div class="col-2">Min</div>
                                 <div class="col-8 text-center">Color variable</div>
@@ -1234,6 +1242,7 @@
                                 <div class="col-8 text-center"><h6 id="variableName">[Variable Name]</h6></div>
                                 <div class="col-2" style="text-align: right;"><h6 id="maxValue">100</h6></div>
                             </div>
+
                         </div>
                         
                         <script>
@@ -1546,6 +1555,18 @@
                                 regressionData.push({x: tempXMin, y: (m * tempXMin) + b})
                                 regressionData.push({x: tempXMax, y: (m * tempXMax) + b})
 
+                                // Update the range filter data
+                                range = document.getElementById('filterColorRange')
+                                range.min = minColor;
+                                range.max = maxColor;
+                                range.value = maxColor;
+                                range.defaultValue = maxColor;
+                                range.step = (maxColor - minColor) / 20;
+
+
+
+                                //console.log(range.min);
+
                                 // Update the chart
                                 myChart.update()
                             }
@@ -1571,6 +1592,31 @@
                             
                                 m = num / denom
                                 b = ymean - (m * xmean);
+                            }
+
+                            function changeValue(newVal){
+                                let filteredValues = [];
+
+                                for(let i = 0; i<xyValues.length; i++){
+                                    if( xyValues[i].z <= newVal){
+                                        filteredValues.push(xyValues[i])
+                                    }
+                                }
+
+                                filterText = document.getElementById("variableName")
+                                const color_variable = document.getElementById('selCVariable').options[document.getElementById("selCVariable").selectedIndex ].text;
+                                range = document.getElementById('filterColorRange')
+
+                                if (newVal < range.max){
+                                    filterText.innerText = color_variable + "( < " + newVal + ")";
+                                } else {
+                                    filterText.innerText = color_variable;
+                                }
+                                
+
+                                myChart.data.datasets[2].data = filteredValues;
+                                myChart.update('none');
+
                             }
 
                         </script>
