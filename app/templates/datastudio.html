@@ -1596,10 +1596,12 @@
 
                             function changeValue(newVal){
                                 let filteredValues = [];
+                                let filteredColorPoints = [];
 
                                 for(let i = 0; i<xyValues.length; i++){
                                     if( xyValues[i].z <= newVal){
-                                        filteredValues.push(xyValues[i])
+                                        filteredValues.push(xyValues[i]);
+                                        filteredColorPoints.push(colorPoints[i]);
                                     }
                                 }
 
@@ -1615,6 +1617,10 @@
                                 
 
                                 myChart.data.datasets[2].data = filteredValues;
+                                myChart.data.datasets[2].pointBackgroundColor = filteredColorPoints;
+                                myChart.data.datasets[2].pointsBorderColor = filteredColorPoints;
+                                myChart.options.elements.point.borderColor = filteredColorPoints;
+
                                 myChart.update('none');
 
                             }
