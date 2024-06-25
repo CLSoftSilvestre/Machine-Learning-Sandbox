@@ -150,7 +150,8 @@ class DataStudio:
             try:
                 # Change the variable name
                 script = operation.params[0]
-                context = operation.params[1]  
+                context = operation.params[1]
+                col = context.processedData
                 exec(script)
                 operation.run = True
                 operation.error = False

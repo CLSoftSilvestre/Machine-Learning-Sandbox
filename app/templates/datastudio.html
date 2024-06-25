@@ -14,6 +14,8 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="text/javascript" src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3.6.0/build/index.umd.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0/dist/chartjs-chart-matrix.min.js"></script>
+<script type="text/javascript" src="../static/js/polyfit.js"></script>
+<script src="../static/js/color-blend.js"></script>
 
 <!-- content -->
 <h3 class="m-4">Data Studio</h3>
@@ -953,7 +955,7 @@
                             
                         </div>
                         <br>
-                        <div class="row overflow-scroll" style="max-height: 250px;">
+                        <div class="row overflow-scroll" style="max-height: 150px;">
                             <div class="col-xl-12 ">
                                 <!-- Help column -->
                                 Some usage examples:
@@ -1047,8 +1049,8 @@
                                 jsCorrTitlesData.push({{title|tojson}})
                             {% endfor %}
 
-                            console.log(jsCorrTitlesData)
-                            console.log(jsCorrData)
+                            // console.log(jsCorrTitlesData)
+                            // console.log(jsCorrData)
 
                             // Data
                             var data = {
@@ -1149,49 +1151,69 @@
                 <div class="modal-body">
                     <div class="container">
 
-                        <div class="d-flex flex-row gap-2">
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <div class="input-group input-group-sm">
+                                    <label class="input-group-text" for="selectedXVariable"><i class="fas fa-x"></i></label>
+                                    <select class="form-select" id="selectedXVariable">
+                                        <option selected>Choose one variable...</option>
+                                        {% for title in titles %}
+                                            <option value={{loop.index-1}}>{{title}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
 
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="selectedXVariable"><i class="fas fa-x"></i></label>
-                                <select class="form-select" id="selectedXVariable">
+                            <div class="col-lg-2">
+                                <div class="input-group input-group-sm">
+                                    <label class="input-group-text" for="selectedYVariable"><i class="fas fa-y"></i></label>
+                                    <select class="form-select" id="selectedYVariable">
+                                        <option selected>Choose one variable...</option>
+                                        {% for title in titles %}
+                                            <option value={{loop.index-1}}>{{title}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>  
+                            </div>
+
+                            <div class="col-lg-2">
+                                <div class="input-group input-group-sm">
+                                    <label class="input-group-text" for="selCVariable"><i class="fas fa-palette"></i></label>
+                                    <select class="form-select" id="selCVariable">
                                     <option selected>Choose one variable...</option>
-                                    {% for title in titles %}
-                                        <option value={{loop.index-1}}>{{title}}</option>
-                                    {% endfor %}
-                                </select>
+                                        {% for title in titles %}
+                                            <option value={{loop.index-1}}>{{title}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>               
                             </div>
 
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="selectedYVariable"><i class="fas fa-y"></i></label>
-                                <select class="form-select" id="selectedYVariable">
-                                    <option selected>Choose one variable...</option>
-                                    {% for title in titles %}
-                                        <option value={{loop.index-1}}>{{title}}</option>
-                                    {% endfor %}
-                                </select>
+                            <div class="col-lg-1">
+                                <div class="input-group input-group-sm">
+                                    <label class="input-group-text" for="colorInput"><i class="fas fa-tint"></i></label>
+                                    <input type="color" class="form-control form-control-color" id="colorInput" value="#fbde4a" title="Choose initial color">
+                                </div>                
                             </div>
 
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="selectedColorVariable"><i class="fas fa-palette"></i></label>
-                                <select class="form-select" id="selectedColorVariable">
-                                <option selected>Choose one variable...</option>
-                                    {% for title in titles %}
-                                        <option value={{loop.index-1}}>{{title}}</option>
-                                    {% endfor %}
-                                </select>
+                            <div class="col-lg-1">
+                                <div class="input-group input-group-sm">
+                                    <label class="input-group-text" for="colorInput2"><i class="fas fa-tint"></i></label>
+                                    <input type="color" class="form-control form-control-color" id="colorInput2" value="#01a7cb" title="Choose final color">
+                                </div>              
                             </div>
 
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="colorInput"><i class="fas fa-tint"></i></label>
-                                <input type="color" class="form-control form-control-color" id="colorInput" value="#fbde4a" title="Choose initial color">
+                            <div class="col-lg-2">
+                                <div class="input-group input-group-sm">
+                                    <label class="input-group-text" for="polyDegree"><i class="fas fa-superscript"></i></label>
+                                    <input type="number" class="form-control form-control-color" id="polyDegree" value="3" step="1" min="2" max="6" title="Polynomial degree">
+                                </div>              
                             </div>
 
-                            <div class="input-group mb-3">
-                                <label class="input-group-text" for="colorInput2"><i class="fas fa-tint"></i></label>
-                                <input type="color" class="form-control form-control-color" id="colorInput2" value="#01a7cb" title="Choose final color">
+                            <div class="col-lg-2">
+                                <div class="d-grid gap-2">
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i> Update</button>
+                                </div>
                             </div>
-                            
-                            <button type="button" class="btn btn-primary" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i></button>
 
                         </div>
 
@@ -1199,19 +1221,28 @@
 
                         <canvas id="myChart" style="width:100%;height:100%;max-height:720px;"></canvas>
 
-                        <canvas id="myCanvas" style="width:100%;height:100%;max-height:50px;"></canvas>
+                        <canvas id="myCanvas" style="width:100%;height:100%;max-height:15px;"></canvas>
 
-                        <div class="container">
+                        <div class="container" id="color_variable_container" hidden>
+                            <!-- Double slider filter -->
+                            <div class="row">
+                                <!--label for="filterColorRange" class="form-label">Filter color variable</label-->
+                                <input type="range" class="form-range" min="0" max="100" step="10" defaultValue="100" id="filterColorRange" onchange = "changeValue(this.value)">
+                             </div>
+                            
+                            <!-- End of Double slider -->
+
                             <div class="row">
                                 <div class="col-2">Min</div>
                                 <div class="col-8 text-center">Color variable</div>
-                                <div class="col-2 text-right">Max</div>
+                                <div class="col-2" style="text-align: right;">Max</div>
                             </div>
                             <div class="row">
                                 <div class="col-2"><h6 id="minValue">0</h6></div>
                                 <div class="col-8 text-center"><h6 id="variableName">[Variable Name]</h6></div>
-                                <div class="col-2 text-right"><h6 id="maxValue">100</h6></div>
+                                <div class="col-2" style="text-align: right;"><h6 id="maxValue">100</h6></div>
                             </div>
+
                         </div>
                         
                         <script>
@@ -1220,6 +1251,9 @@
                                 {x:0, y:0}
                             ]
 
+                            var xArray = []
+                            var yArray = []
+
                             var colorPoints = [
                             '#91d754'
                             ]
@@ -1227,6 +1261,12 @@
 
                                 // Regression
                                 var regressionData = [
+                                    {x:0, y:0},
+                                    {x:1, y:1}
+                                ];
+
+                                // Regression
+                                var polyRegressionData = [
                                     {x:0, y:0},
                                     {x:1, y:1}
                                 ];
@@ -1240,21 +1280,34 @@
                                 const myChart = new Chart("myChart", {
                                     
                                     data: {
-                                        datasets: [{
-                                            label: 'Scatter plot',
-                                            type: "scatter",
-                                            pointRadius: 4,
-                                            pointBackgroundColor: colorPoints,
-                                            pointsBorderColor: colorPoints,
-                                            data: xyValues
-                                        },{
-                                            label: 'Regression line',
-                                            data: regressionData,
-                                            borderColor: 'red',
-                                            backgroundColor: 'transparent',
-                                            type: 'line',
-                                            borderWidth: 1,
-                                            borderDash: [10,10]
+                                        datasets: [
+                                            {
+                                                label: 'Linear regression',
+                                                data: regressionData,
+                                                borderColor: 'red',
+                                                backgroundColor: 'transparent',
+                                                type: 'line',
+                                                borderWidth: 1,
+                                                pointRadius: 0,
+                                                borderDash: [10,10],
+                                                //xAxisID: 'x2',
+                                            },{
+                                                label: 'Polynomial regression',
+                                                data: polyRegressionData,
+                                                borderColor: 'blue',
+                                                backgroundColor: 'transparent',
+                                                type: 'line',
+                                                borderWidth: 1,
+                                                pointRadius: 0,
+                                                borderDash: [10,2,10],
+                                                //xAxisID: 'x2'
+                                            },{
+                                                label: 'Scatter plot',
+                                                type: "scatter",
+                                                pointRadius: 3,
+                                                pointBackgroundColor: colorPoints,
+                                                pointsBorderColor: colorPoints,
+                                                data: xyValues
                                         }]
                                     },
                                     options:{
@@ -1286,13 +1339,17 @@
                                             tooltip: {
                                                 callbacks: {
                                                     label: (context) => {
-                                                        //console.log(context)
-                                                        const regressionFormula = [
-                                                                `X: ${context.parsed.x}`,
-                                                                `Y: ${context.parsed.y}`,
-                                                                `Regression Y = ${m.toFixed(3) +"X + " + b.toFixed(3)}`,
 
-                                                            ]
+                                                        const regressionFormula = [
+                                                            `X (${labelX}): ${context.parsed.x}`,
+                                                            `Y (${labelY}): ${context.parsed.y}`,
+                                                            `Color (${variable}): ${context.raw.z}`,
+                                                            ``,
+                                                            `Regressions expressions:`,
+                                                            `Linear Y = ${m +"x + " + b}`,
+                                                            `Polynomial Y = ${expression}`,
+                                                        ]
+
                                                         return regressionFormula
                                                     }
                                                 }
@@ -1302,12 +1359,14 @@
                                         responsive: true,
                                         scales: {
                                             x: {
+                                                type: 'linear',
                                                 title: {
                                                     display: true,
                                                     text: labelX,
                                                 }
                                             },
                                             y: {
+                                                type: 'linear',
                                                 title: {
                                                     display: true,
                                                     text: labelY,
@@ -1334,13 +1393,14 @@
 
                                 const x_variable = document.getElementById('selectedXVariable').value;
                                 const y_variable = document.getElementById('selectedYVariable').value;
-                                const color_variable = document.getElementById('selectedColorVariable').value;
+                                const color_variable = document.getElementById('selCVariable').value;
+                                const polyDegree = document.getElementById('polyDegree').value;
 
                                 const sel_color = document.getElementById('colorInput').value;
                                 const sel_color2 = document.getElementById('colorInput2').value;
 
-                                var minColor = 1000000;
-                                var maxColor = 0;
+                                var minColor = null;
+                                var maxColor = null;
 
                                 if (x_variable=="Choose one variable..."){
                                     alert("Please select one variable to be assigned to X axis.");
@@ -1358,9 +1418,17 @@
                                     singleColor = true;
                                 } else {
                                     //Calculate the Min and Max of the variable
-                                    minColor = 1000000;
-                                    maxColor = 0;
+                                    minColor = null;
+                                    maxColor = null;
                                     jsData.forEach(element => {
+                                        if (minColor == null){
+                                            minColor = element[color_variable]
+                                        }
+
+                                        if (maxColor == null){
+                                            maxColor = element[color_variable]
+                                        }
+
                                         if (element[color_variable] < minColor){
                                             minColor = element[color_variable]
                                         }
@@ -1373,17 +1441,29 @@
                                 xyValues.length = 0
                                 colorPoints.length = 0
                                 
+
                                 jsData.forEach(line => {
                                     // console.log("X:", line[x_variable], "Y:", line[y_variable])
-                                    xyValues.push({
-                                        'x': line[x_variable],
-                                        'y': line[y_variable]
-                                    })
 
                                     // Cores dos pontos
                                     if (singleColor == true){
                                         colorPoints.push(sel_color)
+
+                                        xyValues.push({
+                                            'x': line[x_variable],
+                                            'y': line[y_variable],
+                                            'z': 0
+                                        })
+                                        
+
                                     } else {
+
+                                        xyValues.push({
+                                            'x': line[x_variable],
+                                            'y': line[y_variable],
+                                            'z': line[color_variable]
+                                        })
+
                                         // Criar linearização de cor
                                         if (line[color_variable] == 0){
                                             colorPoints.push('#000000')
@@ -1412,12 +1492,19 @@
                                     const min = document.getElementById("minValue")
                                     const max = document.getElementById("maxValue")
                                     const name = document.getElementById("variableName")
-                                    const variable = document.getElementById('selectedColorVariable').options[document.getElementById("selectedColorVariable").selectedIndex].text
+                                    variable = document.getElementById('selCVariable').options[document.getElementById("selCVariable").selectedIndex].text
 
-                                    min.innerText = minColor.toFixed(2)
-                                    max.innerText = maxColor.toFixed(2)
-                                    name.innerText = variable
- 
+                                    if (minColor != null && maxColor != null){
+                                        min.innerText = minColor.toFixed(2)
+                                        max.innerText = maxColor.toFixed(2)
+                                        name.innerText = variable
+                                        c.hidden = false
+                                        document.getElementById('color_variable_container').hidden = false
+                                    } else {
+                                        c.hidden = true
+                                        document.getElementById('color_variable_container').hidden = true
+                                    }
+                                    
                                 });
 
                                 // Update the labels
@@ -1431,11 +1518,15 @@
                                 // Calculate the linear regression
                                 linearRegression()
                                 regressionData.length = 0
-                                console.log("Regression equation: y=" + m.toFixed(3) +"x +" + b.toFixed(3))
+                                // console.log("Regression equation: y=" + m.toFixed(3) +"x +" + b.toFixed(3))
 
                                 // Get the min and max of th X axis
                                 tempXMin=1000000
                                 tempXMax=-1000000
+
+                                xArray.length = 0
+                                yArray.length = 0
+
                                 xyValues.forEach(line => {
                                     //console.log("Line: " + line.x)
                                     if (line.x < tempXMin){
@@ -1444,10 +1535,40 @@
                                     if (line.x > tempXMax){
                                         tempXMax = line.x
                                     }
+
+                                    // set the X and Y array for polynomial
+                                    xArray.push(line.x)
+                                    yArray.push(line.y)
                                 })
+
+                                // Polymonial regression
+                                var poly = Polyfit(xArray, yArray)
+                                var solver = poly.getPolynomial(parseInt(polyDegree))
+                                expression = poly.toExpression(parseInt(polyDegree))
+
+                                polyRegressionData.length = 0
+                                // Update regression with 100 points
+                                for (let i=tempXMin; i<tempXMax; i += (tempXMax-tempXMin)/50){
+                                    polyRegressionData.push({x: i, y: solver(i)})
+                                }
 
                                 regressionData.push({x: tempXMin, y: (m * tempXMin) + b})
                                 regressionData.push({x: tempXMax, y: (m * tempXMax) + b})
+
+                                // Update the range filter data
+                                range = document.getElementById('filterColorRange')
+                                range.min = minColor;
+                                range.max = maxColor;
+                                range.value = maxColor;
+                                range.defaultValue = maxColor;
+                                range.step = (maxColor - minColor) / 20;
+
+
+
+                                myChart.data.datasets[2].data = xyValues;
+                                myChart.data.datasets[2].pointBackgroundColor = colorPoints;
+                                myChart.data.datasets[2].pointsBorderColor = colorPoints;
+                                myChart.options.elements.point.borderColor = colorPoints;
 
                                 // Update the chart
                                 myChart.update()
@@ -1476,16 +1597,43 @@
                                 b = ymean - (m * xmean);
                             }
 
+                            function changeValue(newVal){
+                                let filteredValues = [];
+                                let filteredColorPoints = [];
+
+                                for(let i = 0; i<xyValues.length; i++){
+                                    if( xyValues[i].z <= newVal){
+                                        filteredValues.push(xyValues[i]);
+                                        filteredColorPoints.push(colorPoints[i]);
+                                    }
+                                }
+
+                                filterText = document.getElementById("variableName")
+                                const color_variable = document.getElementById('selCVariable').options[document.getElementById("selCVariable").selectedIndex ].text;
+                                range = document.getElementById('filterColorRange')
+
+                                if (newVal < range.max){
+                                    filterText.innerText = color_variable + " ( < " + newVal + ")";
+                                } else {
+                                    filterText.innerText = color_variable;
+                                }
+                                
+
+                                myChart.data.datasets[2].data = filteredValues;
+                                myChart.data.datasets[2].pointBackgroundColor = filteredColorPoints;
+                                myChart.data.datasets[2].pointsBorderColor = filteredColorPoints;
+                                myChart.options.elements.point.borderColor = filteredColorPoints;
+
+                                myChart.update('none');
+
+                            }
+
                         </script>
                         <!-- End of chart -->
                         
                     </div>
 
                 </div>
-
-                <!--div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div-->
             </form>
         </div>
     </div>
@@ -1497,7 +1645,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-<script src="../static/js/color-blend.js"></script>
+
 
 <!-- Editor code -->
 <script>

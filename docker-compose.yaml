@@ -10,7 +10,7 @@ services:
     volumes:
       - ./app/models:/app/models
       - ./app/database:/app/database
-    scale: 3
+    scale: 1
   
   nginx:
     image: nginx:latest
