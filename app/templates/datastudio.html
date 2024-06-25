@@ -1565,7 +1565,10 @@
 
 
 
-                                //console.log(range.min);
+                                myChart.data.datasets[2].data = xyValues;
+                                myChart.data.datasets[2].pointBackgroundColor = colorPoints;
+                                myChart.data.datasets[2].pointsBorderColor = colorPoints;
+                                myChart.options.elements.point.borderColor = colorPoints;
 
                                 // Update the chart
                                 myChart.update()
@@ -1610,7 +1613,7 @@
                                 range = document.getElementById('filterColorRange')
 
                                 if (newVal < range.max){
-                                    filterText.innerText = color_variable + "( < " + newVal + ")";
+                                    filterText.innerText = color_variable + " ( < " + newVal + ")";
                                 } else {
                                     filterText.innerText = color_variable;
                                 }
