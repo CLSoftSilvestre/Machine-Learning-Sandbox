@@ -1397,7 +1397,7 @@ def CheckNodeRedStatus():
     global nodeRedRunning
 
     try:
-        html = urlopen("http://127.0.0.1:1880")
+        html = urlopen("http://nodered:1880")
     except HTTPError as e:
         pass
 
