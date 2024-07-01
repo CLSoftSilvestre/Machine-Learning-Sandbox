@@ -12,6 +12,15 @@ services:
       - ./app/database:/app/database
     scale: 1
   
+  nodered:
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/Paris
+    ports:
+      - "1880:1880"
+    volumes:
+      - node-red-data:/data
+
   nginx:
     image: nginx:latest
     volumes:
@@ -20,3 +29,6 @@ services:
       - app
     ports:
       - "80:80"
+
+volumes:
+  node-red-data:

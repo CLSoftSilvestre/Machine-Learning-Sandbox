@@ -32,7 +32,7 @@
   max-height: 650px;
   width: 780px;
   padding: 10px;
-  border-radius:20px;
+  border-radius:10px;
   background-color: var(--Green-buddy-100);
   color:#777;
   opacity: 0.95;
@@ -45,7 +45,7 @@
   padding: 15px;
   margin: 5px 0 22px 0;
   border: none;
-  border-radius:20px;
+  border-radius:10px;
   background: #2e2d2d;
   resize: none;
   min-height: 400px;
@@ -60,7 +60,7 @@
    font-size:17px;
   padding: 10px 20px;
   border: none;
-  border-radius:20px;
+  border-radius:10px;
   cursor: pointer;
   width: 100%;
   margin-bottom:10px;

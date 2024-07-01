@@ -27,7 +27,10 @@ class DataStudio:
     def LoadData(self, rawData):
         self.rawData = rawData.copy()
         self.processedData = rawData.copy()
-        self.__addToConsole("Data imported.")
+        countRows = len(self.processedData)
+        countHeaders = len(self.processedData.axes[1])
+
+        self.__addToConsole("Data imported with " + str(countHeaders) + " columns and " + str(countRows) + " rows.")
 
     def AddOperation(self, operation):
         self.operations.append(operation)
@@ -204,8 +207,10 @@ class DataStudio:
         self.processedData.rename(columns={column:newname}, inplace=True)
 
     def __addToConsole(self, information):
-        self.console.append(str(datetime.now()) + " - " + information + '\n')
-        print(self.console, file=sys.stderr)
+        now = datetime.now()
+        nowStr = now.strftime('%d-%m-%Y %H:%M:%S')
+        self.console.append(nowStr + " - " + information + '\n')
+        #print(self.console, file=sys.stderr)
 
     # Operations to use on script
     def AddColumn(self, baseColumn, name):

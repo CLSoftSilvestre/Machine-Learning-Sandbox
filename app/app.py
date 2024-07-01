@@ -5,7 +5,7 @@ Created on Fri Aug 18 09:53:44 2023
 @author: CSilvestre
 """
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file, g
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file
 from flask_session import Session
 
 from ModelManager import ModelManager
@@ -20,7 +20,7 @@ from sklearn.svm import SVR
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
-from sklearn.inspection import permutation_importance
+#from sklearn.inspection import permutation_importance
 
 from sklearn.datasets import load_iris, load_diabetes, load_digits, load_wine, load_breast_cancer
 
@@ -50,6 +50,9 @@ from DataStudio import DataStudio, DataOperation
 
 import copy
 
+from urllib.request import urlopen
+from urllib.error import *
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -62,6 +65,7 @@ mm = ModelManager()
 modelsList = []
 appversion = "1.3.9"
 model_version = 6
+nodeRedRunning = False
 
 @app.context_processor
 def inject_app_version():
@@ -121,12 +125,16 @@ def sandbox():
     if len(modelsList) == 0:
         UpdateModelsList()
 
-    return render_template('sandbox.html', models=modelsList)
+    return render_template('sandbox.html', models=modelsList, nodeRed=nodeRedRunning)
 
 @app.route("/usage/", methods=['GET'])
 def usage():
 
     return render_template('usage.html')
+
+@app.route("/flows/", methods=['GET'])
+def flows():
+    return render_template('flows.html', nodeRed = nodeRedRunning)
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):
@@ -1382,7 +1390,21 @@ def UpdateModelsList():
     global mm
     modelspath = os.path.join(app.root_path, 'models', "*.model")
     modelsList = mm.GetModelsList(modelspath)
-    print(app.instance_path, file=sys.stderr)
+    #print(app.instance_path, file=sys.stderr)
+    CheckNodeRedStatus()
+
+def CheckNodeRedStatus():
+    global nodeRedRunning
+
+    try:
+        html = urlopen("http://127.0.0.1:1880")
+    except HTTPError as e:
+        pass
+
+    except URLError as e:
+        nodeRedRunning = False
+    else:
+        nodeRedRunning = True
 
 @app.route("/login/", methods=['POST'])
 def Login():
@@ -1552,7 +1574,9 @@ def ApiPredict(uuid):
         
         return "Model not found", 404
 
+
 if __name__ == '__main__':
     UpdateModelsList()
+    CheckNodeRedStatus()
     app.run(host="0.0.0.0", port=80, debug=True)
 

@@ -11,8 +11,11 @@
           {% if admin %}
             <!--a class="btn btn-success" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a-->
             <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
+            {% if nodeRed %}
+            <a class="btn btn-success" type="button" href="{{ url_for('flows')}}" id="tour-index-flowcreator"><i class="fas fa-code-fork"></i> Flows creator</a>
+            {% endif %}
             <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
+            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh</a>
             <!-- a class="btn btn-primary" type="button" href="{{ url_for('usage')}}" id="tour-index-usage"><i class="fas fa-chart-line"></i> Usage dashboard</a -->
 
           {% else %}
