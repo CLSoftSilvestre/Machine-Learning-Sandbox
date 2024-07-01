@@ -77,7 +77,19 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-script'),
             title: "Python scripts",
-            intro: 'Here you can perform some basic Python scripts to modify the dataset.',
+            intro: 'Here you can perform some basic Python scripts to modify the dataset. For instance add calculated columns or perform math operations.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-train-correlation'),
+            title: "Correlation map",
+            intro: 'Here you can can access the correlation map between the variable.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-train-scatter'),
+            title: "Scatter plots",
+            intro: 'This is a very usefull feature to check the correlation of your variables. Here you can correlate 2 variables in X,Y axis and use a third one for the color. Automatic linear and polymonial regression are created.',
             position: 'right'
         },
         {
@@ -89,7 +101,7 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-useml'),
             title: "Use dataset for training ML",
-            intro: 'Use the actual cleaned dataset for training machine learning algorithm.',
+            intro: 'Use the actual cleaned dataset for training machine learning algorithm. Please remove all columns not required before performing this operation.',
             position: 'right'
         },
         {
@@ -137,20 +149,8 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-outliers'),
             title: "Boxplots - Outliers",
-            intro: 'This tab contains the boxplots of all the variables. Its usefull to detect the outliers in the data',
+            intro: 'This tab contains the boxplots of all the variables and the outliers identified as red circles. If chart is not showed probably the data is not compatible (strings or nulls).',
             position: 'right'
-        },
-        {
-            element: document.getElementById('tour-train-import-correlation'),
-            title: "Correlations",
-            intro: 'This tab contains the correlation matrix between all the variables.',
-            position: 'right'
-        },
-        {
-            element: document.getElementById('tour-train-import-scatter'),
-            title: "Scatter plot",
-            intro: 'In this tab user can view scatter plot between the choosen variables.',
-            position: 'left'
         },
         {
             element: document.getElementById('tour-train-import-operations'),
