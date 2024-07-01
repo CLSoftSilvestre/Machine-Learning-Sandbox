@@ -16,6 +16,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0/dist/chartjs-chart-matrix.min.js"></script>
 <script type="text/javascript" src="../static/js/polyfit.js"></script>
 <script src="../static/js/color-blend.js"></script>
+<link href="../static/css/console.css" rel="stylesheet">
 
 <!-- content -->
 <h3 class="m-4">Data Studio</h3>
@@ -997,6 +998,12 @@
                                                 The dataset can be agrregated at the weekly level with mode options (mode='sum') for summing or (mode='mean') for averaging the values of the columns. To aggregate apply the following code <code>context.AggWeek(date_column, mode)</code>
                                             </div>
                                         </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Encode categorical features</div>
+                                                This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code <code>context.LabelEncoder(column)</code>
+                                            </div>
+                                        </li>
                                     </ol>
                             </div>
                         </div>
@@ -1219,7 +1226,7 @@
 
                         <br>
 
-                        <canvas id="myChart" style="width:100%;height:100%;max-height:720px;"></canvas>
+                        <canvas id="myChart" style="width:100%;height:100%;max-height:500px;"></canvas>
 
                         <canvas id="myCanvas" style="width:100%;height:100%;max-height:15px;"></canvas>
 
@@ -1639,6 +1646,25 @@
     </div>
 </div>
 
+<div id="console" class="console">
+    <button class="open-button"onclick="openForm()"><img src="../static/img/console.png" width="30" height="30"></button>
+
+    <div class="chat-popup" id="myForm">
+        <form class="form-container">
+        <h3><i class="fa-solid fa-terminal"></i> Data studio console</h3>
+
+        <textarea placeholder="Data studio output will appear here..." name="msg" readonly id="consoleOutput">
+            {%- for line in console -%}
+            {{line|e}}
+            {%- endfor %}        
+        </textarea>
+
+        <!--button type="submit" class="btn btn-success">Send</button-->
+        <button type="button" class="btn btn-primary" onclick="closeForm()">Close</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
@@ -1692,4 +1718,5 @@
 </script>
 <script src="../static/js/intro.min.js"></script>
 <script src="../static/js/tour-datastudio.js"></script>
+<script src="../static/js/console.js"></script>
 {% endblock %}

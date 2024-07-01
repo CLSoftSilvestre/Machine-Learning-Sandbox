@@ -5,8 +5,10 @@ import pandas as pd
 import sys
 from utils import CleanColumnHeaderName
 from pandas.api.types import is_datetime64_any_dtype as is_datetime
+from sklearn.preprocessing import LabelEncoder
 
 class DataStudio:
+
     def __init__(self):
         # Create new DataStudio Instance
         self.uuid = str(uuid.uuid4())
@@ -14,15 +16,18 @@ class DataStudio:
         self.operations = []
         self.rawData = pd.DataFrame()
         self.processedData = pd.DataFrame()
+        self.console = []
     
     def Clear(self):
         self.rawData = pd.DataFrame()
         self.processedData = pd.DataFrame()
         self.operations = []
+        self.__addToConsole("Data cleared.")
     
     def LoadData(self, rawData):
         self.rawData = rawData.copy()
         self.processedData = rawData.copy()
+        self.__addToConsole("Data imported.")
 
     def AddOperation(self, operation):
         self.operations.append(operation)
@@ -63,9 +68,13 @@ class DataStudio:
         # Clear nulls operation
         if operation.operation == "clearnull":
             try:
+                before = len(self.processedData)
                 self.processedData.dropna(how='any', axis=0, inplace=True)
                 self.processedData.reset_index(drop=True)
                 operation.run = True
+                after = len(self.processedData)
+                
+                self.__addToConsole("Removed rows with NaN. " + str(before-after) + " rows affected.")
             except Exception as error:
                 operation.run = False
                 operation.error = True
@@ -94,6 +103,8 @@ class DataStudio:
                 tempFilteredDf = pd.DataFrame()
                 tempFilteredDf = self.processedData
 
+                before = len(self.processedData)
+
                 if operator == "<":
                     tempFilteredDf = self.processedData.loc[self.processedData[column] < float(value)]
                 elif operator == "<=":
@@ -106,7 +117,12 @@ class DataStudio:
                 self.processedData = tempFilteredDf
                 self.processedData.reset_index(drop=True, inplace=True)
 
+                after = len(self.processedData)
+
                 operation.run = True
+
+                self.__addToConsole("Filter " + column + " " + operator + " " + value + " applied. " + str(before-after) + " rows affected.")
+
             except Exception as error:
                 operation.run = False
                 operation.error = True
@@ -187,12 +203,19 @@ class DataStudio:
     def __changeColumnName(self, column, newname):
         self.processedData.rename(columns={column:newname}, inplace=True)
 
+    def __addToConsole(self, information):
+        self.console.append(str(datetime.now()) + " - " + information + '\n')
+        print(self.console, file=sys.stderr)
+
     # Operations to use on script
     def AddColumn(self, baseColumn, name):
         self.processedData[name] = self.processedData[baseColumn]
     
     def ReplaceNaN(self, column , value):
+        before = len(self.processedData)
         self.processedData[column] = self.processedData[column].fillna(value, inplace=True)
+        after = len(self.processedData)
+        self.__addToConsole("Removed rows with NaN. " + str(before-after) + " rows affected.")
     
     def ReplaceNaN_Average(self, column):
         x = self.processedData[column].mean()
@@ -207,7 +230,10 @@ class DataStudio:
         self.processedData[column] = self.processedData[column].fillna(x, inplace=True)
 
     def RemoveDuplicates(self):
+        before = len(self.processedData)
         self.processedData.drop_duplicates(inplace=True)
+        after = len(self.processedData)
+        self.__addToConsole("Removed duplicated values rows. " + str(before-after) + " rows affected.")
 
     def SetColumnName(self, column, name):
         self.__changeColumnName(column, CleanColumnHeaderName(name))
@@ -242,6 +268,27 @@ class DataStudio:
                 print("ERROR")
         else:
             raise Exception("Column " + dateColumn + " is not datetime format.")
+
+    def LabelEncoder(self, column):
+        dummies = pd.get_dummies(self.processedData[column])
+        if( dummies.shape[1] > 10):
+            raise Exception("More than 10 categories detected.")
+        else:
+            le = LabelEncoder()
+            le.fit(self.processedData[column])
+            labelsList = ""
+            labelsValues = ""
+
+            for label in le.classes_:
+                labelsList = labelsList + label + ", "
+            
+            for number in le.transform(le.classes_):
+                labelsValues = labelsValues + str(number) + ", "
+            
+
+            self.processedData[column] = le.transform(self.processedData[column])
+            
+            self.__addToConsole("Column " + column + " labels [" + labelsList + "] encoded into [" + labelsValues + "].")
 
 class DataOperation:
     def __init__(self, operation, params):

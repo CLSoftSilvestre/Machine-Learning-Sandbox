@@ -60,7 +60,7 @@ DATABASE = os.path.join(app.root_path, 'database', "mls.db")
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.8"
+appversion = "1.3.9"
 model_version = 6
 
 @app.context_processor
@@ -486,9 +486,9 @@ def datastudio():
                             "x":titleX, 
                             "y":titleY,
                             "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
-                            )
+                            ) 
 
-            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles)
+            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console)
         else:
             emptyList = []
             emptyList.append((0,1))
@@ -1198,9 +1198,14 @@ def usedataset(uuid):
 
     for model in modelsList:
         if model.uuid == uuid:
-            session['data_studio'] = copy.copy(model.dataStudio)
+            try:
+                session['data_studio'] = copy.copy(model.dataStudio)
+                session['data_studio'].console = []
+
+            except Exception as error:
+                session['warning'] = "Error copying Data Studio data. " + str(error)
             #session['heatmap_base64_jpgData'] = copy.copy(model.correlationMatrixImage)
-            features = session['data_studio'].processedData.columns.tolist()
+            #features = session['data_studio'].processedData.columns.tolist()
             #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
 
     return redirect('/datastudio')
