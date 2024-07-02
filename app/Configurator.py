@@ -3,6 +3,22 @@ import uuid
 import pickle
 import glob
 from datetime import datetime
+from enum import Enum
+import bcrypt
+
+class UserRole(Enum):
+    ADMIN = 1
+    AI_ENGINEER = 2
+    DATA_ANALYST = 3
+    DATA_CONSUMER = 4
+
+class AppUser():
+    def __init__(self, name, password, role : UserRole = 0):
+        self.uuid = str(uuid.uuid4())
+        self.datetime = datetime.now()
+        self.name = name
+        self.password = password
+        self.role = role
 
 class Configurator():
 
@@ -36,6 +52,7 @@ class Configuration():
     def __init__(self):
         self.datatime = datetime.now()
         self.uuid = str(uuid.uuid4())
+        self.users = []
 
     def SetBase(self, useLogin):
         self.useLogin = useLogin
@@ -48,3 +65,14 @@ class Configuration():
         self.Ollama = use
         self.OllamaModel = model
         self.OllamaEndpoint = endpoint
+    
+    def AddAppUser(self, user : AppUser = 0):
+        self.users.append(user)
+    
+    def UserLogin(self, username, password):
+        for user in self.users:
+            if user.name == username and user.password == password:
+                return user
+            else:
+                return None
+

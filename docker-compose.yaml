@@ -9,7 +9,6 @@ services:
       - '5000'
     volumes:
       - ./app/models:/app/models
-      - ./app/database:/app/database
       - ./app/config:/app/config
     scale: 1
   
