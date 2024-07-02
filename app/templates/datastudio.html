@@ -1650,19 +1650,45 @@
     <button class="open-button"onclick="openForm()"><img src="../static/img/console.png" width="30" height="30"></button>
 
     <div class="chat-popup" id="myForm">
-        <form class="form-container">
+        <div class="form-container" id="consolePrompt">
         <h3><i class="fa-solid fa-window-maximize"></i> Console</h3>
         <h6>Data studio terminal output</h6>
 
-        <textarea placeholder="Data studio output will appear here..." name="msg" readonly id="consoleOutput">
+        <textarea data-provide="markdown" placeholder="Data studio output will appear here..." name="msg" readonly id="consoleOutput">
             {%- for line in console -%}
             {{line|e}}
             {%- endfor %}        
         </textarea>
 
+        {% if config.Ollama %}
+
+        <div class="row prompt-row form-group row">
+            <div class="col-sm-1">
+                <label for="prompt" class="col-sm-5 col-form-label">Prompt</label>
+            </div>
+            
+            <div class="col-sm-9">
+                <input type="text" class="form-control text-left" id="prompt" name="prompt" placeholder="Add here your question and press send button..."></input>
+            </div>
+
+            <div class="col-sm-2">
+                <button class="btn btn-sm btn-primary send" id="sendBtn"><i class="fa-solid fa-paper-plane" id="sendLogo"></i></button>
+            </div>
+
+            <span id="OllamaEndpoint" hidden>{{config.OllamaEndpoint}}</span>
+
+            <br>
+
+        </div>
+
+        
+
+        {% endif %}
+
         <!--button type="submit" class="btn btn-success">Send</button-->
-        <button type="button" class="btn btn-primary" onclick="closeForm()">Close</button>
-        </form>
+        <button type="button" class="btn btn-primary cancel" onclick="closeForm()">Close</button>
+
+    </div>
     </div>
 </div>
 
@@ -1672,7 +1698,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/ollama-js-client@1.0.2/dist/browser/iife/ollama-js.global.js"></script>
 
 <!-- Editor code -->
 <script>

@@ -58,8 +58,16 @@
                             <i class="fa-regular fa-circle-question"></i> About
                         </a>
                       </li>
+                      {% if role.value == 1 %}
+                      <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#configurationModal">
+                            <i class="fa-solid fa-gear"></i> Configuration
+                        </a>
+                      </li>
+                      {% endif %}
+
                       <li class="nav-item float-right">
-                        {% if admin %}
+                        {% if loggedin %}
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
                           <i class="fa-solid fa-sign-out-alt"></i> Logout {{username}}
                         </a>
@@ -81,6 +89,25 @@
             </div>
 
             <div class="rotate" id="loader"></div>
+
+            <!-- Configuration Modal -->
+            <div class="modal fade" id="configurationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="configurationModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="configurationModalLabel">Application configuration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <!-- INSERT HERE THE CONFIGURATION FORM -->
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- About Modal -->
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">

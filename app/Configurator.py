@@ -6,6 +6,7 @@ from datetime import datetime
 from enum import Enum
 import bcrypt
 
+
 class UserRole(Enum):
     ADMIN = 1
     AI_ENGINEER = 2
@@ -14,11 +15,26 @@ class UserRole(Enum):
 
 class AppUser():
     def __init__(self, name, password, role : UserRole = 0):
+
+        rawPassword = password.encode('ASCII')
+        salt = bcrypt.gensalt()
+        hashed = bcrypt.hashpw(rawPassword, salt)
+
         self.uuid = str(uuid.uuid4())
         self.datetime = datetime.now()
         self.name = name
-        self.password = password
+        self.password = hashed
         self.role = role
+    
+    def ChangeUserPassword(self, oldPassword, newPassword):
+        if oldPassword == bcrypt.hashpw(oldPassword.encode('ASCII'), self.password):
+            rawPassword = newPassword.encode('ASCII')
+            salt = bcrypt.gensalt()
+            hashed = bcrypt.hashpw(rawPassword, salt)
+            self.password = hashed
+            return True
+        else:
+            return False
 
 class Configurator():
 
@@ -71,7 +87,7 @@ class Configuration():
     
     def UserLogin(self, username, password):
         for user in self.users:
-            if user.name == username and user.password == password:
+            if user.name == username and user.password == bcrypt.hashpw(password.encode('ASCII'), user.password):
                 return user
             else:
                 return None

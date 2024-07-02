@@ -83,14 +83,14 @@ def set_global_html_variable_values():
     #session['autenticated'] = True
     if session.get('autenticated'):
         role = session.get('role')
-        admin = session.get('autenticated')
+        loggedIn = session.get('autenticated')
         name = session.get('user')
     else:
         role = ""
-        admin = False
+        loggedIn = False
         name = ""
 
-    template_config = {'admin': admin, 'username': name, 'role': role}
+    template_config = {'loggedin': loggedIn, 'username': name, 'role': role}
 
     return template_config
 
@@ -412,7 +412,7 @@ def datastudio():
         return redirect('/notauthorized')
     
     # Check if user configured the OLLAMA connection
-    config = Configuration()
+    #config = Configuration()
     config = confList[0]
 
     
@@ -553,7 +553,10 @@ def datastudio():
                             "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
                             )
 
-            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console)
+            print(config.Ollama, file=sys.stderr)
+
+
+            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console, config=config)
         else:
             emptyList = []
             emptyList.append((0,1))
