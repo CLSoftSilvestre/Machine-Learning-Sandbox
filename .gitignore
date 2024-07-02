@@ -1,4 +1,5 @@
 /env
+/newenv
 /app/models/*.model
 /__pycache__
 /app/__pycache__/*.pyc
@@ -6,3 +7,4 @@
 /flask_session
 /app/flask_session
 /app/database/*.db
+/app/config/*.conf

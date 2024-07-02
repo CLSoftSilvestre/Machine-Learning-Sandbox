@@ -38,6 +38,8 @@ from ModelManager import ModelManager
 from Database import UserLogin, add_Prediction, add_Operation
 from utils import CleanColumnHeaderName
 
+from Configurator import Configuration, Configurator
+
 import os
 import io
 import json
@@ -53,6 +55,10 @@ import copy
 from urllib.request import urlopen
 from urllib.error import *
 
+# Imports for OLLAMA integration
+from pandasai.llm.local_llm import LocalLLM
+
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -61,11 +67,15 @@ Session(app)
 
 DATABASE = os.path.join(app.root_path, 'database', "mls.db")
 
+cfg = Configurator()
+confList = []
+
 mm = ModelManager()
 modelsList = []
 appversion = "1.3.9"
 model_version = 6
 nodeRedRunning = False
+ollamaRunning = False
 
 @app.context_processor
 def inject_app_version():
@@ -110,11 +120,45 @@ def show_session_warning():
 @app.route("/index")
 @app.route("/")
 def index():
+
+    # Check if configuration exists inserver. Otherwise start new configuration process
+    if(len(confList) == 0):
+        return redirect('/configurator/')
+
     if (session.get('autenticated') == True):
         return redirect('/sandbox/')
     else:
         #return redirect('/sandbox/')
         return render_template('index.html')
+
+@app.route("/configurator/", methods=['GET', 'POST'])
+def configurator():
+    if(request.method == 'POST'):
+        # Get data and save in configuration file
+        useAuth = bool(request.form.get('useAutentication'))
+        #adminPassword = request.form['adminPassword']
+        useNodeRed = bool(request.form.get('useNodeRed'))
+        nodeRedPath = request.form['nodeRedEndpoint']
+        useOllama = bool(request.form.get('useOllama'))
+        ollamaPath = request.form['ollamaEndpoint']
+        ollamaModel = request.form['ollamaModel']
+        
+        configuration = Configuration()
+        configuration.SetBase(useAuth)
+        configuration.SetNodeRed(useNodeRed, nodeRedPath)
+        configuration.SetOllama(useOllama, ollamaModel, ollamaPath)
+
+        cfMan = Configurator()
+        configName = "base.conf"
+        filepath = os.path.join(app.root_path, 'config', configName)
+        cfMan.SaveConfiguration(configuration, filepath)
+
+        UpdateConfigurationList()
+
+        return redirect('/index')
+
+    else:
+        return render_template('configurator.html')
 
 @app.route("/sandbox/", methods=['GET'])
 def sandbox():
@@ -358,6 +402,11 @@ def datastudio():
 
     if (session.get('autenticated') != True):
         return redirect('/notauthorized')
+    
+    # Check if user configured the OLLAMA connection
+    config = Configuration()
+    config = confList[0]
+
     
     # acording to the command will perform mod on the data before push again to the page.
 
@@ -1393,6 +1442,12 @@ def UpdateModelsList():
     #print(app.instance_path, file=sys.stderr)
     CheckNodeRedStatus()
 
+def UpdateConfigurationList():
+    global cfg
+    global confList
+    configPath = os.path.join(app.root_path, 'config', "*.conf")
+    confList = cfg.GetConfigFilesList(configPath)
+
 def CheckNodeRedStatus():
     global nodeRedRunning
 
@@ -1577,6 +1632,7 @@ def ApiPredict(uuid):
 
 if __name__ == '__main__':
     UpdateModelsList()
+    UpdateConfigurationList()
     CheckNodeRedStatus()
     app.run(host="0.0.0.0", port=80, debug=True)
 

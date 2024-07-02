@@ -10,6 +10,7 @@ services:
     volumes:
       - ./app/models:/app/models
       - ./app/database:/app/database
+      - ./app/config:/app/config
     scale: 1
   
   nodered:
