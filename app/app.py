@@ -57,6 +57,7 @@ from urllib.error import *
 
 # Imports for OLLAMA integration
 from pandasai.llm.local_llm import LocalLLM
+from pandasai import SmartDataframe
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -76,6 +77,8 @@ appversion = "1.3.9"
 model_version = 6
 nodeRedRunning = False
 ollamaRunning = False
+
+
 
 @app.context_processor
 def inject_app_version():
@@ -543,7 +546,24 @@ def datastudio():
                             "x":titleX, 
                             "y":titleY,
                             "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
-                            ) 
+                            )
+                        
+            # Get LLM insights from data
+            llmModel = LocalLLM(
+                api_base="http://172.17.195.200:11434/v1",
+                model="gemma:2b"
+            )
+
+            df = SmartDataframe(session['data_studio'].processedData, config={"llm": llmModel})
+
+            prompt = "What is the average AVG_DRYER?"
+
+            response = df.chat(prompt)
+
+            print(response, file=sys.stderr)
+
+
+            # END of LLM USAGE
 
             return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console)
         else:
