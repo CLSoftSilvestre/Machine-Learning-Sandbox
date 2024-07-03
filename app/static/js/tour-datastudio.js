@@ -5,6 +5,8 @@ let y = getCookie("tourDataStudioPart2Complete")
 
 var nodatasetimported
 
+var intro = introJs();
+
 try {
     nodatasetimported = document.getElementById("notuploaded").innerText
 } catch (error) {
@@ -56,8 +58,9 @@ if ( (x== "" || x == "false") && importView){
 
 // Tour part 2 - View Data
 if ( (y== "" || y == "false") && !importView){
-    introJs().setOptions({
+    intro.setOptions({
         showProgress: true,
+        exitOnOverlayClick: false,
         steps: [{
             title: "Analyze your data",
             intro: "This tutorial you will check how to analyse, clean and prepare your data before consuming it in model training."
@@ -163,8 +166,49 @@ if ( (y== "" || y == "false") && !importView){
             title: "Data preview",
             intro: 'Here users can preview the first 10 records of the actual dataset.',
             position: 'right'
+        },
+        {
+            element: document.getElementById('tour-datastudio-console'),
+            title: "Console",
+            intro: 'Here users can access the console output. If the Olama integration is activated, users can also ask questions.',
+            position: 'left'
         }]
     }).start().oncomplete(function () {
         setCookie("tourDataStudioPart2Complete", true, 90);
     });
 }
+
+// Activate tabs and modals allong the tutorial
+intro.onchange(function(element) {
+
+    if(element.id === 'tour-train-import-script'){
+        $("#script").modal("show");
+    } else {
+        $("#script").modal("hide");
+    }
+
+    if(element.id === 'tour-train-correlation'){
+        $("#correlation").modal("show");
+    } else {
+        $("#correlation").modal("hide");
+    }
+
+    if(element.id === 'tour-train-scatter'){
+        $("#scatterplot").modal("show");
+    } else {
+        $("#scatterplot").modal("hide");
+    }
+
+    if(element.id === 'tour-train-import-desc'){
+        document.getElementById("descri-tab").click()
+    }
+
+    if(element.id === 'tour-train-import-outliers'){
+        document.getElementById("outliers-tab").click()
+    }
+
+    if(element.id === 'tour-train-import-operations'){
+        document.getElementById("dataoperations-tab").click()
+    }
+
+});

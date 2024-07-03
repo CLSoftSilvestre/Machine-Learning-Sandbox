@@ -1647,7 +1647,7 @@
 </div>
 
 <div id="console" class="console">
-    <button class="open-button"onclick="openForm()"><img src="../static/img/console.png" width="30" height="30"></button>
+    <button class="open-button"onclick="openForm()" id='tour-datastudio-console'><img src="../static/img/console.png" width="30" height="30"></button>
 
     <div class="chat-popup" id="myForm">
         <div class="form-container" id="consolePrompt">
@@ -1672,7 +1672,7 @@
             </div>
 
             <div class="col-sm-2">
-                <button class="btn btn-sm btn-primary send" id="sendBtn"><i class="fa-solid fa-paper-plane" id="sendLogo"></i></button>
+                <button class="btn btn-sm send" id="sendBtn"><i class="fa-solid fa-paper-plane" id="sendLogo"></i></button>
             </div>
 
             <span id="OllamaEndpoint" hidden>{{config.OllamaEndpoint}}</span>
@@ -1686,8 +1686,7 @@
         {% endif %}
 
         <!--button type="submit" class="btn btn-success">Send</button-->
-        <button type="button" class="btn btn-primary cancel" onclick="closeForm()">Close</button>
-
+        <button type="button" class="btn btn-success cancel" onclick="closeForm()">Close</button>
     </div>
     </div>
 </div>

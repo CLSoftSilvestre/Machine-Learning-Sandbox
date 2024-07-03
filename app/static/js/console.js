@@ -31,9 +31,11 @@ function setup(){
     } else if (response.done){
       logo = document.getElementById("sendLogo");
       logo.className = logo.className === "fa-solid fa-rotate" ? "fa-solid fa-paper-plane" : "fa-solid fa-rotate";
+      output.scrollTop = output.scrollHeight;
     } else {
       console.log(response)
       output.innerHTML += String(response.response)
+      output.scrollTop = output.scrollHeight;
     }
   }
 
@@ -41,6 +43,7 @@ function setup(){
 
     output.innerHTML += '\n' + "<USER> : " + input.value + '\n';
     output.innerHTML += "<OLLAMA> : ";
+    output.scrollTop = output.scrollHeight;
 
     // Change the logo of the button
     logo = document.getElementById("sendLogo");

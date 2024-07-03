@@ -1,5 +1,4 @@
 /env
-/newenv
 /app/models/*.model
 /__pycache__
 /app/__pycache__/*.pyc
