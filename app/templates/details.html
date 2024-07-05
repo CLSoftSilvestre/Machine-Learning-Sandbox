@@ -17,7 +17,7 @@
     <div class="col-12">
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-body">
-          {% if admin %}
+          {% if loggedin %}
             <a class="btn btn-success" type="button" href="{{ url_for('usedataset', uuid=Model.uuid)}}"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>
           {% else %}
             <a class="btn btn-success disabled" type="button" href="#"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>

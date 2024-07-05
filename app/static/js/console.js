@@ -14,11 +14,13 @@ function setup(){
   const output = document.getElementById("consoleOutput")
   const sendButton = document.getElementById("sendBtn")
   const ollamaEndpoint = document.getElementById("OllamaEndpoint").innerHTML
+  const ollamaModel = document.getElementById("OllamaModel").innerHTML
 
   console.log(ollamaEndpoint)
+  console.log(ollamaModel)
 
   const lama = new Ollama({
-    model: "gemma:2b",
+    model: String(ollamaModel),
     url: String(ollamaEndpoint)
   });
 
@@ -41,8 +43,8 @@ function setup(){
 
   sendButton.addEventListener("click", async () =>{
 
-    output.innerHTML += '\n' + "<USER> : " + input.value + '\n';
-    output.innerHTML += "<OLLAMA> : ";
+    output.innerHTML += '\n' + "[USER] : " + input.value + '\n';
+    output.innerHTML += "[BOT " + ollamaModel +"] : ";
     output.scrollTop = output.scrollHeight;
 
     // Change the logo of the button

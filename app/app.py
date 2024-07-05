@@ -54,6 +54,9 @@ import copy
 from urllib.request import urlopen
 from urllib.error import *
 
+# import for usage of LLM models (Ollama)
+from chatAI import ChatAI
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -65,7 +68,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.9"
+appversion = "1.3.10"
 model_version = 6
 nodeRedRunning = False
 ollamaRunning = False
@@ -1375,33 +1378,6 @@ def importFile():
     else:
         return render_template('import.html')
 
-@app.route("/loaddummy/<dataset>", methods=['GET'])
-def loaddummy(dataset):
-    if (session.get('autenticated') != True):
-        return redirect('/notauthorized')
-    
-    if dataset == "iris":
-        dummydata = load_iris()
-    elif dataset == "diabetes":
-        dummydata = load_diabetes()
-    elif dataset == "digits":
-        dummydata = load_digits()
-    elif dataset == "wine":
-        dummydata = load_wine()
-    elif dataset == "bcancer":
-        dummydata = load_breast_cancer()
-    
-    columnsName = dummydata.feature_names
-
-    for i in range(len(columnsName)):
-        cleanName = CleanColumnHeaderName(columnsName[i])
-        columnsName[i] = cleanName
-
-    session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=columnsName)
-    session['temp_df']['target'] = dummydata.target
-
-    return redirect('/train')
-
 def UpdateModelsList():
     global modelsList
     global mm
@@ -1440,6 +1416,11 @@ def Login():
         session['temp_df_x'] = pd.DataFrame()
         session['temp_df_units'] = []
         session['temp_best_models'] = []
+
+        if len(confList) > 0:
+            if confList[0].Ollama == True:
+                session['ChatAI'] = ChatAI(confList[0].OllamaEndpoint, confList[0].OllamaModel)
+
     else:
         session['warning'] = "Error login. Wrong username or password!"
         session['autenticated'] = False
@@ -1573,6 +1554,17 @@ def ApiPredict(uuid):
                     return "Error predicting value.", 404
         
         return "Model not found", 404
+
+# ChatAI API
+@app.route("/api/chat/ask", methods=['POST'])
+def AskQuestion():
+    body = json.loads(request.data)
+    question = body["prompt"]
+
+    assistent = ChatAI("http://localhost:11434/api/","gemma:2b")
+    response = assistent.AskQuestion(question)
+    return jsonify(response), 200
+
 
 if __name__ == '__main__':
     UpdateModelsList()
