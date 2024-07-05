@@ -5,7 +5,7 @@ Created on Fri Aug 18 09:53:44 2023
 @author: CSilvestre
 """
 
-from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file, g
+from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file
 from flask_session import Session
 
 from ModelManager import ModelManager
@@ -20,7 +20,7 @@ from sklearn.svm import SVR
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
-from sklearn.inspection import permutation_importance
+#from sklearn.inspection import permutation_importance
 
 from sklearn.datasets import load_iris, load_diabetes, load_digits, load_wine, load_breast_cancer
 
@@ -35,8 +35,9 @@ from sklearn.metrics import r2_score
 
 from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, Prediction, PredictionBatch
 from ModelManager import ModelManager
-from Database import UserLogin, add_Prediction, add_Operation
 from utils import CleanColumnHeaderName
+
+from Configurator import Configuration, Configurator, AppUser, UserRole
 
 import os
 import io
@@ -47,8 +48,14 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
-
+import uuid
 import copy
+
+from urllib.request import urlopen
+from urllib.error import *
+
+# import for usage of LLM models (Ollama)
+from chatAI import ChatAI
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -56,12 +63,15 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config['SECRET'] = "secret!123"
 Session(app)
 
-DATABASE = os.path.join(app.root_path, 'database', "mls.db")
+cfg = Configurator()
+confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.8"
+appversion = "1.3.10"
 model_version = 6
+nodeRedRunning = False
+ollamaRunning = False
 
 @app.context_processor
 def inject_app_version():
@@ -76,14 +86,14 @@ def set_global_html_variable_values():
     #session['autenticated'] = True
     if session.get('autenticated'):
         role = session.get('role')
-        admin = session.get('autenticated')
+        loggedIn = session.get('autenticated')
         name = session.get('user')
     else:
         role = ""
-        admin = False
+        loggedIn = False
         name = ""
 
-    template_config = {'admin': admin, 'username': name, 'role': role}
+    template_config = {'loggedin': loggedIn, 'username': name, 'role': role}
 
     return template_config
 
@@ -106,12 +116,63 @@ def show_session_warning():
 @app.route("/index")
 @app.route("/")
 def index():
-    if (session.get('autenticated') == True):
-        return redirect('/sandbox/')
-    else:
-        #return redirect('/sandbox/')
-        return render_template('index.html')
 
+    # Check if configuration exists inserver. Otherwise start new configuration process
+    if(len(confList) == 0):
+        return redirect('/configurator/')
+    else:
+        if (session.get('autenticated') == True):
+            return redirect('/sandbox/')
+        else:
+            if confList[0].useLogin == True:
+                #return redirect('/sandbox/')
+                return render_template('index.html')
+            else:
+                session['user'] = "Local User"
+                session['useruuid'] = uuid.uuid4()
+                session['role'] = UserRole.ADMIN
+                session['autenticated'] = True
+                return redirect('/sandbox/')
+
+@app.route("/configurator/", methods=['GET', 'POST'])
+def configurator():
+    if(request.method == 'POST'):
+        # Get data and save in configuration file
+        useAuth = bool(request.form.get('useAutentication'))
+        adminPassword = request.form['adminPassword']
+        useNodeRed = bool(request.form.get('useNodeRed'))
+        nodeRedPath = request.form['nodeRedEndpoint']
+        useOllama = bool(request.form.get('useOllama'))
+        ollamaPath = request.form['ollamaEndpoint']
+        ollamaModel = request.form['ollamaModel']
+        
+        configuration = Configuration()
+        configuration.SetBase(useAuth)
+        configuration.SetNodeRed(useNodeRed, nodeRedPath)
+        configuration.SetOllama(useOllama, ollamaModel, ollamaPath)
+
+        cfMan = Configurator()
+        configName = "base.conf"
+        filepath = os.path.join(app.root_path, 'config', configName)
+
+        #Add base admin user
+        admUser = AppUser("admin", adminPassword, UserRole.ADMIN)
+        configuration.AddAppUser(admUser)
+
+        cfMan.SaveConfiguration(configuration, filepath)
+
+        UpdateConfigurationList()
+
+        return redirect('/index')
+
+    else:
+        if len(confList)==0: 
+            return render_template('configurator.html')
+        elif len(confList)>0 and session.get('role') == UserRole.ADMIN:
+            return render_template('configurator.html')
+        else:
+            return redirect('/index')
+     
 @app.route("/sandbox/", methods=['GET'])
 def sandbox():
     if (session.get('autenticated') != True):
@@ -120,13 +181,24 @@ def sandbox():
     # Load the models in the first usage
     if len(modelsList) == 0:
         UpdateModelsList()
+    
+    if len(confList) == 0:
+        UpdateConfigurationList()
+    
+    if len(confList) > 0:
+        conf = confList[0]
 
-    return render_template('sandbox.html', models=modelsList)
+    return render_template('sandbox.html', models=modelsList, config = conf)
 
 @app.route("/usage/", methods=['GET'])
 def usage():
 
     return render_template('usage.html')
+
+@app.route("/flows/", methods=['GET'])
+def flows():
+    conf = confList[0]
+    return render_template('flows.html', nodeRed = nodeRedRunning, config = conf)
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):
@@ -183,9 +255,6 @@ def downloadmodel(uuid):
             except:
                 modelsPath = os.path.join(os.getcwd(), 'models')
                 return send_from_directory(modelsPath,modelName, as_attachment=True)
-            finally:
-                dbPath = os.path.join(app.root_path, 'database', "mls.db")
-                add_Operation(dbPath, datetime.now(), session['user'],"MODEL DOWNLOADED",uuid)
             
     return render_template('download.html')
 
@@ -234,14 +303,8 @@ def predict(uuid):
             minResult = resultValue - (math.sqrt(activeModel.MSE)/2)
             maxResult = resultValue + (math.sqrt(activeModel.MSE)/2)
 
-            dbPath = os.path.join(app.root_path, 'database', "mls.db")
-            add_Prediction(dbPath, datetime.now(), uuid, 1, 1)
-
             return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
         else:
-            dbPath = os.path.join(app.root_path, 'database', "mls.db")
-            add_Prediction(dbPath, datetime.now(), uuid, 0, 1)
-
             return redirect(url_for('index'))
 
 @app.route("/refresh/", methods=['GET'])
@@ -350,6 +413,11 @@ def datastudio():
 
     if (session.get('autenticated') != True):
         return redirect('/notauthorized')
+    
+    # Check if user configured the OLLAMA connection
+    #config = Configuration()
+    config = confList[0]
+
     
     # acording to the command will perform mod on the data before push again to the page.
 
@@ -488,7 +556,10 @@ def datastudio():
                             "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
                             )
 
-            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, heatmap=session['heatmap_base64_jpgData'], rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles)
+            print(config.Ollama, file=sys.stderr)
+
+
+            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console, config=config)
         else:
             emptyList = []
             emptyList.append((0,1))
@@ -565,10 +636,6 @@ def linear():
 
         mMan.SaveModel(pModel, filepath)
 
-        #Log in the database
-        dbPath = os.path.join(app.root_path, 'database', "mls.db")
-        add_Operation(dbPath, datetime.now(), session['user'],"LINEAR MODEL CREATED",pModel.uuid)
-
         UpdateModelsList()
 
         return redirect('/index')
@@ -644,10 +711,6 @@ def knnreg():
             modelFileName = params.name + ".model"
             filepath = os.path.join(app.root_path, 'models', modelFileName)
             mMan.SaveModel(pModel, filepath)
-
-            #Log in the database
-            dbPath = os.path.join(app.root_path, 'database', "mls.db")
-            add_Operation(dbPath, datetime.now(), session['user'],"KNN REG MODEL CREATED",pModel.uuid)
 
             UpdateModelsList()
             return redirect('/sandbox')
@@ -731,10 +794,6 @@ def knn():
 
         mMan.SaveModel(pModel, filepath)
 
-        #Log in the database
-        dbPath = os.path.join(app.root_path, 'database', "mls.db")
-        add_Operation(dbPath, datetime.now(), session['user'],"KNN CLASS MODEL CREATED",pModel.uuid)
-
         UpdateModelsList()
 
         return redirect('/index')
@@ -814,10 +873,6 @@ def randomforest():
         print("filepath: ", filepath, file=sys.stderr)
 
         mMan.SaveModel(pModel, filepath)
-
-        #Log in the database
-        dbPath = os.path.join(app.root_path, 'database', "mls.db")
-        add_Operation(dbPath, datetime.now(), session['user'],"RANDOM FOREST MODEL CREATED",pModel.uuid)
 
         UpdateModelsList()
 
@@ -914,10 +969,6 @@ def randomforestreg():
 
         mMan.SaveModel(pModel, filepath)
 
-        #Log in the database
-        dbPath = os.path.join(app.root_path, 'database', "mls.db")
-        add_Operation(dbPath, datetime.now(), session['user'],"RANDOM FOREST REGRESSOR MODEL CREATED",pModel.uuid)
-
         UpdateModelsList()
 
         return redirect('/index')
@@ -998,10 +1049,6 @@ def svmreg():
         print("filepath: ", filepath, file=sys.stderr)
 
         mMan.SaveModel(pModel, filepath)
-
-        #Log in the database
-        dbPath = os.path.join(app.root_path, 'database', "mls.db")
-        add_Operation(dbPath, datetime.now(), session['user'],"SVM REG MODEL CREATED",pModel.uuid)
 
         UpdateModelsList()
 
@@ -1095,10 +1142,6 @@ def treereg():
 
         mMan.SaveModel(pModel, filepath)
 
-        #Log in the database
-        dbPath = os.path.join(app.root_path, 'database', "mls.db")
-        add_Operation(dbPath, datetime.now(), session['user'],"DECISION TREE REG MODEL CREATED",pModel.uuid)
-
         UpdateModelsList()
 
         return redirect('/index')
@@ -1179,10 +1222,6 @@ def perceptronreg():
 
         mMan.SaveModel(pModel, filepath)
 
-        #Log in the database
-        dbPath = os.path.join(app.root_path, 'database', "mls.db")
-        add_Operation(dbPath, datetime.now(), session['user'],"PERCEPTRON REG MODEL CREATED",pModel.uuid)
-
         UpdateModelsList()
 
         return redirect('/index')
@@ -1198,10 +1237,12 @@ def usedataset(uuid):
 
     for model in modelsList:
         if model.uuid == uuid:
-            session['data_studio'] = copy.copy(model.dataStudio)
-            #session['heatmap_base64_jpgData'] = copy.copy(model.correlationMatrixImage)
-            features = session['data_studio'].processedData.columns.tolist()
-            #session['outliers_base64_jpgData'] = CreateOutliersBoxplot(features, session['data_studio'].processedData)
+            try:
+                session['data_studio'] = copy.copy(model.dataStudio)
+                session['data_studio'].console = []
+
+            except Exception as error:
+                session['warning'] = "Error copying Data Studio data. " + str(error)
 
     return redirect('/datastudio')
 
@@ -1228,10 +1269,6 @@ def save(uuid):
                 modelFileName = model.name + ".model"
                 filepath = os.path.join(app.root_path, 'models', modelFileName)
                 mMan.SaveModel(model, filepath)
-
-                #Log in the database
-                dbPath = os.path.join(app.root_path, 'database', "mls.db")
-                add_Operation(dbPath, datetime.now(), session['user'],"KNN BEST MODEL CREATED",model.uuid)
 
                 UpdateModelsList()
                 return redirect('/index')          
@@ -1318,8 +1355,6 @@ def delete(uuid):
             try:
                 #print(model.name, file=sys.stderr)
                 os.remove(model.modelPath)
-                dbPath = os.path.join(app.root_path, 'database', "mls.db")
-                add_Operation(dbPath, datetime.now(), session['user'],"MODEL DELETED",uuid)
             except:
                 print("Error deleting model from " + model.modelPath, file=sys.stderr)
             UpdateModelsList()
@@ -1335,8 +1370,6 @@ def importFile():
         f = request.files['file']
         if f:
             f.save(os.path.join(app.root_path, 'models', secure_filename(f.filename)))
-            dbPath = os.path.join(app.root_path, 'database', "mls.db")
-            add_Operation(dbPath, datetime.now(), session['user'],"MODEL IMPORTED",f.filename)
 
             UpdateModelsList()      
             return redirect('/index')
@@ -1345,39 +1378,18 @@ def importFile():
     else:
         return render_template('import.html')
 
-@app.route("/loaddummy/<dataset>", methods=['GET'])
-def loaddummy(dataset):
-    if (session.get('autenticated') != True):
-        return redirect('/notauthorized')
-    
-    if dataset == "iris":
-        dummydata = load_iris()
-    elif dataset == "diabetes":
-        dummydata = load_diabetes()
-    elif dataset == "digits":
-        dummydata = load_digits()
-    elif dataset == "wine":
-        dummydata = load_wine()
-    elif dataset == "bcancer":
-        dummydata = load_breast_cancer()
-    
-    columnsName = dummydata.feature_names
-
-    for i in range(len(columnsName)):
-        cleanName = CleanColumnHeaderName(columnsName[i])
-        columnsName[i] = cleanName
-
-    session['temp_df'] = pd.DataFrame(data=dummydata.data, columns=columnsName)
-    session['temp_df']['target'] = dummydata.target
-
-    return redirect('/train')
-
 def UpdateModelsList():
     global modelsList
     global mm
     modelspath = os.path.join(app.root_path, 'models', "*.model")
     modelsList = mm.GetModelsList(modelspath)
-    print(app.instance_path, file=sys.stderr)
+    #print(app.instance_path, file=sys.stderr)
+
+def UpdateConfigurationList():
+    global cfg
+    global confList
+    configPath = os.path.join(app.root_path, 'config', "*.conf")
+    confList = cfg.GetConfigFilesList(configPath)
 
 @app.route("/login/", methods=['POST'])
 def Login():
@@ -1385,12 +1397,13 @@ def Login():
     name = request.form['username']
     password = request.form['pswd']
 
-    params = (name, password)
-    # dbPath = os.path.join(app.root_path, 'database', "mls.db")
-    user = UserLogin(DATABASE, params)
+    user = confList[0].UserLogin(name, password)
 
-    if (user != False):
+    print(user)
+
+    if (user != None):
         session['user'] = user.name
+        session['useruuid'] = user.uuid
         session['role'] = user.role
         session['autenticated'] = True
 
@@ -1401,13 +1414,14 @@ def Login():
         session['temp_df_y'] = pd.DataFrame()
         session['temp_df_y_name'] = ""
         session['temp_df_x'] = pd.DataFrame()
-        session['heatmap_base64_jpgData'] = ""
-        session['outliers_base64_jpgData'] = ""
         session['temp_df_units'] = []
         session['temp_best_models'] = []
-        add_Operation(DATABASE, datetime.now(), user.name,"LOGIN","User login with success")
+
+        if len(confList) > 0:
+            if confList[0].Ollama == True:
+                session['ChatAI'] = ChatAI(confList[0].OllamaEndpoint, confList[0].OllamaModel)
+
     else:
-        add_Operation(DATABASE, datetime.now(), name,"LOGIN","Error user login")
         session['warning'] = "Error login. Wrong username or password!"
         session['autenticated'] = False
 
@@ -1415,8 +1429,6 @@ def Login():
 
 @app.route("/logout/", methods=['GET'])
 def Logout():
-    dbPath = os.path.join(app.root_path, 'database', "mls.db")
-    add_Operation(dbPath, datetime.now(), session['user'],"LOGOUT","User logout with success")
 
     session.pop('user', None)
     session.pop('role', None)
@@ -1536,18 +1548,26 @@ def ApiPredict(uuid):
                         "Features": json.loads(featuresJson)
                     }
 
-                    dbPath = os.path.join(app.root_path, 'database', "mls.db")
-                    add_Prediction(dbPath, datetime.now(), uuid, 1, 2)
-
                     return jsonify(data), 200
                 except:
-                    dbPath = os.path.join(app.root_path, 'database', "mls.db")
-                    add_Prediction(dbPath, datetime.now(), uuid, 0, 2)
+
                     return "Error predicting value.", 404
         
         return "Model not found", 404
 
+# ChatAI API
+@app.route("/api/chat/ask", methods=['POST'])
+def AskQuestion():
+    body = json.loads(request.data)
+    question = body["prompt"]
+
+    assistent = ChatAI("http://localhost:11434/api/","gemma:2b")
+    response = assistent.AskQuestion(question)
+    return jsonify(response), 200
+
+
 if __name__ == '__main__':
     UpdateModelsList()
-    app.run(host="0.0.0.0", port=80, debug=True)
+    UpdateConfigurationList()
+    app.run(host="0.0.0.0", port=5001, debug=True)
 

@@ -16,6 +16,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0/dist/chartjs-chart-matrix.min.js"></script>
 <script type="text/javascript" src="../static/js/polyfit.js"></script>
 <script src="../static/js/color-blend.js"></script>
+<link href="../static/css/console.css" rel="stylesheet">
 
 <!-- content -->
 <h3 class="m-4">Data Studio</h3>
@@ -88,9 +89,9 @@
 
                     <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Script" data-bs-toggle="modal" data-bs-target="#script" id="tour-train-import-script"><i class="fa fa-code"></i> Python code</a>
 
-                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Correlation" data-bs-toggle="modal" data-bs-target="#correlation"><i class="fa fa-table"></i> Correlation matrix</a>
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Correlation" data-bs-toggle="modal" data-bs-target="#correlation" id="tour-train-correlation"><i class="fa fa-table"></i> Correlation matrix</a>
 
-                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Scatter" data-bs-toggle="modal" data-bs-target="#scatterplot"><i class="fa fa-chart-line"></i> Scatter plot</a>
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Scatter" data-bs-toggle="modal" data-bs-target="#scatterplot" id="tour-train-scatter"><i class="fa fa-chart-line"></i> Scatter plot</a>
 
                     <a class="btn btn-primary" type="button" href="{{ url_for('downloaddatastudio')}}" id="tour-train-import-export"><i class="fas fa-download"></i> Download this dataset</a>
 
@@ -997,6 +998,12 @@
                                                 The dataset can be agrregated at the weekly level with mode options (mode='sum') for summing or (mode='mean') for averaging the values of the columns. To aggregate apply the following code <code>context.AggWeek(date_column, mode)</code>
                                             </div>
                                         </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                            <div class="ms-2 me-auto">
+                                                <div class="fw-bold">Encode categorical features</div>
+                                                This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code <code>context.LabelEncoder(column)</code>
+                                            </div>
+                                        </li>
                                     </ol>
                             </div>
                         </div>
@@ -1219,7 +1226,7 @@
 
                         <br>
 
-                        <canvas id="myChart" style="width:100%;height:100%;max-height:720px;"></canvas>
+                        <canvas id="myChart" style="width:100%;height:100%;max-height:500px;"></canvas>
 
                         <canvas id="myCanvas" style="width:100%;height:100%;max-height:15px;"></canvas>
 
@@ -1639,13 +1646,59 @@
     </div>
 </div>
 
+<div id="console" class="console">
+    <button class="open-button"onclick="openForm()" id='tour-datastudio-console'><img src="../static/img/console.png" width="30" height="30"></button>
+
+    <div class="chat-popup" id="myForm">
+        <div class="form-container" id="consolePrompt">
+        <h3><i class="fa-solid fa-window-maximize"></i> Console</h3>
+        <h6>Data studio terminal output</h6>
+
+        <textarea data-provide="markdown" placeholder="Data studio output will appear here..." name="msg" readonly id="consoleOutput">
+            {%- for line in console -%}
+            {{line|e}}
+            {%- endfor %}        
+        </textarea>
+
+        {% if config.Ollama %}
+
+        <div class="row prompt-row form-group row">
+            <div class="col-sm-1">
+                <label for="prompt" class="col-sm-5 col-form-label">Prompt</label>
+            </div>
+            
+            <div class="col-sm-9">
+                <input type="text" class="form-control text-left" id="prompt" name="prompt" placeholder="Add here your question and press send button..."></input>
+            </div>
+
+            <div class="col-sm-2">
+                <button class="btn btn-sm send" id="sendBtn"><i class="fa-solid fa-paper-plane" id="sendLogo"></i></button>
+            </div>
+
+            <span id="OllamaEndpoint" hidden>{{config.OllamaEndpoint}}</span>
+            <span id="OllamaModel" hidden>{{config.OllamaModel}}</span>
+
+            <br>
+
+        </div>
+
+        
+
+        {% endif %}
+
+        <!--button type="submit" class="btn btn-success">Send</button-->
+        <button type="button" class="btn btn-success cancel" onclick="closeForm()">Close</button>
+    </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block scripts %}
 
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/ollama-js-client@1.0.2/dist/browser/iife/ollama-js.global.js"></script>
 
 <!-- Editor code -->
 <script>
@@ -1692,4 +1745,5 @@
 </script>
 <script src="../static/js/intro.min.js"></script>
 <script src="../static/js/tour-datastudio.js"></script>
+<script src="../static/js/console.js"></script>
 {% endblock %}

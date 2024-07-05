@@ -5,6 +5,8 @@ let y = getCookie("tourDataStudioPart2Complete")
 
 var nodatasetimported
 
+var intro = introJs();
+
 try {
     nodatasetimported = document.getElementById("notuploaded").innerText
 } catch (error) {
@@ -56,8 +58,9 @@ if ( (x== "" || x == "false") && importView){
 
 // Tour part 2 - View Data
 if ( (y== "" || y == "false") && !importView){
-    introJs().setOptions({
+    intro.setOptions({
         showProgress: true,
+        exitOnOverlayClick: false,
         steps: [{
             title: "Analyze your data",
             intro: "This tutorial you will check how to analyse, clean and prepare your data before consuming it in model training."
@@ -77,7 +80,19 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-script'),
             title: "Python scripts",
-            intro: 'Here you can perform some basic Python scripts to modify the dataset.',
+            intro: 'Here you can perform some basic Python scripts to modify the dataset. For instance add calculated columns or perform math operations.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-train-correlation'),
+            title: "Correlation map",
+            intro: 'Here you can can access the correlation map between the variable.',
+            position: 'right'
+        },
+        {
+            element: document.getElementById('tour-train-scatter'),
+            title: "Scatter plots",
+            intro: 'This is a very usefull feature to check the correlation of your variables. Here you can correlate 2 variables in X,Y axis and use a third one for the color. Automatic linear and polymonial regression are created.',
             position: 'right'
         },
         {
@@ -89,7 +104,7 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-useml'),
             title: "Use dataset for training ML",
-            intro: 'Use the actual cleaned dataset for training machine learning algorithm.',
+            intro: 'Use the actual cleaned dataset for training machine learning algorithm. Please remove all columns not required before performing this operation.',
             position: 'right'
         },
         {
@@ -137,20 +152,8 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-train-import-outliers'),
             title: "Boxplots - Outliers",
-            intro: 'This tab contains the boxplots of all the variables. Its usefull to detect the outliers in the data',
+            intro: 'This tab contains the boxplots of all the variables and the outliers identified as red circles. If chart is not showed probably the data is not compatible (strings or nulls).',
             position: 'right'
-        },
-        {
-            element: document.getElementById('tour-train-import-correlation'),
-            title: "Correlations",
-            intro: 'This tab contains the correlation matrix between all the variables.',
-            position: 'right'
-        },
-        {
-            element: document.getElementById('tour-train-import-scatter'),
-            title: "Scatter plot",
-            intro: 'In this tab user can view scatter plot between the choosen variables.',
-            position: 'left'
         },
         {
             element: document.getElementById('tour-train-import-operations'),
@@ -163,8 +166,49 @@ if ( (y== "" || y == "false") && !importView){
             title: "Data preview",
             intro: 'Here users can preview the first 10 records of the actual dataset.',
             position: 'right'
+        },
+        {
+            element: document.getElementById('tour-datastudio-console'),
+            title: "Console",
+            intro: 'Here users can access the console output. If the Olama integration is activated, users can also ask questions.',
+            position: 'left'
         }]
     }).start().oncomplete(function () {
         setCookie("tourDataStudioPart2Complete", true, 90);
     });
 }
+
+// Activate tabs and modals allong the tutorial
+intro.onchange(function(element) {
+
+    if(element.id === 'tour-train-import-script'){
+        $("#script").modal("show");
+    } else {
+        $("#script").modal("hide");
+    }
+
+    if(element.id === 'tour-train-correlation'){
+        $("#correlation").modal("show");
+    } else {
+        $("#correlation").modal("hide");
+    }
+
+    if(element.id === 'tour-train-scatter'){
+        $("#scatterplot").modal("show");
+    } else {
+        $("#scatterplot").modal("hide");
+    }
+
+    if(element.id === 'tour-train-import-desc'){
+        document.getElementById("descri-tab").click()
+    }
+
+    if(element.id === 'tour-train-import-outliers'){
+        document.getElementById("outliers-tab").click()
+    }
+
+    if(element.id === 'tour-train-import-operations'){
+        document.getElementById("dataoperations-tab").click()
+    }
+
+});

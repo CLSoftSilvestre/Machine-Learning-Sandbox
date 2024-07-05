@@ -17,7 +17,7 @@
     <div class="col-12">
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-body">
-          {% if admin %}
+          {% if loggedin %}
             <a class="btn btn-success" type="button" href="{{ url_for('usedataset', uuid=Model.uuid)}}"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>
           {% else %}
             <a class="btn btn-success disabled" type="button" href="#"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>
@@ -425,7 +425,7 @@
               </div>
 
               <!-- R2 field -->
-              <label for="R2" class="col-sm-2 col-form-label">R² score</label>
+              <label for="R2" class="col-sm-2 col-form-label">R² / accuracy</label>
               <div class="col-sm-4">
                 <input type="text" class="form-control text-left" id="R2" value="{{'%0.3f'|format(Model.R2)}}" disabled>
               </div> 

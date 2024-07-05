@@ -6,3 +6,4 @@
 /flask_session
 /app/flask_session
 /app/database/*.db
+/app/config/*.conf

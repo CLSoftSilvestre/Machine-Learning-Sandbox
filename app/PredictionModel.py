@@ -55,6 +55,18 @@ class PredictionModel:
     def SetTestData(self, realTest, predTest):
         self.realTestList = realTest
         self.predTestList = predTest
+        # Calculate the r^2 as accuracy if the model is classification
+        if self.modelType == "classification":
+            accurate = 0
+            total = len(realTest)
+            accuracy = 0
+            for index, item in enumerate(realTest):
+                if item == predTest[index]:
+                    accurate +=1
+            
+            accuracy = (accurate / total) * 100
+
+            self.R2 = accuracy
 
     def SetDataStudioData(self, data):
         self.dataStudio = data

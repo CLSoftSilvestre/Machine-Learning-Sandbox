@@ -8,18 +8,21 @@
     <div class="col-12">
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-body">
-          {% if admin %}
+          {% if role.value <= 3 %}
             <!--a class="btn btn-success" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a-->
             <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
+            {% if config.NodeRed %}
+            <a class="btn btn-success" type="button" href="{{ url_for('flows')}}" id="tour-index-flowcreator"><i class="fas fa-code-fork"></i> Flows creator</a>
+            {% endif %}
             <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
+            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh</a>
             <!-- a class="btn btn-primary" type="button" href="{{ url_for('usage')}}" id="tour-index-usage"><i class="fas fa-chart-line"></i> Usage dashboard</a -->
 
           {% else %}
 
             <!--a class="btn btn-success disabled" type="button" href="{{ url_for('train')}}" id="tour-index-newmodel"><i class="fas fa-add"></i> Train new model</a-->
-            <a class="btn btn-success disabled" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
-            <a class="btn btn-success disabled" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
+            <a class="btn btn-success disabled" type="button" href="#" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
+            <a class="btn btn-success disabled" type="button" href="#" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
             <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
             <!-- a class="btn btn-primary disabled" type="button" href="{{ url_for('usage')}}" id="tour-index-usage"><i class="fas fa-chart-line"></i> Usage dashboard</a -->
           
@@ -47,7 +50,7 @@
                               <th scope="col">Keywords</th>
                               <th scope="col">Train datetime</th>
                               <th scope="col">RMSE</th>
-                              <th scope="col">R² score</th>
+                              <th scope="col">R² / Accuracy</th>
                               <th scope="col">Actions</th>
                             </tr>
                           </thead>
@@ -89,7 +92,7 @@
                                         <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>
                                         <a href="{{ url_for('batch', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Batch calculation" id="tour-index-batch-predict"><i class="fa fa-chart-line"></i></a>
                                         <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a> 
-                                        {% if admin %}
+                                        {% if role.value <= 3 %}
                                           <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
                                           <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
                                         {% else %}

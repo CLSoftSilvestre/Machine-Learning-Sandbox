@@ -1,0 +1,63 @@
+{% extends 'base_clean.html' %}
+
+{% block content %}
+
+  <div class="wrapper fadeInDown">
+      
+      <div class="card">
+        <div class="card-header">
+          Machine Learning Sandbox Configurator
+        </div>
+        <form method="POST">
+          <div class="card-body">
+
+            <div class="form-check">
+              <input id="useAutentication" class="form-check-input" type="checkbox" name="useAutentication" value="true">
+              <label for="useAutentication" class="form-check-label">Use autentication system</label>
+            </div>
+
+            <div class="mb-3">
+              <label for="adminPassword" class="form-label">Admin user password</label>
+              <input type="password" class="form-control" id="adminPassword" name="adminPassword">
+            </div>
+
+            <hr>
+
+            <div class="form-check">
+              <input id="useNodeRed" class="form-check-input" type="checkbox" name="useNodeRed" value="false">
+              <label for="useNodeRed" class="form-check-label">Use Node-Red integration</label>
+            </div>
+
+            <div class="mb-3">
+              <label for="nodeRedEndpoint" class="form-label">Node-Red Endpoint</label>
+              <input type="text" class="form-control" name="nodeRedEndpoint" id="nodeRedEndpoint" placeholder="http://127.0.0.1:1880">
+            </div>
+
+            <hr>
+
+            <div class="form-check">
+              <input id="useOllama" class="form-check-input" type="checkbox" name="useOllama" value="false">
+              <label for="useOllama" class="form-check-label">Use Ollama integration</label>
+            </div>
+
+            <div class="mb-3">
+              <label for="ollamaEndpoint" class="form-label">Ollama Endpoint</label>
+              <input type="text" class="form-control" name="ollamaEndpoint" id="ollamaEndpoint" placeholder="http://127.0.0.1:11434/api/">
+            </div>
+
+            <div class="mb-3">
+              <label for="ollamaModel" class="form-label">Ollama Model</label>
+              <input type="text" class="form-control" name="ollamaModel" id="ollamaModel" placeholder="gemma:2b">
+            </div>
+            <div class="d-grid gap3">
+              <button type="submit" class="btn btn-primary block">Save initial configuration</button>
+            </div>
+            
+          </div>
+
+        </form>
+      </div>
+  
+  </div>
+
+{% endblock %}

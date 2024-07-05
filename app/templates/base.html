@@ -11,6 +11,7 @@
         <script src="../static/js/cookies.js"></script>
         <link href="../static/css/winter.css" rel="stylesheet">
         <link href="../static/css/theme.css" rel="stylesheet">
+
         <body class="d-flex flex-column min-vh-100">
             <!--nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark"-->
 
@@ -57,15 +58,16 @@
                             <i class="fa-regular fa-circle-question"></i> About
                         </a>
                       </li>
-                      {% if role=='Administrator' %}
-                        <li class="nav-item">
-                          <a class="nav-link" href="{{ url_for('usermanager') }}">
-                            <i class="fa-solid fa-users"></i> User's management
-                          </a>
-                        </li>
+                      {% if role.value == 1 %}
+                      <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#configurationModal">
+                            <i class="fa-solid fa-gear"></i> Configuration
+                        </a>
+                      </li>
                       {% endif %}
+
                       <li class="nav-item float-right">
-                        {% if admin %}
+                        {% if loggedin %}
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
                           <i class="fa-solid fa-sign-out-alt"></i> Logout {{username}}
                         </a>
@@ -87,6 +89,25 @@
             </div>
 
             <div class="rotate" id="loader"></div>
+
+            <!-- Configuration Modal -->
+            <div class="modal fade" id="configurationModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="configurationModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="configurationModalLabel">Application configuration</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <!-- INSERT HERE THE CONFIGURATION FORM -->
+                  </div>
+
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+                  </div>
+                </div>
+              </div>
+            </div>
 
             <!-- About Modal -->
             <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
@@ -206,7 +227,6 @@
 
             </footer>
 
-            
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
             <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
@@ -226,7 +246,6 @@
                   return new bootstrap.Popover(popoverTriggerEl)
               })
             </script>
-
             {% block scripts %}
             <script>
 
