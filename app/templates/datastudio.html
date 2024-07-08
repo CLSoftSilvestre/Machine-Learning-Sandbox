@@ -321,6 +321,67 @@
                                             {% endfor %}
                                             <!--td></td-->
                                         </tr>
+                                        <tr id='tour-train-rem-ouliers'>
+                                            <td class="align-middle">Remove outliers</td>
+                                            {% for title in titles %}
+                                                {% if datatypes[loop.index0] == 'int64' or datatypes[loop.index0] == 'int32' or datatypes[loop.index0] == 'float64' or datatypes[loop.index0] == 'uint8' %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Remove outliers" data-bs-toggle="modal" data-bs-target="#removeOutliers{{title|replace(' ','')}}"><i class="fa fa-bug"></i></a>
+                                                </td>
+                                                {% else %}
+                                                <td class="align-middle">
+                                                    <a href="#" type="button" class="btn btn-warning disabled" data-toggle="tooltip" title="Remove outliers"><i class="fa fa-bug"></i></a>
+                                                </td>
+                                                {% endif %}
+
+                                                <!-- remove outliers Modal -->
+                                                <div class="modal fade" id="removeOutliers{{title|replace(' ','')}}" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="removeOutliersLabel" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+
+                                                        <div class="modal-content">
+                                                            <form method="post">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title" id="removeOutliersLabel">Remove outliers from column <b>{{title}}</b> data</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+
+                                                                <div class="modal-body">
+                                                                    <input hidden type="text" name="mod" value="remoutliers">
+                                                                    <input hidden type="text" name="column" value="{{title}}">
+                                                                    
+                                                                    <div class="form-horizontal">
+                                                                        <div class="form-group row">
+
+                                                                            <div class="col-sm-7">
+                                                                                <div class="form-check form-switch">
+                                                                                    <input id="upperOutliers" class="form-check-input" type="checkbox" name="upperOutliers" checked>
+                                                                                    <label for="upperOutliers" class="form-check-label">Remove upper outliers</label>
+                                                                                </div>
+                                                                            </div>
+                                                                            
+                                                                            <div class="col-sm-7">
+                                                                                <div class="form-check form-switch">
+                                                                                    <input id="lowerOutliers" class="form-check-input" type="checkbox" name="lowerOutliers" checked>
+                                                                                    <label for="lowerOutliers" class="form-check-label">Remove lower outliers</label>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <!--td></td-->
+                                        </tr>
                                         <tr id='tour-train-import-setname'>
                                             <td class="align-middle">Set data name</td>
                                             {% for title in titles %}
@@ -579,6 +640,16 @@
                                                 <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
                                             </div>   
                                         </td>
+                                        {% elif oper.operation == 'remoutliers' %}
+                                        <td style="vertical-align: middle;"><i class="fas fa-bug"></i></td>
+                                        <td style="vertical-align: middle;">Remove column outliers</td>
+                                        <td style="vertical-align: middle;">Column {{oper.params[0]}}, remove upper: {{oper.params[1]}}, remove lower: {{oper.params[2]}}</td>
+                                        <td style="vertical-align: middle;">
+                                            <div class="btn-group" role="group" aria-label="Action commands">
+                                                <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Edit operation" data-bs-toggle="modal" data-bs-target="#editOperation{{oper.uuid|replace(' ','')}}"><i class="fa fa-edit"></i></a>
+                                                <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete operation" data-bs-toggle="modal" data-bs-target="#deleteOperationConfirmation{{oper.uuid|replace(' ','')}}"><i class="fa fa-trash"></i></a>
+                                            </div>   
+                                        </td>
                                         {% elif oper.operation == 'script' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-code"></i></td>
                                         <td style="vertical-align: middle;">Python script applied</td>
@@ -750,6 +821,33 @@
                                                                         <div class="col-sm-7">
                                                                             <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" value ={{oper.params[2]}} step="0.01"></input>
                                                                         </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            
+                                                            {% elif oper.operation == 'remoutliers' %}
+                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <!-- Add code for filtering columns -->
+                                                                <input hidden type="text" name="type" value="remoutliers">
+                                                                <input hidden type="text" name="column" value="{{oper.params[0]}}">
+                                                                <div>&MediumSpace;</div>
+                                                                <div class="form-horizontal">
+                                                                    <div class="form-group row">
+                                                                        
+                                                                        <div class="col-sm-7">
+                                                                            <div class="form-check form-switch">
+                                                                                <input id="upperOutliers" class="form-check-input" type="checkbox" name="upperOutliers" {% if oper.params[1] == True %} checked {% endif %}>
+                                                                                <label for="upperOutliers" class="form-check-label">Remove upper outliers</label>
+                                                                            </div>
+                                                                        </div>
+                                                                        
+                                                                        <div class="col-sm-7">
+                                                                            <div class="form-check form-switch">
+                                                                                <input id="lowerOutliers" class="form-check-input" type="checkbox" name="lowerOutliers" {% if oper.params[2] == True %} checked {% endif %}>
+                                                                                <label for="lowerOutliers" class="form-check-label">Remove lower outliers</label>
+                                                                            </div>
+                                                                        </div>
+
                                                                     </div>
 
                                                                 </div>

@@ -498,6 +498,15 @@ def datastudio():
             dataOperation = DataOperation("filtercol", params)
             session['data_studio'].AddOperation(dataOperation)
         
+        elif(request.form['mod']=='remoutliers'):
+            column = request.form['column']
+            top = bool(request.form.get('upperOutliers'))
+            bottom = bool(request.form.get('lowerOutliers'))
+
+            params = [column, top, bottom]
+            dataOperation = DataOperation("remoutliers", params)
+            session['data_studio'].AddOperation(dataOperation)
+        
         elif(request.form['mod']=="deloperation"):
             operationUUID = request.form['uuid']
             id = request.form['pos']
@@ -584,6 +593,13 @@ def datastudio():
                 operator = request.form['operatortype']
                 value = request.form['filtervalue']
                 params = [column, operator, value]
+                session['data_studio'].EditOperation(operationuuid, params)
+            
+            elif(operationType == "remoutliers"):
+                column = request.form['column']
+                upper = bool(request.form.get('upperOutliers'))
+                lower = bool(request.form.get('lowerOutliers'))
+                params = [column, upper, lower]
                 session['data_studio'].EditOperation(operationuuid, params)
 
             elif(operationType == "script"):
