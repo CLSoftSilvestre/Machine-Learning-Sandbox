@@ -1564,13 +1564,12 @@
 
                                 // Update the range filter data
                                 range = document.getElementById('filterColorRange')
-                                range.min = minColor;
-                                range.max = maxColor;
+                                step = (maxColor - minColor) / 20;
+                                range.step = step;
+                                range.min = minColor + step;
+                                range.max = maxColor+1;
                                 range.value = maxColor;
                                 range.defaultValue = maxColor;
-                                range.step = (maxColor - minColor) / 20;
-
-
 
                                 myChart.data.datasets[2].data = xyValues;
                                 myChart.data.datasets[2].pointBackgroundColor = colorPoints;
@@ -1646,6 +1645,7 @@
     </div>
 </div>
 
+<!-- Console Area -->
 <div id="console" class="console">
     <button class="open-button"onclick="openForm()" id='tour-datastudio-console'><img src="../static/img/console.png" width="30" height="30"></button>
 

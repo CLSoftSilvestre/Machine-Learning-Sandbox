@@ -85,6 +85,7 @@ def inject_model_version():
 def set_global_html_variable_values():
     #session['autenticated'] = True
     if session.get('autenticated'):
+        useruuid = session.get('useruuid')
         role = session.get('role')
         loggedIn = session.get('autenticated')
         name = session.get('user')
@@ -92,8 +93,9 @@ def set_global_html_variable_values():
         role = ""
         loggedIn = False
         name = ""
+        useruuid = ""
 
-    template_config = {'loggedin': loggedIn, 'username': name, 'role': role}
+    template_config = {'loggedin': loggedIn, 'username': name, 'role': role, 'useruuid':useruuid}
 
     return template_config
 
@@ -112,6 +114,14 @@ def show_session_warning():
     session['warning'] = ""
     session['information'] = ""
     return template_config
+
+@app.context_processor
+def show_app_configurations():
+    config = Configuration()
+    if len(confList) > 0:
+        config = confList[0]
+
+    return dict(app_config = config)
 
 @app.route("/index")
 @app.route("/")
@@ -137,16 +147,30 @@ def index():
 @app.route("/configurator/", methods=['GET', 'POST'])
 def configurator():
     if(request.method == 'POST'):
-        # Get data and save in configuration file
-        useAuth = bool(request.form.get('useAutentication'))
-        adminPassword = request.form['adminPassword']
+
         useNodeRed = bool(request.form.get('useNodeRed'))
         nodeRedPath = request.form['nodeRedEndpoint']
         useOllama = bool(request.form.get('useOllama'))
         ollamaPath = request.form['ollamaEndpoint']
         ollamaModel = request.form['ollamaModel']
-        
+
         configuration = Configuration()
+
+        # Check if configuration already exists
+        if len(confList)>0:
+            useAuth = confList[0].useLogin
+            users = confList[0].users
+            configuration.users = users
+
+        else:
+            # Get data and save in configuration file
+            useAuth = bool(request.form.get('useAutentication'))
+            adminPassword = request.form['adminPassword']
+
+            #Add base admin user
+            admUser = AppUser("admin", adminPassword, UserRole.ADMIN)
+            configuration.AddAppUser(admUser)
+        
         configuration.SetBase(useAuth)
         configuration.SetNodeRed(useNodeRed, nodeRedPath)
         configuration.SetOllama(useOllama, ollamaModel, ollamaPath)
@@ -154,10 +178,6 @@ def configurator():
         cfMan = Configurator()
         configName = "base.conf"
         filepath = os.path.join(app.root_path, 'config', configName)
-
-        #Add base admin user
-        admUser = AppUser("admin", adminPassword, UserRole.ADMIN)
-        configuration.AddAppUser(admUser)
 
         cfMan.SaveConfiguration(configuration, filepath)
 
@@ -172,7 +192,40 @@ def configurator():
             return render_template('configurator.html')
         else:
             return redirect('/index')
-     
+
+@app.route("/changepassword/", methods=['POST'])
+def changepassword():
+    if(request.method == 'POST'):
+        useruuid = request.form['useruuid']
+        oldPassword = request.form['oldpassword']
+        newPassword = request.form['newpassword']
+        repeatPassword = request.form['repeatpassword']
+
+        if(repeatPassword == newPassword):
+            # print("Passwords são iguais", file=sys.stderr)
+            for user in confList[0].users:
+                if user.uuid == useruuid:
+                    # print("Utilizador encontrado", file=sys.stderr)
+                    success = user.ChangeUserPassword(oldPassword, newPassword)
+
+                    if (success == True):
+                        
+                        # Save configuration file with user info
+                        configName = "base.conf"
+                        filepath = os.path.join(app.root_path, 'config', configName)
+                        cfg.SaveConfiguration(confList[0], filepath)
+
+                        session['information'] = "Password changed with success!"
+                        return redirect('/index')
+                    else:
+                        session['warning'] = "Error changing password! Please check old password."
+                        return redirect('/index')
+
+        session['warning'] = "Error changing password! New password does not match."
+        return redirect('/index')
+
+    return redirect('/index')
+
 @app.route("/sandbox/", methods=['GET'])
 def sandbox():
     if (session.get('autenticated') != True):

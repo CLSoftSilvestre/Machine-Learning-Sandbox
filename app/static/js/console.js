@@ -44,7 +44,7 @@ function setup(){
   sendButton.addEventListener("click", async () =>{
 
     output.innerHTML += '\n' + "[USER] : " + input.value + '\n';
-    output.innerHTML += "[BOT " + ollamaModel +"] : ";
+    output.innerHTML += "[ASSISTANT] : ";
     output.scrollTop = output.scrollHeight;
 
     // Change the logo of the button
