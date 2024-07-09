@@ -3,13 +3,21 @@
 Created on 09/07/2024
 
 @author: CSilvestre
+
 """
 
 from flask import Flask
-from blueprints.basic_endpoints import blueprint as basic_endpoints
+from flask_restx import Api, Resource
 
 app = Flask(__name__, instance_relative_config=True)
-app.register_blueprint(basic_endpoints)
+app.config['RESTPLUS_MASK_SWAGGER'] = False
+api = Api(app)
+
+
+@api.route('/teste')
+class teste(Resource):
+    def get(self):
+        return 'hello'
 
 # On going...
 

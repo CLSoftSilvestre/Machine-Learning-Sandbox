@@ -54,9 +54,6 @@ import copy
 from urllib.request import urlopen
 from urllib.error import *
 
-# import for usage of LLM models (Ollama)
-from chatAI import ChatAI
-
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -1626,19 +1623,7 @@ def ApiPredict(uuid):
         
         return "Model not found", 404
 
-# ChatAI API
-@app.route("/api/chat/ask", methods=['POST'])
-def AskQuestion():
-    body = json.loads(request.data)
-    question = body["prompt"]
-
-    assistent = ChatAI("http://localhost:11434/api/","gemma:2b")
-    response = assistent.AskQuestion(question)
-    return jsonify(response), 200
-
-
 if __name__ == '__main__':
     UpdateModelsList()
     UpdateConfigurationList()
     app.run(host="0.0.0.0", port=5001, debug=True)
-
