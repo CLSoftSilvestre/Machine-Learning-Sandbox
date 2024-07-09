@@ -145,10 +145,10 @@ class DataStudio:
                 wiskersMax = Q3 + 1.5 * IQR
                 wiskersMin = Q1 - 1.5 * IQR
 
-                print("Q1 : " + str(Q1), file=sys.stderr)
-                print("Q3 : " + str(Q3), file=sys.stderr)
-                print("Max whisker : " + str(wiskersMax), file=sys.stderr)
-                print("Min whisker : " + str(wiskersMin), file=sys.stderr)
+                #print("Q1 : " + str(Q1), file=sys.stderr)
+                #print("Q3 : " + str(Q3), file=sys.stderr)
+                #print("Max whisker : " + str(wiskersMax), file=sys.stderr)
+                #print("Min whisker : " + str(wiskersMin), file=sys.stderr)
 
                 if(upper == True):
                     tempFilteredDf = pd.DataFrame()

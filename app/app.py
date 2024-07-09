@@ -126,6 +126,8 @@ def show_app_configurations():
 @app.route("/index")
 @app.route("/")
 def index():
+    if(len(confList) == 0):
+        UpdateConfigurationList()
 
     # Check if configuration exists inserver. Otherwise start new configuration process
     if(len(confList) == 0):
@@ -1468,7 +1470,7 @@ def Login():
 
     user = confList[0].UserLogin(name, password)
 
-    print(user)
+    #print(user)
 
     if (user != None):
         session['user'] = user.name
