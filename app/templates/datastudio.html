@@ -936,6 +936,8 @@
 </div>
 <!-- end content-->
 
+{% if uploaded %}
+
 <!-- Scripting Modal -->
 <div class="modal fade" id="script" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="scriptLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -1189,7 +1191,7 @@
                                                 },
                                                 label(context) {
                                                     const v = context.dataset.data[context.dataIndex];
-                                                    return ['X: ' + v.x, 'Y: ' +v.y, 'CORR: ' + (v.v.toFixed(2) * 100)+'%'];
+                                                    return ['X: ' + v.x, 'Y: ' +v.y, 'CORR: ' + (v.v * 100).toFixed(0)+'%'];
                                                 },
                                             },
                                         },
@@ -1716,12 +1718,13 @@
                                 const color_variable = document.getElementById('selCVariable').options[document.getElementById("selCVariable").selectedIndex ].text;
                                 range = document.getElementById('filterColorRange')
 
-                                if (newVal < range.max){
+                                if (parseFloat(newVal) < parseFloat(range.max)){
                                     filterText.innerText = color_variable + " ( < " + newVal + ")";
                                 } else {
                                     filterText.innerText = color_variable;
                                 }
-                                
+
+                                //console.log("New val: " + newVal + " Max:" + range.max)
 
                                 myChart.data.datasets[2].data = filteredValues;
                                 myChart.data.datasets[2].pointBackgroundColor = filteredColorPoints;
@@ -1789,6 +1792,7 @@
     </div>
     </div>
 </div>
+{% endif %}
 
 {% endblock %}
 

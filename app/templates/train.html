@@ -96,6 +96,7 @@
                                                             <optgroup label="Electricity">
                                                                 <option value="V">Volt</option>
                                                                 <option value="A">Ampere</option>
+                                                                <option value="Hz">Hz</option>
                                                             </optgroup>
                                                             <optgroup label="Power and Energy">
                                                                 <option value="W">W</option>
@@ -331,6 +332,29 @@
                                             </div>
                                         </div>
                                     </div>
+                                    
+                                </div>
+                                <hr>
+                                <h3>Semi-Supervised training - Annomaly detection</h3>
+                                <h6>Select one of those models when is needed to detect annomaly in the data.</h6>
+                                <br>
+                                <div class="row">
+                                    <!-- Novelty detection (semi-supervisoned)-->
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/anomalydetection.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">Novelty annomaly detection</h5>
+                                              <p class="card-text mb-4">Novelty anomaly detection refers to the identification of patterns in data that deviate from expected behavior and occur infrequently</p>
+                                                {% if dependend == "" %} 
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Comming soon...</a>
+                                                {% else %}
+                                                <a href="#" class="btn btn-primary mt-auto align-self-start disabled">Comming soon...</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+
                                     
                                 </div>
                             </div>

@@ -20,9 +20,6 @@ from sklearn.svm import SVR
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
-#from sklearn.inspection import permutation_importance
-
-from sklearn.datasets import load_iris, load_diabetes, load_digits, load_wine, load_breast_cancer
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
@@ -44,7 +41,6 @@ import io
 import json
 from werkzeug.utils import secure_filename
 
-# from outlierextractor import CreateOutliersBoxplot
 from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
@@ -644,7 +640,7 @@ def datastudio():
 
 @app.route("/usermanager/", methods=['GET', 'POST'])
 def usermanager():
-    if (session.get('role') != 'Administrator'):
+    if (session.get('role') != UserRole.ADMIN):
         return redirect('/notauthorized')
 
     return render_template('usermanager.html')
@@ -1484,10 +1480,6 @@ def Login():
         session['temp_df_x'] = pd.DataFrame()
         session['temp_df_units'] = []
         session['temp_best_models'] = []
-
-        if len(confList) > 0:
-            if confList[0].Ollama == True:
-                session['ChatAI'] = ChatAI(confList[0].OllamaEndpoint, confList[0].OllamaModel)
 
     else:
         session['warning'] = "Error login. Wrong username or password!"
