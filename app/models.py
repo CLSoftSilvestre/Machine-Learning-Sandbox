@@ -1,14 +1,16 @@
 
 from sklearn import linear_model
 from sklearn import neighbors
+from sklearn.neighbors import LocalOutlierFactor
+from sklearn.ensemble import IsolationForest
 from sklearn.inspection import permutation_importance
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, Normalizer
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import r2_score
-from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature
+from PredictionModel import PredictionModel, InputFeature, ModelInformation, ReturnFeature, DetectionModel
 from utils import CreateImage
 from outlierextractor import OutlierExtractor
 
@@ -44,6 +46,29 @@ class knn_regressor_params(base_params):
         self.metric='minkowski'
         self.metric_params=None
         self.n_jobs=None
+
+class lof_detection_params(base_params):
+    def __init__(self):
+        self.n_neighbors=20
+        self.algorithm='auto'
+        self.leaf_size=30
+        self.metric='minkowski'
+        self.p=2
+        self.contamination = 'auto'
+        self.novelty = False
+        self.n_jobs=None
+
+class isolationForest_detection_params(base_params):
+    def __init__(self):
+        self.n_estimators=100
+        self.max_samples=None
+        self.contamination ='auto'
+        self.max_features=1.0
+        self.bootstrap=False
+        self.n_jobs=None
+        self.random_state=None
+        self.verbose=0
+        self.warm_start=False
 
 class svm_regressor_params(base_params):
     def __init__(self):
@@ -194,5 +219,84 @@ def KnnRegression(df_y, df_y_name, df_x, units, params : knn_regressor_params = 
     pModel.Setup(params.name, params.description, params.keywords, knn, inputFeatures, mean_squared_error(y_test, y_pred), r2_score(y_test, y_pred))
     pModel.SetTestData(y_test, y_pred)
     #pModel.SetTrainImage(CreateImage(y_test, y_pred, df_y_name))
+
+    return pModel
+
+# Creates and returns one anomaly detection object with LOF
+def LofDetection(df, units, params : lof_detection_params = 0):
+    lof = make_pipeline(StandardScaler(), Normalizer(), LocalOutlierFactor(n_neighbors=params.n_neighbors, novelty=True))
+    
+    # set train / test groups
+    train_df, test_df = train_test_split(df, test_size=params.testSize, random_state=42)
+
+    lof.fit(train_df)
+    y_pred_test = lof.predict(test_df)
+
+    inputFeatures = []
+    for item in df:
+        inputFeatures.append(InputFeature(item, str(train_df[item].dtype), "Description of " + item))
+
+    # Set the feature unit
+    try:
+        for feature in inputFeatures:
+            for funit in units:
+                if feature.name == funit[0]:
+                    feature.setUnit(funit[1])
+    except:
+        print("Error setting feature units.", file=sys.stderr)
+    
+    # Number of features
+    n = len(inputFeatures)
+
+    for i in range(len(inputFeatures)):
+        featureName = inputFeatures[i].name
+        inputFeatures[i].setDescribe(train_df[featureName].describe())
+    
+    pModel = DetectionModel()
+    pModel.Setup(params.name, params.description, params.keywords, lof, inputFeatures)
+    pModel.SetModelType("detection")
+    pModel.SetTestData(test_df, y_pred_test)
+
+    return pModel
+
+# Creates and returns one annomally detection object with IsolationForest
+def IsolationForestDetection(df, units, params : isolationForest_detection_params = 0):
+
+    #ss = Normalizer(copy=False)
+    #ss.fit(df)
+
+    ifd = make_pipeline(StandardScaler(),Normalizer(), IsolationForest(max_samples=params.max_samples, random_state=params.random_state))
+    
+    # set train / test groups
+    train_df, test_df = train_test_split(df, test_size=params.testSize, random_state=42)
+
+    ifd.fit(train_df)
+    #ifd.fit(train_df)
+    y_pred_test = ifd.predict(test_df)
+
+    inputFeatures = []
+    for item in df:
+        inputFeatures.append(InputFeature(item, str(train_df[item].dtype), "Description of " + item))
+
+    # Set the feature unit
+    try:
+        for feature in inputFeatures:
+            for funit in units:
+                if feature.name == funit[0]:
+                    feature.setUnit(funit[1])
+    except:
+        print("Error setting feature units.", file=sys.stderr)
+    
+    # Number of features
+    n = len(inputFeatures)
+
+    for i in range(len(inputFeatures)):
+        featureName = inputFeatures[i].name
+        inputFeatures[i].setDescribe(train_df[featureName].describe())
+    
+    pModel = DetectionModel()
+    pModel.Setup(params.name, params.description, params.keywords, ifd, inputFeatures)
+    pModel.SetModelType("detection")
+    pModel.SetTestData(test_df, y_pred_test)
 
     return pModel

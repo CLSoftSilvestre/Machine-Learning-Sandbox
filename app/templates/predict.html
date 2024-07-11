@@ -25,19 +25,30 @@
 
       <br>
 
+      {% if Model.modelType != "detection" %}
       <b>
         Model prediction: {{Result}} {{Units}}
       </b>
+      {% else %}
+      <b>
+        {% if (Result == -1) %}
+        Model prediction: Annomally detected!
+        {% else %}
+        Model prediction: Values are normal!
+        {% endif %}
+      </b>
+      {% endif %}
 
       <br>
       <br>
-
+      {% if Model.modelType != "detection" %}
       Confidence interval based on MSE score
 
       <br>
       <b>
         Min prediction: {{MinResult}} - Max prediction: {{MaxResult}}   
       </b>
+      {% endif %}
       
     </h5>
   {% endif %}

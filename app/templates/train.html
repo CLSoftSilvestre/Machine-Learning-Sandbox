@@ -73,11 +73,16 @@
                                                                 <option value="L">L</option>
                                                                 <option value="m³">m³</option>
                                                                 <option value="Nm³">Nm³</option>
+                                                                <option value="US gal">US gallon</option>
+                                                                <option value="Imp gal">Imperial gallon</option>
+                                                                <option value="ft³">Cubic foot</option>
                                                             </optgroup>
                                                             <optgroup label="Mass">
                                                                 <option value="g">g</option>
                                                                 <option value="kg">Kg</option>
                                                                 <option value="t">Ton</option>
+                                                                <option value="oz">Ounce</option>
+                                                                <option value="lb">Pound</option>
                                                             </optgroup>
                                                             <optgroup label="Flow">
                                                                 <option value="L/min">L/min</option>
@@ -113,10 +118,14 @@
                                                                 <option value="mm/s²">mm/s²</option>
                                                             </optgroup>
                                                             <optgroup label="Time">
+                                                                <option value="ms">millisecond</option>
                                                                 <option value="sec">sec</option>
                                                                 <option value="min">min</option>
                                                                 <option value="hour">hour</option>
                                                                 <option value="day">day</option>
+                                                                <option value="week">week</option>
+                                                                <option value="month">month</option>
+                                                                <option value="yr">year</option>
                                                             </optgroup>
                                                             <optgroup label="Lenght">
                                                                 <option value="mm">mm</option>
@@ -195,7 +204,7 @@
                         <p class="card-text">
                             <div class="content">
                                 <!-- Line 1 -->
-                                <h3>Supervised training - Regression models</h3>
+                                <h3>Regression models</h3>
                                 <h6>Select one of those models when the value to predict is as continuous value.</h6>
                                 <br>
                                 <div class="row">
@@ -297,7 +306,7 @@
                                     
                                 </div>
                                 <hr>
-                                <h3>Supervised training - Classification models</h3>
+                                <h3>Classification models</h3>
                                 <h6>Select one of those models when the value to predict is as categorical value.</h6>
                                 <br>
                                 <div class="row">
@@ -335,27 +344,34 @@
                                     
                                 </div>
                                 <hr>
-                                <h3>Semi-Supervised training - Annomaly detection</h3>
-                                <h6>Select one of those models when is needed to detect annomaly in the data.</h6>
+                                <h3>Annomaly detection models</h3>
+                                <h6>Select one of those models when is needed to detect annomaly in the data. Annomaly detection don't require variable Y selection.</h6>
                                 <br>
                                 <div class="row">
-                                    <!-- Novelty detection (semi-supervisoned)-->
+                                    <!-- LOF (Local Outlier Factor)-->
                                     <div class="col-xl-3 d-flex align-items-stretch">
                                         <div class="card">
-                                            <img src="../static/img/anomalydetection.png" class="card-img-top" alt="...">
+                                            <img src="../static/img/lof_outlier.png" class="card-img-top" alt="...">
                                             <div class="card-body d-flex flex-column">
-                                              <h5 class="card-title">Novelty annomaly detection</h5>
-                                              <p class="card-text mb-4">Novelty anomaly detection refers to the identification of patterns in data that deviate from expected behavior and occur infrequently</p>
-                                                {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Comming soon...</a>
-                                                {% else %}
-                                                <a href="#" class="btn btn-primary mt-auto align-self-start disabled">Comming soon...</a>
-                                                {% endif %}
+                                                <h5 class="card-title">Local Outlier Factor (LOF)</h5>
+                                                <p class="card-text mb-4">The anomaly score of each sample is called the Local Outlier Factor. It measures the local deviation of the density of a given sample with respect to its neighbors. It is local in that the anomaly score depends on how isolated the object is with respect to the surrounding neighborhood.</p>
+                                                <a href="{{ url_for('lof')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
                                             </div>
                                         </div>
                                     </div>
 
-                                    
+                                    <!-- Isolation Forest -->
+                                    <div class="col-xl-3 d-flex align-items-stretch">
+                                        <div class="card">
+                                            <img src="../static/img/isolation_forest.png" class="card-img-top" alt="...">
+                                            <div class="card-body d-flex flex-column">
+                                              <h5 class="card-title">Isolation Forest</h5>
+                                              <p class="card-text mb-4">The IsolationForest isolates observations by randomly selecting a feature and then randomly selecting a split value between the maximum and minimum values of the selected feature.</p>
+                                                <a href="{{ url_for('isolationforest')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
                         </p>

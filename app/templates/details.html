@@ -4,12 +4,11 @@
 
 {% block content %}
 
-  <!--ol class="breadcrumb">
-    <li class="breadcrumb-item">
-        <a href="{{ url_for('index') }}">Trained models</a>
-    </li>
-    <li class="breadcrumb-item active">Details</li>
-  </ol-->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="text/javascript" src="https://unpkg.com/@sgratzl/chartjs-chart-boxplot@3.6.0/build/index.umd.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@1.1.0/dist/chartjs-chart-matrix.min.js"></script>
+<script type="text/javascript" src="../static/js/polyfit.js"></script>
 
   <h3 class="m-4">Model details</h3>
 
@@ -40,7 +39,7 @@
           <div class="form-horizontal">
 
             <!-- Line chart with results of training -->
-            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <!--script src="https://cdn.jsdelivr.net/npm/chart.js"></script-->
 
             {% if Model.modelType == 'classification' %}
 
@@ -167,7 +166,7 @@
 
             </script>
 
-            {% else %}
+            {% elif Model.modelType == 'regression' %}
             <div class="row">
               <div class="col-lg-12">
                 <canvas id="myChart" width="200" height="50"></canvas>
@@ -184,21 +183,22 @@
 
               const ctx = document.getElementById('myChart').getContext('2d');
 
+              labelsData = []
+
+              {% if (Model.realTestList) | length < 150 %}
+                {% for i in range(0,(Model.realTestList)| length) %}
+                  labelsData.push({{i}})
+                {% endfor %}
+              {% else %}
+                {% for i in range(0,150) %}
+                  labelsData.push({{i}})
+                {% endfor %}
+              {% endif %}
+
               const myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels:  [
-                        //for i in range(1,(Model.realTestList)| length +1)
-                                {% if (Model.realTestList) | length < 150 %}
-                                  {% for i in range(1,(Model.realTestList)| length +1) %}
-                                    {{i}},
-                                  {% endfor %}
-                                {% else %}
-                                  {% for i in range(1,150 + 1) %}
-                                    {{i}},
-                                  {% endfor %}
-                                {% endif %}
-                              ],
+                    labels: labelsData,
                     datasets: [{
                         label: 'real',
                         fill: false,
@@ -267,6 +267,223 @@
                   }
                 }
               });
+
+              // End
+
+            </script>
+
+            {% elif Model.modelType == 'detection' %}
+            <div class="row">
+              <div class="col-lg-4">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text" for="selectedXVariable"><i class="fas fa-x"></i></label>
+                    <select class="form-select" id="selectedXVariable">
+                        <option selected>Choose one variable...</option>
+                        {% for title in Model.realTestList %}
+                            <option value={{loop.index-1}}>{{title}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+              </div>
+
+              <div class="col-lg-4">
+                  <div class="input-group input-group-sm">
+                      <label class="input-group-text" for="selectedYVariable"><i class="fas fa-y"></i></label>
+                      <select class="form-select" id="selectedYVariable">
+                          <option selected>Choose one variable...</option>
+                          {% for title in Model.realTestList %}
+                              <option value={{loop.index-1}}>{{title}}</option>
+                          {% endfor %}
+                      </select>
+                  </div>  
+              </div>
+
+              <div class="col-lg-1">
+                <div class="input-group input-group-sm">
+                    <label class="input-group-text" for="colorInput"><i class="fas fa-tint"></i></label>
+                    <input type="color" class="form-control form-control-color" id="colorInput" value="#18bc9c" title="Ok color">
+                  </div>                
+              </div>
+
+              <div class="col-lg-1">
+                  <div class="input-group input-group-sm">
+                      <label class="input-group-text" for="colorInput2"><i class="fas fa-tint"></i></label>
+                      <input type="color" class="form-control form-control-color" id="colorInput2" value="#f50056" title="Annomaly color">
+                  </div>              
+              </div>
+
+              <div class="col-lg-2">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i> Update</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- SCATTER CHART -->
+            <div class="row">
+              <div class="col-lg-12">
+                <canvas id="myDetectionChart" style="width:100%;height:100%;min-height:500px;"></canvas>
+              </div>
+            </div>
+
+            <script>
+              // print(predTest, file=sys.stderr)
+              var tests = []
+              var results = []
+
+              //console.log({{Model.realTestList[]}})
+              {% for row in rawdata %}
+                tests.push({{row|tojson}})
+                // console.log("Data Prediction: " + {{row}})       
+              {% endfor %}
+
+              {% for i in range(0,(Model.predTestList)| length ) %}
+                results.push({{Model.predTestList[i]}})
+                // console.log("Data Prediction: " + {{Model.predTestList[i]}})
+              {% endfor %}
+
+              // Setup the data 
+              var xyValues = [{x:0, y:0}]
+              var colorPoints = ['#91d754']
+
+              // Update the labels
+              var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
+              var labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
+
+              const ctx3 = document.getElementById('myDetectionChart').getContext('2d');
+
+              const myScatter = new Chart("myDetectionChart", {                           
+                data: {
+                  datasets: [
+                    {
+                      label: 'Scatter plot',
+                      type: "scatter",
+                      pointRadius: 3,
+                      pointBackgroundColor: colorPoints,
+                      pointsBorderColor: colorPoints,
+                      data: xyValues
+                  }]
+                },
+                options:{
+                    elements:{
+                        point:{
+                            borderColor: colorPoints,
+                        }
+                    },
+                    plugins:{
+                        legend: {
+                            display: false
+                        },
+                        zoom:{
+                            zoom:{
+                                wheel:{
+                                    enabled: true,
+                                    modifierKey: 'ctrl',
+                                },
+                                drag:{
+                                    enabled: true,
+                                    modifierKey: 'ctrl',
+                                },
+                                pinch:{
+                                    enabled: true
+                                },
+                                mode: 'xy',
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const regressionFormula = [
+                                        `X (${labelX}): ${context.parsed.x}`,
+                                        `Y (${labelY}): ${context.parsed.y}`,
+                                        `Annomally detected: ${context.raw.z}`,
+                                    ]
+                                    return regressionFormula
+                                }
+                            }
+                        },
+                    },   
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: labelX,
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            title: {
+                                display: true,
+                                text: labelY,
+                            },
+                        },
+                    }
+                }
+            });
+
+            function UpdateChart(){
+
+              myScatter.resetZoom(mode='none')
+
+              const x_variable = document.getElementById('selectedXVariable').value;
+              const y_variable = document.getElementById('selectedYVariable').value;
+
+              const sel_color = document.getElementById('colorInput').value;
+              const sel_color2 = document.getElementById('colorInput2').value;
+
+              if (x_variable=="Choose one variable..."){
+                  alert("Please select one variable to be assigned to X axis.");
+                  return
+              }
+                  
+              if (y_variable=="Choose one variable...")
+              {
+                  alert("Please select one variable to be assigned to Y axis.");
+                  return
+              }
+
+              xyValues.length = 0
+              colorPoints.length = 0
+              pos= 0;
+
+              tests.forEach(line => {
+                  //console.log("X:", line[x_variable], "Y:", line[y_variable])
+                  state = "No"
+                  if (results[pos] == -1) {
+                    state = "Yes"
+                  }
+
+                  xyValues.push({
+                      'x': line[x_variable],
+                      'y': line[y_variable],
+                      'z': state,
+                  })
+
+                  // Verificar a variavel de cor (se é ou nao annomally)
+                  if(results[pos] == -1){
+                    colorPoints.push(sel_color2)
+                  } else {
+                    colorPoints.push(sel_color)
+                  }
+                  pos = pos+1
+     
+              });
+
+              //console.log(xyValues)
+
+              myScatter.options.scales.y.title.text = labelY
+              myScatter.options.scales.x.title.text = labelX
+              myScatter.data.datasets[0].data = xyValues;
+              myScatter.data.datasets[0].pointBackgroundColor = colorPoints;
+              myScatter.data.datasets[0].pointsBorderColor = colorPoints;
+              myScatter.options.elements.point.borderColor = colorPoints;
+
+              // Update the chart
+              myScatter.update()
+              }
 
             </script>
 
@@ -386,6 +603,8 @@
 
             <div>&MediumSpace;</div>
 
+            {% if Model.modelType != 'detection' %}
+
             <div class="form-group row">
               <!-- UUID field -->
               <label for="pVariable" class="col-sm-2 col-form-label">Prediction variable</label>
@@ -431,6 +650,8 @@
               </div> 
 
             </div>
+
+            {% endif %}
 
             <hr>
 
@@ -644,4 +865,9 @@
     </div>
   </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 {% endblock %}

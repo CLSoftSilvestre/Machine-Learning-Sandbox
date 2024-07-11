@@ -138,3 +138,41 @@ class PredictionBatch:
     def __init__(self, model, predictions):
         self.model = model
         self.prediction = predictions
+
+class DetectionModel:
+
+    def __init__(self):
+        self.uuid = str(uuid.uuid4())
+    
+    def Setup(self, name, description, keywords, model, variables):
+        self.name = name
+        self.description = description
+        self.keywords = keywords
+        self.model = model
+        self.datetime = datetime.now()
+        self.variables = variables
+        self.MSE = 1
+        self.RMSE = 1
+        self.R2 = 1
+        self.modelType = "detection"
+        self.dataStudio = DataStudio()
+        self.realTestList = list()
+        self.predTestList = list()
+    
+    def SetModelPath(self, path):
+        self.modelPath = path
+    
+    def SetModelVersion(self, modelVersion, appVersion):
+        self.modelVersion = modelVersion
+        self.appversion = appVersion
+    
+    def SetModelType(self, modelType):
+        self.modelType = modelType
+    
+    def SetTestData(self, realTest, predTest):
+        self.realTestList = realTest
+        self.predTestList = predTest
+          
+    def SetDataStudioData(self, data):
+        self.dataStudio = data
+    

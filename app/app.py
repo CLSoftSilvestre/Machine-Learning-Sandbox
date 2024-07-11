@@ -23,7 +23,7 @@ from sklearn.neural_network import MLPRegressor
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
-from models import LinearRegression, KnnRegression, model_data_input, knn_regressor_params, base_params, svm_regressor_params, random_forest_regressor_params
+from models import LinearRegression, KnnRegression, LofDetection, IsolationForestDetection, model_data_input, lof_detection_params, knn_regressor_params, base_params, svm_regressor_params, random_forest_regressor_params, isolationForest_detection_params
 
 
 from sklearn.model_selection import train_test_split
@@ -253,6 +253,14 @@ def details(uuid):
     for model in modelsList:
         if (model.uuid == uuid):
             equation = ""
+
+            if model.modelType == "detection":
+                values = pd.DataFrame(model.realTestList)
+                #print(values, file=sys.stderr)
+                rawdata = list(values.values.tolist())
+                #print(rawdata, file=sys.stderr)
+                return render_template('details.html', Model=model, equation=equation, rawdata=rawdata)
+
             # Check if it's linear regression and calculate the equation
             if str(model.model) == "LinearRegression()":
                 equation = "y = "
@@ -262,7 +270,6 @@ def details(uuid):
                     pos = pos+1
                 
                 equation = equation + str(round(model.model.intercept_,3))
-
 
             return render_template('details.html', Model=model, equation=equation)
   
@@ -335,8 +342,9 @@ def predict(uuid):
             if (model.uuid == uuid):
                 activeModel = model
                 try:
-                    result =model.model.predict(inputData)
-                except:
+                    result = model.model.predict(inputData)
+                except Exception as error:
+                    print(str(error), file=sys.stderr)
                     return render_template('predict.html', Model=activeModel, Error=True) 
 
         #print(round(result[0][0],2), file=sys.stderr)
@@ -346,12 +354,15 @@ def predict(uuid):
                 resultValue = result[0][0]
             except:
                 resultValue = result[0]
-            #return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(result[0][0],2)))
-            # Calculate the min and max expected according MSE score
-            minResult = resultValue - (math.sqrt(activeModel.MSE)/2)
-            maxResult = resultValue + (math.sqrt(activeModel.MSE)/2)
-
-            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
+            
+            if activeModel.modelType != "detection":
+                #return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(result[0][0],2)))
+                # Calculate the min and max expected according MSE score
+                minResult = resultValue - (math.sqrt(activeModel.MSE)/2)
+                maxResult = resultValue + (math.sqrt(activeModel.MSE)/2)
+                return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
+            else:
+                return render_template('predict.html', Model=activeModel, Result=resultValue, Features=features)
         else:
             return redirect(url_for('index'))
 
@@ -620,7 +631,7 @@ def datastudio():
                             "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
                             )
 
-            print(config.Ollama, file=sys.stderr)
+            #print(config.Ollama, file=sys.stderr)
 
 
             return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console, config=config)
@@ -783,6 +794,98 @@ def knnreg():
         # TODO: Add here the code to push the max of features to the page
         featuresCount = len(session['temp_df_x'].columns)
         return render_template('knnreg.html', FeaturesCount = featuresCount)
+
+@app.route("/lof/", methods=['GET', 'POST'])
+def lof():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    if(request.method == 'POST'):
+
+        params = lof_detection_params()
+        params.name = request.form['name']
+        params.description = request.form['description']
+        params.keywords = request.form['keywords'].split(";")
+        params.scaling = True
+        params.featureRed = False
+        params.testSize = int(request.form['testsize']) / 100
+
+        params.novelty = True
+        params.n_neighbors = int(request.form['neighbors'])
+        params.algorithm = request.form['algorithm']
+        params.leaf_size = int(request.form['leaf'])
+        params.p = int(request.form['p2'])
+        params.metric = request.form['metric']
+
+        if request.form['n_jobs'] == 'none':
+            params.n_jobs = None
+        else:
+            params.n_jobs == -1
+
+        pModel = LofDetection(session['temp_df'], session['temp_df_units'], params)
+        # Setup the remaing data of the model
+        pModel.SetModelVersion(model_version, appversion)
+        pModel.SetDataStudioData(session['data_studio'])
+
+        # Save the model
+        mMan = ModelManager()
+        modelFileName = params.name + ".model"
+        filepath = os.path.join(app.root_path, 'models', modelFileName)
+        mMan.SaveModel(pModel, filepath)
+
+        UpdateModelsList()
+        return redirect('/sandbox')
+    
+    else:
+        # TODO: Add here the code to push the max of features to the page
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('lof.html', FeaturesCount = featuresCount)
+
+@app.route("/isolationforest/", methods=['GET', 'POST'])
+def isolationforest():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    if(request.method == 'POST'):
+
+        params = isolationForest_detection_params()
+        params.name = request.form['name']
+        params.description = request.form['description']
+        params.keywords = request.form['keywords'].split(";")
+        params.scaling = True
+        params.featureRed = False
+        #params.testSize = int(request.form['testsize']) / 100
+        params.testSize = 0.3
+
+        params.n_estimators=int(request.form['estimators'])
+        params.max_samples='auto'
+        params.contamination ='auto'
+        params.max_features=1.0
+        params.bootstrap=False
+        params.n_jobs=None
+        params.random_state=None
+        params.verbose=0
+        params.warm_start=False
+
+        pModel = IsolationForestDetection(session['temp_df'], session['temp_df_units'], params)
+        # Setup the remaing data of the model
+        pModel.SetModelVersion(model_version, appversion)
+        pModel.SetDataStudioData(session['data_studio'])
+
+        # Save the model
+        mMan = ModelManager()
+        modelFileName = params.name + ".model"
+        filepath = os.path.join(app.root_path, 'models', modelFileName)
+        mMan.SaveModel(pModel, filepath)
+
+        UpdateModelsList()
+        return redirect('/sandbox')
+    
+    else:
+        # TODO: Add here the code to push the max of features to the page
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('isolationforest.html', FeaturesCount = featuresCount)
+
 
 @app.route("/knn/", methods=['GET', 'POST'])
 def knn():
