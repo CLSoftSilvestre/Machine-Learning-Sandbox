@@ -158,6 +158,7 @@ class DetectionModel:
         self.dataStudio = DataStudio()
         self.realTestList = list()
         self.predTestList = list()
+        self.predTestScore = list()
     
     def SetModelPath(self, path):
         self.modelPath = path
@@ -169,9 +170,10 @@ class DetectionModel:
     def SetModelType(self, modelType):
         self.modelType = modelType
     
-    def SetTestData(self, realTest, predTest):
+    def SetTestData(self, realTest, predTest, predScore):
         self.realTestList = realTest
         self.predTestList = predTest
+        self.predTestScore = predScore
           
     def SetDataStudioData(self, data):
         self.dataStudio = data

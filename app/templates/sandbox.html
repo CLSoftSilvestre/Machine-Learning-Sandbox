@@ -90,8 +90,12 @@
                                     </div>
                                   </td>
                                   {% else %}
-                                  <td></td>
-                                  <td></td>
+                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better" id="tour-index-rmse">N/D</td>
+                                  <td style="vertical-align: middle;" id="tour-index-r2">
+                                    <div class="progress">
+                                      <div class="progress-bar bg-secondary" style="width:100%">not defined</div>
+                                    </div> 
+                                  </td>
                                   {% endif %}
 
                                   <td style="vertical-align: middle;">

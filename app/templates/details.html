@@ -331,6 +331,7 @@
               // print(predTest, file=sys.stderr)
               var tests = []
               var results = []
+              var score = []
 
               //console.log({{Model.realTestList[]}})
               {% for row in rawdata %}
@@ -340,12 +341,14 @@
 
               {% for i in range(0,(Model.predTestList)| length ) %}
                 results.push({{Model.predTestList[i]}})
-                // console.log("Data Prediction: " + {{Model.predTestList[i]}})
+                score.push({{Model.predTestScore[i]}})
+                console.log("Data Prediction Score: " + {{Model.predTestScore[i]}})
               {% endfor %}
 
               // Setup the data 
               var xyValues = [{x:0, y:0}]
               var colorPoints = ['#91d754']
+              var scorePoints = [1]
 
               // Update the labels
               var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
@@ -359,18 +362,15 @@
                     {
                       label: 'Scatter plot',
                       type: "scatter",
-                      pointRadius: 3,
-                      pointBackgroundColor: colorPoints,
+                      //pointRadius: scorePoints,
+                      borderWidth: 2,
+                      //pointBackgroundColor: "#ffffff",
                       pointsBorderColor: colorPoints,
+                      borderColor: colorPoints,
                       data: xyValues
                   }]
                 },
                 options:{
-                    elements:{
-                        point:{
-                            borderColor: colorPoints,
-                        }
-                    },
                     plugins:{
                         legend: {
                             display: false
@@ -398,6 +398,7 @@
                                         `X (${labelX}): ${context.parsed.x}`,
                                         `Y (${labelY}): ${context.parsed.y}`,
                                         `Annomally detected: ${context.raw.z}`,
+                                        `Annomally score: ${context.raw.score}`,
                                     ]
                                     return regressionFormula
                                 }
@@ -434,6 +435,9 @@
               const sel_color = document.getElementById('colorInput').value;
               const sel_color2 = document.getElementById('colorInput2').value;
 
+              var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
+              var labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
+
               if (x_variable=="Choose one variable..."){
                   alert("Please select one variable to be assigned to X axis.");
                   return
@@ -447,6 +451,7 @@
 
               xyValues.length = 0
               colorPoints.length = 0
+              scorePoints.length = 0
               pos= 0;
 
               tests.forEach(line => {
@@ -460,14 +465,26 @@
                       'x': line[x_variable],
                       'y': line[y_variable],
                       'z': state,
+                      'score': score[pos],
                   })
-
+                  
                   // Verificar a variavel de cor (se é ou nao annomally)
                   if(results[pos] == -1){
                     colorPoints.push(sel_color2)
                   } else {
                     colorPoints.push(sel_color)
                   }
+
+                  // Adicionar o score (Escalar de -1 a 1)
+                  valSize= 1
+                  if (score[pos] > 0){
+                    valSize = ((score[pos]-1)/2)*-5
+                  } else {
+                    valSize = ((score[pos]-1)/2)*-10
+                  }
+                  
+                  scorePoints.push(valSize)
+
                   pos = pos+1
      
               });
@@ -477,8 +494,9 @@
               myScatter.options.scales.y.title.text = labelY
               myScatter.options.scales.x.title.text = labelX
               myScatter.data.datasets[0].data = xyValues;
-              myScatter.data.datasets[0].pointBackgroundColor = colorPoints;
+              myScatter.data.datasets[0].pointBackgroundColor = '#ffffffbb';
               myScatter.data.datasets[0].pointsBorderColor = colorPoints;
+              myScatter.data.datasets[0].pointRadius = scorePoints;;
               myScatter.options.elements.point.borderColor = colorPoints;
 
               // Update the chart

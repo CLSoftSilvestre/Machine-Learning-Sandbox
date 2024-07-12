@@ -809,7 +809,7 @@ def lof():
         params.scaling = True
         params.featureRed = False
         params.testSize = int(request.form['testsize']) / 100
-
+        params.contamination = float(request.form['contamination'])
         params.novelty = True
         params.n_neighbors = int(request.form['neighbors'])
         params.algorithm = request.form['algorithm']
@@ -859,7 +859,7 @@ def isolationforest():
 
         params.n_estimators=int(request.form['estimators'])
         params.max_samples='auto'
-        params.contamination ='auto'
+        params.contamination = float(request.form['contamination'])
         params.max_features=1.0
         params.bootstrap=False
         params.n_jobs=None
@@ -1698,22 +1698,39 @@ def ApiPredict(uuid):
                     except:
                         innerResult = result[0]
                     
-                    minResult = innerResult - (math.sqrt(model.MSE)/2)
-                    maxResult = innerResult + (math.sqrt(model.MSE)/2)
+                    if model.modelType != "detection":
+                        minResult = innerResult - (math.sqrt(model.MSE)/2)
+                        maxResult = innerResult + (math.sqrt(model.MSE)/2)
 
-                    data = {
-                        "UUID" : model.uuid,
-                        "Model" : model.name,
-                        "Description" : model.description,
-                        "Prediction" : innerResult,
-                        "MinPrediction" : minResult,
-                        "MaxPrediction" : maxResult,
-                        "Features": json.loads(featuresJson)
-                    }
+                        data = {
+                            "UUID" : model.uuid,
+                            "Model" : model.name,
+                            "Description" : model.description,
+                            "Prediction" : innerResult,
+                            "MinPrediction" : minResult,
+                            "MaxPrediction" : maxResult,
+                            "Features": json.loads(featuresJson)
+                        }
 
-                    return jsonify(data), 200
-                except:
+                        return jsonify(data), 200
+                    else:
+                        isAnomally = False
+                        if innerResult == -1:
+                            isAnomally = True
 
+                        data = {
+                            "UUID" : model.uuid,
+                            "Model" : model.name,
+                            "Description" : model.description,
+                            "Prediction" : str(innerResult),
+                            "IsAnomaly" : isAnomally,
+                            "Features": json.loads(featuresJson)
+                        }
+
+                        return jsonify(data), 200
+
+                except Exception as error:
+                    print(str(error), file=sys.stderr)
                     return "Error predicting value.", 404
         
         return "Model not found", 404

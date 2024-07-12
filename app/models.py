@@ -16,6 +16,7 @@ from outlierextractor import OutlierExtractor
 
 import sys
 import pandas as pd
+import numpy as np
 
 # Models Parameters
 class model_data_input():
@@ -224,7 +225,7 @@ def KnnRegression(df_y, df_y_name, df_x, units, params : knn_regressor_params = 
 
 # Creates and returns one anomaly detection object with LOF
 def LofDetection(df, units, params : lof_detection_params = 0):
-    lof = make_pipeline(StandardScaler(), Normalizer(), LocalOutlierFactor(n_neighbors=params.n_neighbors, novelty=True))
+    lof = make_pipeline(StandardScaler(), LocalOutlierFactor(contamination=params.contamination, n_neighbors=params.n_neighbors, novelty=True))
     
     # set train / test groups
     train_df, test_df = train_test_split(df, test_size=params.testSize, random_state=42)
@@ -255,17 +256,15 @@ def LofDetection(df, units, params : lof_detection_params = 0):
     pModel = DetectionModel()
     pModel.Setup(params.name, params.description, params.keywords, lof, inputFeatures)
     pModel.SetModelType("detection")
-    pModel.SetTestData(test_df, y_pred_test)
+    scoreSamples = lof.decision_function(test_df)
+    pModel.SetTestData(test_df, y_pred_test, scoreSamples)
 
     return pModel
 
 # Creates and returns one annomally detection object with IsolationForest
 def IsolationForestDetection(df, units, params : isolationForest_detection_params = 0):
 
-    #ss = Normalizer(copy=False)
-    #ss.fit(df)
-
-    ifd = make_pipeline(StandardScaler(),Normalizer(), IsolationForest(max_samples=params.max_samples, random_state=params.random_state))
+    ifd = make_pipeline(StandardScaler(), IsolationForest(contamination=params.contamination, max_samples=params.max_samples, random_state=params.random_state))
     
     # set train / test groups
     train_df, test_df = train_test_split(df, test_size=params.testSize, random_state=42)
@@ -297,6 +296,7 @@ def IsolationForestDetection(df, units, params : isolationForest_detection_param
     pModel = DetectionModel()
     pModel.Setup(params.name, params.description, params.keywords, ifd, inputFeatures)
     pModel.SetModelType("detection")
-    pModel.SetTestData(test_df, y_pred_test)
+    scoreSamples = ifd.decision_function(test_df)
+    pModel.SetTestData(test_df, y_pred_test, scoreSamples)
 
     return pModel
