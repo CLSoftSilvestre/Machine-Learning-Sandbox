@@ -478,9 +478,11 @@
                   // Adicionar o score (Escalar de -1 a 1)
                   valSize= 1
                   if (score[pos] > 0){
-                    valSize = ((score[pos]-1)/2)*-5
+                    //valSize = ((score[pos]-1)/2)*1
+                    valSize = 2;
                   } else {
-                    valSize = ((score[pos]-1)/2)*-10
+                    //valSize = ((score[pos]-1)/2)*-1
+                    valSize = 4;
                   }
                   
                   scorePoints.push(valSize)
