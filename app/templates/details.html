@@ -342,7 +342,7 @@
               {% for i in range(0,(Model.predTestList)| length ) %}
                 results.push({{Model.predTestList[i]}})
                 score.push({{Model.predTestScore[i]}})
-                console.log("Data Prediction Score: " + {{Model.predTestScore[i]}})
+                // console.log("Data Prediction Score: " + {{Model.predTestScore[i]}})
               {% endfor %}
 
               // Setup the data 
@@ -394,13 +394,13 @@
                         tooltip: {
                             callbacks: {
                                 label: (context) => {
-                                    const regressionFormula = [
+                                    const newLabel = [
                                         `X (${labelX}): ${context.parsed.x}`,
                                         `Y (${labelY}): ${context.parsed.y}`,
-                                        `Annomally detected: ${context.raw.z}`,
-                                        `Annomally score: ${context.raw.score}`,
+                                        `Anomaly detected: ${context.raw.z}`,
+                                        `Anomaly score: ${context.raw.score}`,
                                     ]
-                                    return regressionFormula
+                                    return newLabel
                                 }
                             }
                         },
@@ -435,9 +435,6 @@
               const sel_color = document.getElementById('colorInput').value;
               const sel_color2 = document.getElementById('colorInput2').value;
 
-              var labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
-              var labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
-
               if (x_variable=="Choose one variable..."){
                   alert("Please select one variable to be assigned to X axis.");
                   return
@@ -468,7 +465,7 @@
                       'score': score[pos],
                   })
                   
-                  // Verificar a variavel de cor (se é ou nao annomally)
+                  // Verificar a variavel de cor (se é ou nao anomaly)
                   if(results[pos] == -1){
                     colorPoints.push(sel_color2)
                   } else {
@@ -492,9 +489,12 @@
               });
 
               //console.log(xyValues)
+              labelX = document.getElementById('selectedXVariable').options[document.getElementById("selectedXVariable").selectedIndex ].text;
+              labelY = document.getElementById('selectedYVariable').options[document.getElementById("selectedYVariable").selectedIndex ].text;
 
               myScatter.options.scales.y.title.text = labelY
               myScatter.options.scales.x.title.text = labelX
+
               myScatter.data.datasets[0].data = xyValues;
               myScatter.data.datasets[0].pointBackgroundColor = '#ffffffbb';
               myScatter.data.datasets[0].pointsBorderColor = colorPoints;
