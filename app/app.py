@@ -50,6 +50,8 @@ import copy
 from urllib.request import urlopen
 from urllib.error import *
 
+import pygwalker as pyg
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -148,6 +150,7 @@ def configurator():
         useOllama = bool(request.form.get('useOllama'))
         ollamaPath = request.form['ollamaEndpoint']
         ollamaModel = request.form['ollamaModel']
+        usePyGWalker = bool(request.form.get('usePyGWalker'))
 
         configuration = Configuration()
 
@@ -169,6 +172,7 @@ def configurator():
         configuration.SetBase(useAuth)
         configuration.SetNodeRed(useNodeRed, nodeRedPath)
         configuration.SetOllama(useOllama, ollamaModel, ollamaPath)
+        configuration.SetPyGWalker(usePyGWalker)
 
         cfMan = Configurator()
         configName = "base.conf"
@@ -632,9 +636,12 @@ def datastudio():
                             )
 
             #print(config.Ollama, file=sys.stderr)
+            if (config.usePyGWalker == True):
+                visualizationData = pyg.to_html(session['data_studio'].processedData, default_tab='data', appearance='light')
+            else:
+                visualizationData = ""
 
-
-            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console, config=config)
+            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console, config=config,html_str=visualizationData)
         else:
             emptyList = []
             emptyList.append((0,1))

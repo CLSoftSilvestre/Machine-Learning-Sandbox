@@ -83,6 +83,9 @@ class Configuration():
         self.OllamaModel = model
         self.OllamaEndpoint = endpoint
     
+    def SetPyGWalker(self, use):
+        self.usePyGWalker = use
+    
     def AddAppUser(self, user : AppUser = 0):
         self.users.append(user)
     

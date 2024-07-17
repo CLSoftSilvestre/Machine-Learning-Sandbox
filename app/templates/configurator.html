@@ -11,7 +11,7 @@
         <form method="POST">
           <div class="card-body">
 
-            <div class="form-check">
+            <div class="form-check form-switch">
               <input id="useAutentication" class="form-check-input" type="checkbox" name="useAutentication" value="true">
               <label for="useAutentication" class="form-check-label">Use autentication system</label>
             </div>
@@ -23,7 +23,7 @@
 
             <hr>
 
-            <div class="form-check">
+            <div class="form-check form-switch">
               <input id="useNodeRed" class="form-check-input" type="checkbox" name="useNodeRed" value="false">
               <label for="useNodeRed" class="form-check-label">Use Node-Red integration</label>
             </div>
@@ -35,7 +35,7 @@
 
             <hr>
 
-            <div class="form-check">
+            <div class="form-check form-switch">
               <input id="useOllama" class="form-check-input" type="checkbox" name="useOllama" value="false">
               <label for="useOllama" class="form-check-label">Use Ollama integration</label>
             </div>
@@ -49,10 +49,21 @@
               <label for="ollamaModel" class="form-label">Ollama Model</label>
               <input type="text" class="form-control" name="ollamaModel" id="ollamaModel" placeholder="gemma:2b">
             </div>
+
+            <hr>
+
+            <div class="form-check form-switch">
+              <input id="usePyGWalker" class="form-check-input" type="checkbox" name="usePyGWalker" value="false">
+              <label for="usePyGWalker" class="form-check-label">Use PyGWalker advanced data visualization framework</label>
+            </div>
+
+            <br>
+
             <div class="d-grid gap3">
               <button type="submit" class="btn btn-primary block">Save initial configuration</button>
             </div>
-            
+
+          
           </div>
 
         </form>

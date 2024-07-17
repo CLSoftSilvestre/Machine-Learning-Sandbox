@@ -93,6 +93,11 @@
 
                     <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Scatter" data-bs-toggle="modal" data-bs-target="#scatterplot" id="tour-train-scatter"><i class="fa fa-chart-line"></i> Scatter plot</a>
 
+                    
+                    {% if config.usePyGWalker %}
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Visualization" data-bs-toggle="modal" data-bs-target="#visualization" id="tour-train-visual"><i class="fa fa-binoculars"></i> Data Exploration</a>
+                    {% endif %}
+
                     <a class="btn btn-primary" type="button" href="{{ url_for('downloaddatastudio')}}" id="tour-train-import-export"><i class="fas fa-download"></i> Download this dataset</a>
 
                     <form method="post">
@@ -1742,6 +1747,23 @@
 
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!--Data visualization Modal -->
+<div class="modal fade" id="visualization" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="visualizationLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+
+        <div class="modal-content ">
+            <div class="modal-header">
+                <h5 class="modal-title" id="visualizationLabel">Data Exploration - Powered by PyGWalker</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body overflow-scroll">
+                {{ html_str|safe }}                    
+            </div>
         </div>
     </div>
 </div>

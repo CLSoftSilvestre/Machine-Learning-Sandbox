@@ -17,3 +17,4 @@ gunicorn
 urlopen
 langchain
 ollama
+pygwalker
