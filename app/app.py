@@ -247,6 +247,10 @@ def usage():
 
     return render_template('usage.html')
 
+@app.route("/test/", methods=['GET'])
+def test():
+    return render_template('test.html', models=modelsList)
+
 @app.route("/flows/", methods=['GET'])
 def flows():
     conf = confList[0]
