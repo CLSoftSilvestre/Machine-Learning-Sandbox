@@ -6,12 +6,13 @@
   }
   
   html, body {
-    margin: 0px;
-    padding: 0px;
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    font-family: 'Roboto', sans-serif;
+  }
+
+  .panelmenu-content-container{
+    padding-top: 15px;
   }
   
   header {
@@ -24,23 +25,6 @@
     line-height: 66px;
   }
   header a {
-    color: black;
-  }
-  .them-edit-link {
-    position: absolute;
-    top: 10px;
-    right: 100px;
-    color: black;
-    font-size: 40px;
-  }
-  .them-edit-link a {
-    text-decoration: none;
-  }
-  
-  .github-link{
-    position: absolute;
-    top: 10px;
-    right: 20px;
     color: black;
   }
   
@@ -79,26 +63,56 @@
   
   .menu ul li {
     display: inline-block;
-  margin-left: 10px;
-  border-right: 1px solid var(--border-color);
-  padding-right: 10px;
-  line-height: 40px;
-  cursor: pointer;
+    margin-left: 10px;
+    border-right: 1px solid var(--border-color);
+    padding-right: 10px;
+    line-height: 40px;
+    cursor: pointer;
   }
   
   .menu ul li.selected {
     font-weight: bold;
   }
-  
-  .btn-export {
+
+  .btn-start {
     float: right;
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 15px;
+    right: 130px;
     color: white;
-    font-weight: bold;
-    border: 1px solid #0e5ba3;
-    background: #4ea9ff;
+    font-size: 20px;
+    border: 1px solid #005C44;
+    background: #008F6A;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 5;
+  }
+
+  .btn-stop {
+    float: right;
+    position: absolute;
+    top: 15px;
+    right: 130px;
+    color: white;
+    font-size: 20px;
+    border: 1px solid #8f7a00;
+    background: #8f7a00;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 5;
+  }
+
+  .btn-save {
+    float: right;
+    position: absolute;
+    top: 15px;
+    right: 70px;
+    color: white;
+    font-size: 20px;
+    border: 1px solid #005C44;
+    background: #008F6A;
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
@@ -108,10 +122,10 @@
   .btn-clear {
     float: right;
     position: absolute;
-    top: 10px;
-    right: 85px;
+    top: 15px;
+    right: 10px;
     color: white;
-    font-weight: bold;
+    font-size: 20px;
     border: 1px solid #96015b;
     background: #e3195a;
     padding: 5px 10px;
@@ -126,29 +140,33 @@
   .btn-lock {
     float: right;
     position: absolute;
-    bottom: 10px;
-    right: 140px;
+    bottom: 20px;
+    right: 120px;
     display: flex;
     font-size: 24px;
     color: white;
     padding: 5px 10px;
-    background: #555555;
+    background: #81D4C0;
     border-radius: 4px;
     border-right: 1px solid var(--border-color);
     z-index: 5;
     cursor: pointer;
   }
+
+  .btn-lock:hover {
+    color: #D9EDE7;
+  }
   
   .bar-zoom {
     float: right;
     position: absolute;
-    bottom: 10px;
+    bottom: 20px;
     right: 10px;
     display: flex;
     font-size: 24px;
     color: white;
     padding: 5px 10px;
-    background: #555555;
+    background: #81D4C0;
     border-radius: 4px;
     border-right: 1px solid var(--border-color);
     z-index: 5;
@@ -159,6 +177,10 @@
   }
   .bar-zoom svg:nth-child(1) {
     padding-left: 0px;
+  }
+
+  .bar-zoom svg:hover {
+    color: #D9EDE7;
   }
   
   #drawflow {
@@ -243,26 +265,27 @@
   }
   
   .drawflow-delete {
-    border: 2px solid #4ea9ff;
+    border: 2px solid #ff4e4e;
     background: white;
-    color: #4ea9ff;
-    -webkit-box-shadow: 0 2px 20px 2px #4ea9ff;
-    box-shadow: 0 2px 20px 2px #4ea9ff;
+    color: #ff4e4e;
+    -webkit-box-shadow: 0 1px 10px 1px #ff4e4e;
+    box-shadow: 0 1px 10px 1px #ff4e4e;
   }
   
   .drawflow-node .title-box {
-    height: 50px;
+    height: 45px;
     line-height: 50px;
     background: var(--background-box-title);
     border-bottom: 1px solid #e9e9e9;
     border-radius: 4px 4px 0px 0px;
     padding-left: 10px;
+    padding-right: 10px;
   }
   .drawflow .title-box svg {
     position: initial;
   }
   .drawflow-node .box {
-    padding: 10px 20px 20px 20px;
+    padding: 10px 10px 10px 10px;
     font-size: 14px;
     color: #555555;
   

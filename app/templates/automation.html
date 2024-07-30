@@ -13,13 +13,9 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
   <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
 
-  <h3 class="m-4">Teste</h3>
-
-  <header hidden>
-    <h2>Drawflow</h2>
-    <div class="github-link"><a href="https://github.com/jerosoler/Drawflow" target="_blank"><i class="fab fa-github fa-3x"></i></a></div>
-    <div class="them-edit-link"><a href="https://jerosoler.github.io/drawflow-theme-generator/" target="_blank">🎨</a></div>
-  </header>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="text/javascript" src="../static/js/polyfit.js"></script>
 
   <div class="wrapper">
     <div class="col">
@@ -69,6 +65,11 @@
                   <i class="fa-solid fa-hashtag"></i><span> Static value</span>
                 </div>
 
+                <!-- Random value Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="random_value">
+                  <i class="fa-solid fa-dice"></i><span> Random value</span>
+                </div>
+
               </div>
             </div>
           </div>
@@ -88,7 +89,11 @@
                 <!-- Models Nodes -->
                 {% for model in models %}
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="model_{{loop.index0}}">
+                  {% if model.uuid == Model.uuid %}
+                  <b><i class="fa-solid fa-square-root-variable"></i><span> Model {{model.name}}</span></b>
+                  {% else %}
                   <i class="fa-solid fa-square-root-variable"></i><span> Model {{model.name}}</span>
+                  {% endif %}
                 </div>
                 {% endfor %}
 
@@ -152,6 +157,10 @@
                   <i class="fa-solid fa-at"></i><span> Email</span>
                 </div>
 
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_chart">
+                  <i class="fa-solid fa-chart-line"></i><span> Line Chart</span>
+                </div>
+
               </div>
             </div>
           </div>
@@ -206,10 +215,15 @@
         </ul>
       </div>
       <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
-        <div class="btn-export" onclick="Swal.fire({ title: 'Export',
-        html: '<pre><code>'+JSON.stringify(editor.export(), null,4)+'</code></pre>'
-        })">Export</div>
-        <div class="btn-clear" onclick="editor.clearModuleSelected()">Clear</div>
+
+        {% if Run == True %}
+        <div class="btn-stop" onclick="stopFlow()"><i class="fa-solid fa-stop"></i></div>
+        {% else %}
+        <div class="btn-start" onclick="startFlow()"><i class="fa-solid fa-play"></i></div>
+        {% endif %}
+
+        <div class="btn-save" onclick="saveDiagram()"><i class="fa-solid fa-floppy-disk"></i></div>
+        <div class="btn-clear" onclick="editor.clearModuleSelected()"><i class="fa-solid fa-trash-can"></i></div>
         <div class="btn-lock">
           <i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
           <i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i>
@@ -227,29 +241,13 @@
     var id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
     editor.reroute = true;
-    //const dataToImport = {"drawflow":{"Home":{"data":{"1":{"id":1,"name":"welcome","data":{},"class":"welcome","html":"\n    <div>\n      <div class=\"title-box\">👏 Welcome!!</div>\n      <div class=\"box\">\n        <p>Simple flow library <b>demo</b>\n        <a href=\"https://github.com/jerosoler/Drawflow\" target=\"_blank\">Drawflow</a> by <b>Jero Soler</b></p><br>\n\n        <p>Multiple input / outputs<br>\n           Data sync nodes<br>\n           Import / export<br>\n           Modules support<br>\n           Simple use<br>\n           Type: Fixed or Edit<br>\n           Events: view console<br>\n           Pure Javascript<br>\n        </p>\n        <br>\n        <p><b><u>Shortkeys:</u></b></p>\n        <p>🎹 <b>Delete</b> for remove selected<br>\n        💠 Mouse Left Click == Move<br>\n        ❌ Mouse Right == Delete Option<br>\n        🔍 Ctrl + Wheel == Zoom<br>\n        📱 Mobile support<br>\n        ...</p>\n      </div>\n    </div>\n    ","typenode": false, "inputs":{},"outputs":{},"pos_x":50,"pos_y":50},"2":{"id":2,"name":"slack","data":{},"class":"slack","html":"\n          <div>\n            <div class=\"title-box\"><i class=\"fab fa-slack\"></i> Slack chat message</div>\n          </div>\n          ","typenode": false, "inputs":{"input_1":{"connections":[{"node":"7","input":"output_1"}]}},"outputs":{},"pos_x":1028,"pos_y":87},"3":{"id":3,"name":"telegram","data":{"channel":"channel_2"},"class":"telegram","html":"\n          <div>\n            <div class=\"title-box\"><i class=\"fab fa-telegram-plane\"></i> Telegram bot</div>\n            <div class=\"box\">\n              <p>Send to telegram</p>\n              <p>select channel</p>\n              <select df-channel>\n                <option value=\"channel_1\">Channel 1</option>\n                <option value=\"channel_2\">Channel 2</option>\n                <option value=\"channel_3\">Channel 3</option>\n                <option value=\"channel_4\">Channel 4</option>\n              </select>\n            </div>\n          </div>\n          ","typenode": false, "inputs":{"input_1":{"connections":[{"node":"7","input":"output_1"}]}},"outputs":{},"pos_x":1032,"pos_y":184},"4":{"id":4,"name":"email","data":{},"class":"email","html":"\n            <div>\n              <div class=\"title-box\"><i class=\"fas fa-at\"></i> Send Email </div>\n            </div>\n            ","typenode": false, "inputs":{"input_1":{"connections":[{"node":"5","input":"output_1"}]}},"outputs":{},"pos_x":1033,"pos_y":439},"5":{"id":5,"name":"template","data":{"template":"Write your template"},"class":"template","html":"\n            <div>\n              <div class=\"title-box\"><i class=\"fas fa-code\"></i> Template</div>\n              <div class=\"box\">\n                Ger Vars\n                <textarea df-template></textarea>\n                Output template with vars\n              </div>\n            </div>\n            ","typenode": false, "inputs":{"input_1":{"connections":[{"node":"6","input":"output_1"}]}},"outputs":{"output_1":{"connections":[{"node":"4","output":"input_1"},{"node":"11","output":"input_1"}]}},"pos_x":607,"pos_y":304},"6":{"id":6,"name":"github","data":{"name":"https://github.com/jerosoler/Drawflow"},"class":"github","html":"\n          <div>\n            <div class=\"title-box\"><i class=\"fab fa-github \"></i> Github Stars</div>\n            <div class=\"box\">\n              <p>Enter repository url</p>\n            <input type=\"text\" df-name>\n            </div>\n          </div>\n          ","typenode": false, "inputs":{},"outputs":{"output_1":{"connections":[{"node":"5","output":"input_1"}]}},"pos_x":341,"pos_y":191},"7":{"id":7,"name":"facebook","data":{},"class":"facebook","html":"\n        <div>\n          <div class=\"title-box\"><i class=\"fab fa-facebook\"></i> Facebook Message</div>\n        </div>\n        ","typenode": false, "inputs":{},"outputs":{"output_1":{"connections":[{"node":"2","output":"input_1"},{"node":"3","output":"input_1"},{"node":"11","output":"input_1"}]}},"pos_x":347,"pos_y":87},"11":{"id":11,"name":"log","data":{},"class":"log","html":"\n            <div>\n              <div class=\"title-box\"><i class=\"fas fa-file-signature\"></i> Save log file </div>\n            </div>\n            ","typenode": false, "inputs":{"input_1":{"connections":[{"node":"5","input":"output_1"},{"node":"7","input":"output_1"}]}},"outputs":{},"pos_x":1031,"pos_y":363}}},"Other":{"data":{"8":{"id":8,"name":"personalized","data":{},"class":"personalized","html":"\n            <div>\n              Personalized\n            </div>\n            ","typenode": false, "inputs":{"input_1":{"connections":[{"node":"12","input":"output_1"},{"node":"12","input":"output_2"},{"node":"12","input":"output_3"},{"node":"12","input":"output_4"}]}},"outputs":{"output_1":{"connections":[{"node":"9","output":"input_1"}]}},"pos_x":764,"pos_y":227},"9":{"id":9,"name":"dbclick","data":{"name":"Hello World!!"},"class":"dbclick","html":"\n            <div>\n            <div class=\"title-box\"><i class=\"fas fa-mouse\"></i> Db Click</div>\n              <div class=\"box dbclickbox\" ondblclick=\"showpopup(event)\">\n                Db Click here\n                <div class=\"modal\" style=\"display:none\">\n                  <div class=\"modal-content\">\n                    <span class=\"close\" onclick=\"closemodal(event)\">&times;</span>\n                    Change your variable {name} !\n                    <input type=\"text\" df-name>\n                  </div>\n\n                </div>\n              </div>\n            </div>\n            ","typenode": false, "inputs":{"input_1":{"connections":[{"node":"8","input":"output_1"}]}},"outputs":{"output_1":{"connections":[{"node":"12","output":"input_2"}]}},"pos_x":209,"pos_y":38},"12":{"id":12,"name":"multiple","data":{},"class":"multiple","html":"\n            <div>\n              <div class=\"box\">\n                Multiple!\n              </div>\n            </div>\n            ","typenode": false, "inputs":{"input_1":{"connections":[]},"input_2":{"connections":[{"node":"9","input":"output_1"}]},"input_3":{"connections":[]}},"outputs":{"output_1":{"connections":[{"node":"8","output":"input_1"}]},"output_2":{"connections":[{"node":"8","output":"input_1"}]},"output_3":{"connections":[{"node":"8","output":"input_1"}]},"output_4":{"connections":[{"node":"8","output":"input_1"}]}},"pos_x":179,"pos_y":272}}}}}
-    const dataToImport = {"drawflow":
-      {"Home":
-        {"data":
-          {"1":
-            {"id":1,
-            "name":"welcome",
-            "data":{},
-            "class":"welcome",
-            "html":"\n <div>\n <div class=\"title-box\">👏 Welcome to MLS flow!!</div>\n <div class=\"box\">\n <p>The library contains the required nodes to connect </p><p> the models directly to the source of data. </p><p> This way, predictions can be automaticaly </p><p> made in a regular way. </p><br>\n <br>\n        <p><b><u>Shortkeys:</u></b></p>\n        <p>🎹 <b>Delete</b> for remove selected<br>\n        💠 Mouse Left Click == Move<br>\n        ❌ Mouse Right == Delete Option<br>\n        🔍 Ctrl + Wheel == Zoom<br>\n        ...</p>\n      </div>\n    </div>\n    ",
-            "typenode": false,
-            "inputs":{},
-            "outputs":{},
-            "pos_x":50,
-            "pos_y":50},
-          }
-        }
-      }
-    }
 
     editor.start();
-    editor.import(dataToImport);
-
+    const False = Boolean(false);
+    const True = Boolean(true);
+    const flowData = {{flowData|safe}};
+    console.log(flowData);
+    editor.import(flowData);
 
     // Events!
     editor.on('nodeCreated', function(id) {
@@ -363,23 +361,24 @@
         {% for model in models %}
         case 'model_{{loop.index0}}':
           var model_{{loop.index0}} = `
-        <div>
-        <div class="title-box"><i class="fa-solid fa-square-root-variable"></i> {{model.name}}</div>
-          <div class="box dbclickbox" ondblclick="showpopup(event)">
-            <span>Inputs list:</span>
-            {% for variable in model.variables %}
-              <li><b>Input {{loop.index0 + 1}}</b> - {{variable.name}}</li>
-            {% endfor %}
+          <div>
+            <div class="title-box"><img src="../static/img/deep-learning-digitops.png" style="max-width:30px;"> MLS Model</div>
+            <span style="margin:10px;">{{model.name}}</span><br><br>
+            <div style="margin-left:10px; margin-right:10px;">
+              <span>Inputs list:</span>
+              {% for variable in model.variables %}
+                <li><b>Input {{loop.index0 + 1}}</b> - {{variable.name}}</li>
+              {% endfor %}
+            </div>
           </div>
-        </div>
         `;
-          editor.addNode('model_{{loop.index0}}', {{model.variables|count}},  1, pos_x, pos_y, 'model_{{loop.index0}}', {}, model_{{loop.index0}} );
+          editor.addNode('model_{{loop.index0}}', {{model.variables|count}},  1, pos_x, pos_y, 'model_{{loop.index0}}', {"model_uuid": "{{model.uuid}}", "features_count":"{{model.variables|count}}"}, model_{{loop.index0}} );
           break;
         {% endfor %}
         case 'mqtt_connector':
           var mqttconnector = `
           <div>
-            <div class="title-box"><i class="fa-solid fa-plug"></i> MQTT broker connector </div>
+            <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Connector </div>
             <div class="box">
               <p>Broker parameters</p>
               <input type="text" df-mqtt-server placeholder="http://localhost/"><br><br>
@@ -394,7 +393,7 @@
         case 'mqtt_topic':
           var mqtttopic = `
           <div>
-            <div class="title-box"><i class="fa-solid fa-hashtag "></i> MQTT topic subscription</div>
+            <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Subscription </div>
             <div class="box">
               <p>MQTT Topic</p>
             <input type="text" df-topic>
@@ -402,6 +401,95 @@
           </div>
           `;
           editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": ''}, mqtttopic );
+          break;
+        case 'opcua_connector':
+          var opcuaconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/opcua.png" style="max-width:80px;">Connector </div>
+            <div class="box">
+              <p>OPC UA server parameters</p>
+              <input type="text" df-opcua-endpoint placeholder="opc.tcp://localhost"><br><br>
+              <input type="number" df-opcua-port placeholder="4840" value=4840><br>
+              <p>Security policy</p>
+              <select df-opcua-policy>
+                <option value="none">None</option>
+              </select> <br><br>
+              <input type="text" df-opcua-username placeholder="user"><br><br>
+              <input type="password" df-opcua-password placeholder="password"><br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('opcuaconnector', 0, 1, pos_x, pos_y, 'opcuaconnector', { "opcua": { "endpoint": '', "port": '', "policy": '', "username": '', "password": '' }}, opcuaconnector );
+          break;
+        case 'opcua_variable':
+          var opcuavariable = `
+          <div>
+            <div class="title-box"><img src="../static/img/opcua.png" style="max-width:80px;">Variable </div>
+            <div class="box">
+              <p>OPC UA Address</p>
+            <input type="text" df-variable placeholder="ns=2;s=MyVariable"><br><br>
+            <select df-opcua-type>
+                <option value="Int8">Int8</option>
+                <option value="Int16">Int16</option>
+                <option value="Int32">Int32</option>
+                <option value="Int64">Int64</option>
+                <option value="UInt8">UInt8</option>
+                <option value="UInt16">UInt16</option>
+                <option value="UInt32">UInt32</option>
+                <option value="UInt64">UInt64</option>
+                <option value="Byte">Byte</option>
+                <option value="SByte">SByte</option>
+                <option value="Float">Float</option>
+                <option value="Double">Double</option>
+                <option value="Boolean">Boolean</option>
+            </select> <br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('opcuavariable', 1, 1, pos_x, pos_y, 'opcuavariable', { "variable": ''}, opcuavariable );
+          break;
+        case 's7_connector':
+          var s7connector = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> S7 Connector </div>
+            <div class="box">
+              <p>Simatic PLC parameters</p>
+              <p>PLC IP address</p>
+              <input type="text" df-s7-ip placeholder="192.168.0.1"><br>
+              <p>PLC Family</p>
+              <select df-s7-family>
+                <option value="logo">Logo!</option>
+                <option value="300">S7-300</option>
+                <option value="400">S7-400</option>
+                <option value="1200">S7-1200</option>
+                <option value="1500">S7-1500</option>
+              </select> <br>
+              <p>Rack</p>
+              <input type="number" df-s7-rack placeholder="rack number" value=1><br>
+              <p>Slot</p>
+              <input type="number" df-s7-slot placeholder="slot number" value=2><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('s7connector', 0, 1, pos_x, pos_y, 's7connector', { "s7": { "ip": '', "rack": '', "slot": '', "family": ''}}, s7connector );
+          break;
+        case 's7_variable':
+          var s7variable = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> S7 Variable </div>
+            <div class="box">
+              <p>S7 variable settings</p>
+              <p>DB number</p>
+              <input type="number" df-db placeholder="DB number"><br>
+              <p>Start offset</p>
+              <input type="number" df-start placeholder="Start offset"><br>
+              <p>Size in bytes</p>
+              <input type="number" df-size placeholder="Size"><br>
+
+            </div>
+          </div>
+          `;
+          editor.addNode('s7variable', 1, 1, pos_x, pos_y, 's7variable', { "db": '', "start": '',"size": ''}, s7variable );
           break;
         case 'static_value':
           var statictemplate = `
@@ -415,6 +503,20 @@
           `;
           editor.addNode('static', 0, 1, pos_x, pos_y, 'static', { "value": ''}, statictemplate );
           break;
+        case 'random_value':
+          var randomtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-dice "></i> Random value</div>
+            <div class="box">
+              <p>Enter the ninimum value</p>
+              <input type="number" df-minvalue>
+              <p>Enter the maximum value</p>
+              <input type="number" df-maxvalue>
+            </div>
+          </div>
+          `;
+          editor.addNode('random', 0, 1, pos_x, pos_y, 'random', { "minvalue": '',"maxvalue": ''}, randomtemplate );
+          break;
         case 'out_email':
           var emailtemplate = `
           <div>
@@ -427,10 +529,23 @@
           `;
           editor.addNode('email', 1, 0, pos_x, pos_y, 'email', { "destination": ''}, emailtemplate );
           break;
+        case 'out_chart':
+          var charttemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-chart-line"></i> Line chart</div>
+            <div class="box">
+              <canvas id="myChart" width="300" height="200"></canvas>
+            </div>
+          </div>
+          `;
+          editor.addNode('chart', 1, 0, pos_x, pos_y, 'chart', {}, charttemplate );
+          break;
         case 'oper_addition':
           var additiontemplate = `
           <div>
             <div class="title-box"><i class="fa-solid fa-calculator "></i> Addition operation</div>
+            <br>
+            <p class="text-center">Out 1 = Inp 1 + Inp 2</p>
           </div>
           `;
           editor.addNode('addition', 2, 1, pos_x, pos_y, 'addition', {}, additiontemplate );
@@ -439,6 +554,8 @@
           var subtractiontemplate = `
           <div>
             <div class="title-box"><i class="fa-solid fa-calculator "></i> Subtraction operation</div>
+            <br>
+            <p class="text-center">Out 1 = Inp 1 - Inp 2</p>
           </div>
           `;
           editor.addNode('subtraction', 2, 1, pos_x, pos_y, 'subtraction', {}, subtractiontemplate );
@@ -447,6 +564,8 @@
           var multiplicationtemplate = `
           <div>
             <div class="title-box"><i class="fa-solid fa-calculator "></i> Multiplication operation</div>
+            <br>
+            <p class="text-center">Out 1 = Inp 1 * Inp 2</p>
           </div>
           `;
           editor.addNode('multiplication', 2, 1, pos_x, pos_y, 'multiplication', {}, multiplicationtemplate );
@@ -455,6 +574,8 @@
           var divisiontemplate = `
           <div>
             <div class="title-box"><i class="fa-solid fa-calculator "></i> Division operation</div>
+            <br>
+            <p class="text-center">Out 1 = Inp 1 / Inp 2</p>
           </div>
           `;
           editor.addNode('division', 2, 1, pos_x, pos_y, 'division', {}, divisiontemplate );
@@ -610,6 +731,199 @@
       }
 
     }
+
+    function saveDiagram(){
+      //teste
+      var data = editor.export() 
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        });
+    }
+
+    /* CHART scripts */
+    const ctx = document.getElementById('myChart').getContext('2d');
+    labelsData = [];
+    predictionData = []
+
+    const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labelsData,
+                    datasets: [{
+                        label: 'real',
+                        fill: false,
+                        data: predictionData,
+                        borderColor: '#00a87e',
+                        borderWidth: 2,
+                        pointStyle: 'circle',
+                        pointRadius: 3,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                  plugins: {
+                    legend: {
+                      display: false
+                    }
+                  },
+                  responsive: true,
+                  scales: {
+                    x: {
+                      display: true,
+                      title: {
+                        display: false,
+                        text: "Prediction test number",
+                      }  
+                    },
+                    y: {
+                      display: true,
+                      title: {
+                        display: false,
+                        text: "Value",
+                      } 
+                    }
+                  }
+                }
+              });
+    
+    /* Update chart if exist (Dummy data) */
+    function myFunc()
+    {
+      setTimeout(function() {
+
+        var data2 = {
+          "COMMAND": "get_data",
+        }
+
+        const apiUrl = '/automation/{{Model.uuid}}';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data2),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            //window.location.reload();
+            return response.json();
+          })
+          .then(data => {
+            //console.log(data);
+            console.log(data);
+            //predictionData = data;
+            let now = new Date();
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            let seconds = now.getSeconds();
+            let time = `${hours}:${minutes}:${seconds}`
+
+            labelsData.push(time);
+            predictionData.push(data);
+
+          });
+
+
+          /* Stay only with the last n elements from array */
+          
+          if (predictionData.length > 10){
+            labelsData.shift();
+            predictionData.shift();
+          }
+          
+          myChart.update();
+
+          myFunc();
+
+        }, 15000);
+    }
+
+    function startFlow(){
+      var data = {
+        "COMMAND": "start_flow"
+      }
+
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          if (data == "success"){
+            window.location.reload();
+          }  
+        });
+    }
+
+    function stopFlow(){
+      var data = {
+        "COMMAND": "stop_flow"
+      }
+      
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          if (data == "success"){
+            window.location.reload();
+          }  
+        });
+
+    }
+
+    {% if Run == True %}
+    myFunc();
+    {% endif %}
 
   </script>
 {% endblock %}

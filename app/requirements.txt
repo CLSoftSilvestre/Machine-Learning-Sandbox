@@ -18,3 +18,4 @@ urlopen
 langchain
 ollama
 pygwalker
+python-snap7

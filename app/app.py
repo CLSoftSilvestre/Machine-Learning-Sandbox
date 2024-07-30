@@ -35,6 +35,7 @@ from ModelManager import ModelManager
 from utils import CleanColumnHeaderName
 
 from Configurator import Configuration, Configurator, AppUser, UserRole
+from FlowsManager import Flow, Node, NodeType
 
 import os
 import io
@@ -51,6 +52,8 @@ from urllib.request import urlopen
 from urllib.error import *
 
 import pygwalker as pyg
+from types import SimpleNamespace
+import time
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -63,8 +66,8 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.10"
-model_version = 6
+appversion = "1.3.11"
+model_version = 7 # Model includes automation diagram
 nodeRedRunning = False
 ollamaRunning = False
 
@@ -247,9 +250,75 @@ def usage():
 
     return render_template('usage.html')
 
-@app.route("/test/", methods=['GET'])
-def test():
-    return render_template('test.html', models=modelsList)
+@app.route("/automation/<uuid>", methods=['GET', 'POST', 'PUT'])
+def automation(uuid):
+    if(request.method == 'GET'):
+        #flowData = session.get('automation')
+        for model in modelsList:
+            if (model.uuid == uuid):
+                diagram = None
+                run = False
+                if hasattr(model, 'flow'):
+                    diagram = model.flow.jsonLayout
+                    try:
+                        run = model.flow.service.is_alive()
+                    except:
+                        run=False
+                return render_template('automation.html', models=modelsList, flowData=diagram, Model=model, Run=run)
+
+        return render_template('automation.html', models=modelsList, flowData="", uuid=uuid, Run=False)
+    
+    if(request.method == 'POST'):
+        resultJson = json.loads(request.data)
+        #print(str(resultJson), file=sys.stderr)
+        for model in modelsList:
+            if (model.uuid == uuid):
+                #model.SetAutomationDiagram(str(resultJson))
+                model.SetAutomationDiagram(request.data)
+                # Save model with new data
+                try:
+                    # Save the model
+                    mMan = ModelManager()
+                    modelFileName = model.name + ".model"
+                    filepath = os.path.join(app.root_path, 'models', modelFileName)
+                    mMan.SaveModel(model, filepath)
+                    UpdateModelsList()
+                    # Start the execution of the Flow
+                    model.flow.Start()
+                    run = model.flow.service.is_alive()
+
+                    return render_template('automation.html', models=modelsList, flowData=str(resultJson), Model=model, Run=run)        
+                except:
+                    print("Error saving model to " + model.modelPath, file=sys.stderr)
+
+                UpdateModelsList()
+                return render_template('automation.html', models=modelsList, flowData=str(resultJson), Model=model, Run=False)
+
+       #return render_template('automation.html', models=modelsList, flowData=str(resultJson), uuid=uuid)
+    
+    if(request.method == 'PUT'):
+        # Control the satus of the flow
+        resultJson = json.loads(request.data)
+
+        for model in modelsList:
+            if (model.uuid == uuid):
+                # Flow commands
+                if resultJson['COMMAND'] == "start_flow":
+                    model.flow.Start()
+                    return "success", 200
+                elif resultJson['COMMAND'] == "stop_flow":
+                    model.flow.Stop()
+                    return "success", 200 
+                # Get node data
+                elif resultJson['COMMAND'] == "get_data":
+                    for thisnode in model.flow.Nodes:
+                        if thisnode.nodeClass == "s7variable":
+                            print(thisnode.outputValue, file=sys.stderr)
+
+                        if thisnode.nodeClass == "chart":
+                            print("Node id " + str(thisnode.id) + " Node type: " + str(thisnode.nodeClass) + " Value: " + str(thisnode.outputValue), file=sys.stderr)
+                            return jsonify(thisnode.outputValue), 200
+
 
 @app.route("/flows/", methods=['GET'])
 def flows():
@@ -896,7 +965,6 @@ def isolationforest():
         # TODO: Add here the code to push the max of features to the page
         featuresCount = len(session['temp_df_x'].columns)
         return render_template('isolationforest.html', FeaturesCount = featuresCount)
-
 
 @app.route("/knn/", methods=['GET', 'POST'])
 def knn():

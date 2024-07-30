@@ -9,10 +9,10 @@
     --dfNodeTextColor: #000000;
     --dfNodeBorderSize: 2px;
     --dfNodeBorderColor: rgba(0, 92, 68, 1);
-    --dfNodeBorderRadius: 10px;
+    --dfNodeBorderRadius: 7px;
     --dfNodeMinHeight: 40px;
     --dfNodeMinWidth: 160px;
-    --dfNodePaddingTop: 15px;
+    --dfNodePaddingTop: 0px; /* was 15px */
     --dfNodePaddingBottom: 15px;
     --dfNodeBoxShadowHL: 2px;
     --dfNodeBoxShadowVL: 2px;
@@ -48,7 +48,7 @@
     --dfInputBorderSize: 2px;
     --dfInputBorderColor: #000000;
     --dfInputBorderRadius: 50px;
-    --dfInputLeft: -27px;
+    --dfInputLeft: -23px;
     --dfInputHeight: 20px;
     --dfInputWidth: 20px;
   
@@ -70,7 +70,7 @@
     --dfOutputHoverBorderColor: #000000;
     --dfOutputHoverBorderRadius: 50px;
   
-    --dfLineWidth: 5px;
+    --dfLineWidth: 3px;
     --dfLineColor: rgba(0, 168, 126, 1);
     --dfLineHoverColor: rgba(129, 212, 192, 1);
     --dfLineSelectedColor: rgba(0, 92, 68, 1);
