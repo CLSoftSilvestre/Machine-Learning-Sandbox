@@ -7,6 +7,7 @@ from S7Connector import S7Connector, S7Variable
 import sys
 import time
 from threading import Thread
+import random
 
 
 class NodeType(Enum):
@@ -92,6 +93,13 @@ class Flow():
                         node.outputValue = float(node.rawObject[0].curProcValue)
                     except:
                         print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+
+                elif node.nodeClass == "random":
+                    minValue = node.params["MINVALUE"]
+                    maxValue = node.params["MAXVALUE"]
+                    print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
+                    rndValue = random.randrange(minValue, maxValue)
+                    node.outputValue = rndValue
 
                 elif node.nodeClass == "chart":
                     # Update the input variable

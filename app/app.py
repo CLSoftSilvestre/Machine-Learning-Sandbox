@@ -259,8 +259,8 @@ def automation(uuid):
                 diagram = None
                 run = False
                 if hasattr(model, 'flow'):
-                    diagram = model.flow.jsonLayout
                     try:
+                        diagram = model.flow.jsonLayout
                         run = model.flow.service.is_alive()
                     except:
                         run=False
@@ -304,11 +304,33 @@ def automation(uuid):
             if (model.uuid == uuid):
                 # Flow commands
                 if resultJson['COMMAND'] == "start_flow":
-                    model.flow.Start()
-                    return "success", 200
+                    try:
+                        model.flow.Start()
+                        return "success", 200 
+                    except:
+                        return "Error starting flow", 200
                 elif resultJson['COMMAND'] == "stop_flow":
-                    model.flow.Stop()
-                    return "success", 200 
+                    try:
+                        model.flow.Stop()
+                        return "success", 200 
+                    except:
+                        return "Error stoping flow", 200 
+                elif resultJson['COMMAND'] == "delete_flow":
+                    try:
+                        model.flow
+                        model.flow = Flow()
+                        model.flow.SetJsonLayout(json.loads(""))
+                        
+                        # Save the model
+                        mMan = ModelManager()
+                        modelFileName = model.name + ".model"
+                        filepath = os.path.join(app.root_path, 'models', modelFileName)
+                        mMan.SaveModel(model, filepath)
+                        UpdateModelsList()
+                        
+                        return "success", 200 
+                    except:
+                        return "Error deleting flow", 200 
                 # Get node data
                 elif resultJson['COMMAND'] == "get_data":
                     for thisnode in model.flow.Nodes:

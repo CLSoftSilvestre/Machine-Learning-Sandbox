@@ -147,7 +147,19 @@ class PredictionModel:
                     con = InputConnector(nodeId, nodeInp, ValueType.S7CONNECTION)
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
+
+                elif elementClass == "random":
+                    minValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["minvalue"]
+                    maxValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["maxvalue"]
                     
+                    params = {
+                        "MINVALUE": int(minValue),
+                        "MAXVALUE": int(maxValue),
+                    }
+                    
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)  
+
                 elif str(elementClass).__contains__("model_"):
 
                     model_uuid = data["drawflow"]["Home"]["data"][str(i)]["data"]["model_uuid"]

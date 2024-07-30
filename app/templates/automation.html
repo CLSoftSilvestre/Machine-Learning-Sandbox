@@ -223,7 +223,7 @@
         {% endif %}
 
         <div class="btn-save" onclick="saveDiagram()"><i class="fa-solid fa-floppy-disk"></i></div>
-        <div class="btn-clear" onclick="editor.clearModuleSelected()"><i class="fa-solid fa-trash-can"></i></div>
+        <div class="btn-clear" onclick="deleteFlow()"><i class="fa-solid fa-trash-can"></i></div>
         <div class="btn-lock">
           <i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
           <i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i>
@@ -508,9 +508,9 @@
           <div>
             <div class="title-box"><i class="fa-solid fa-dice "></i> Random value</div>
             <div class="box">
-              <p>Enter the ninimum value</p>
+              <p>Minimum value</p>
               <input type="number" df-minvalue>
-              <p>Enter the maximum value</p>
+              <p>Maximum value</p>
               <input type="number" df-maxvalue>
             </div>
           </div>
@@ -855,7 +855,7 @@
 
           myFunc();
 
-        }, 15000);
+        }, 5000);
     }
 
     function startFlow(){
@@ -919,6 +919,39 @@
           }  
         });
 
+    }
+
+    function deleteFlow(){
+      //editor.clearModuleSelected()
+
+      var data = {
+        "COMMAND": "delete_flow"
+      }
+      
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          if (data == "success"){
+            window.location.reload();
+          }  
+        });
     }
 
     {% if Run == True %}
