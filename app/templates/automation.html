@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} Test {% endblock %}
+{% block title %} Automation {% endblock %}
 
 {% block content %}
   <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
@@ -21,6 +21,28 @@
     <div class="col">
 
       <div class="accordion acordion-flush" id="accordionParameters">
+
+        <!-- Generic nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingGeneric">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseGeneric" aria-expanded="true" aria-controls="collapseGeneric">
+              <h5><i class="fa-solid fa-home"></i> Generic nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseGeneric" class="accordion-collapse collapse show" aria-labelledby="headingGeneric" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <!-- Comment Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="generic_comment">
+                  <i class="fa-solid fa-message"></i><span> Comment</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
 
         <!-- Connectivity nodes -->
          <div class="accordion-item">
@@ -86,16 +108,10 @@
             <div class="accordion-body">
               <div class="form-group row">
 
-                <!-- Models Nodes -->
-                {% for model in models %}
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="model_{{loop.index0}}">
-                  {% if model.uuid == Model.uuid %}
-                  <b><i class="fa-solid fa-square-root-variable"></i><span> Model {{model.name}}</span></b>
-                  {% else %}
-                  <i class="fa-solid fa-square-root-variable"></i><span> Model {{model.name}}</span>
-                  {% endif %}
+                <!-- Model Node -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="model">
+                  <i class="fa-solid fa-square-root-variable"></i><span> {{Model.name}}</span>
                 </div>
-                {% endfor %}
 
               </div>
             </div>
@@ -233,6 +249,13 @@
           <i class="fas fa-search" onclick="editor.zoom_reset()"></i>
           <i class="fas fa-search-plus" onclick="editor.zoom_in()"></i>
         </div>
+        <div class="flow-status">
+          {% if Run == True %}
+          <p id="flow-status-text"><i class="fa-solid fa-circle-play"></i> Flow is running</p>
+          {% else %}
+          <p id="flow-status-text"><i class="fa-solid fa-circle-stop"></i> Flow is stopped</p>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
@@ -359,20 +382,31 @@
 
       switch (name) {
         {% for model in models %}
-        case 'model_{{loop.index0}}':
-          var model_{{loop.index0}} = `
+        case 'generic_comment':
+          var commenttemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-message"></i> Comment </div>
+            <div class="box">
+              <textarea type="text" df-textcomment><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('comment', 0, 0, pos_x, pos_y, 'comment', { "textcomment": ''}, commenttemplate );
+          break;
+        case 'model':
+          var model = `
           <div>
             <div class="title-box"><img src="../static/img/deep-learning-digitops.png" style="max-width:30px;"> MLS Model</div>
-            <span style="margin:10px;">{{model.name}}</span><br><br>
+            <span style="margin:10px;">{{Model.name}}</span><br><br>
             <div style="margin-left:10px; margin-right:10px;">
               <span>Inputs list:</span>
-              {% for variable in model.variables %}
+              {% for variable in Model.variables %}
                 <li><b>Input {{loop.index0 + 1}}</b> - {{variable.name}}</li>
               {% endfor %}
             </div>
           </div>
         `;
-          editor.addNode('model_{{loop.index0}}', {{model.variables|count}},  1, pos_x, pos_y, 'model_{{loop.index0}}', {"model_uuid": "{{model.uuid}}", "features_count":"{{model.variables|count}}"}, model_{{loop.index0}} );
+          editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}"}, model);
           break;
         {% endfor %}
         case 'mqtt_connector':
@@ -497,11 +531,11 @@
             <div class="title-box"><i class="fa-solid fa-hashtag "></i> Static value</div>
             <div class="box">
               <p>Enter the static value</p>
-              <input type="number" df-value>
+              <input type="number" df-staticvalue>
             </div>
           </div>
           `;
-          editor.addNode('static', 0, 1, pos_x, pos_y, 'static', { "value": ''}, statictemplate );
+          editor.addNode('static', 0, 1, pos_x, pos_y, 'static', { "staticvalue": ''}, statictemplate );
           break;
         case 'random_value':
           var randomtemplate = `
@@ -829,24 +863,13 @@
             return response.json();
           })
           .then(data => {
-            //console.log(data);
-            console.log(data);
-            //predictionData = data;
             let now = new Date();
-            let hours = now.getHours();
-            let minutes = now.getMinutes();
-            let seconds = now.getSeconds();
-            let time = `${hours}:${minutes}:${seconds}`
-
-            labelsData.push(time);
+            labelsData.push(now.toLocaleTimeString("pt-PT"));
             predictionData.push(data);
-
           });
 
-
-          /* Stay only with the last n elements from array */
-          
-          if (predictionData.length > 10){
+          /* Stay only with the last n elements from array */          
+          if (predictionData.length > 100){
             labelsData.shift();
             predictionData.shift();
           }
@@ -890,6 +913,9 @@
     }
 
     function stopFlow(){
+
+      document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-pause"></i> Flow is stopping';
+
       var data = {
         "COMMAND": "stop_flow"
       }
@@ -918,6 +944,7 @@
             window.location.reload();
           }  
         });
+        
 
     }
 

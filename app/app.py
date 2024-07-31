@@ -277,6 +277,10 @@ def automation(uuid):
                 model.SetAutomationDiagram(request.data)
                 # Save model with new data
                 try:
+                    # Auto Update from version 6 to 7 by applying the Automation
+                    if model.modelVersion == 6:
+                        model.modelVersion = 7
+
                     # Save the model
                     mMan = ModelManager()
                     modelFileName = model.name + ".model"
@@ -284,7 +288,7 @@ def automation(uuid):
                     mMan.SaveModel(model, filepath)
                     UpdateModelsList()
                     # Start the execution of the Flow
-                    model.flow.Start()
+                    #model.flow.Start()
                     run = model.flow.service.is_alive()
 
                     return render_template('automation.html', models=modelsList, flowData=str(resultJson), Model=model, Run=run)        
@@ -338,7 +342,7 @@ def automation(uuid):
                             print(thisnode.outputValue, file=sys.stderr)
 
                         if thisnode.nodeClass == "chart":
-                            print("Node id " + str(thisnode.id) + " Node type: " + str(thisnode.nodeClass) + " Value: " + str(thisnode.outputValue), file=sys.stderr)
+                            #print("Node id " + str(thisnode.id) + " Node type: " + str(thisnode.nodeClass) + " Value: " + str(thisnode.outputValue), file=sys.stderr)
                             return jsonify(thisnode.outputValue), 200
 
 

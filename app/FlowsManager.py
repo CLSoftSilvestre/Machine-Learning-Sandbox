@@ -94,13 +94,92 @@ class Flow():
                     except:
                         print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
 
+                elif node.nodeClass == "static":
+                    staticValue = node.params["STATICVALUE"]
+                    node.outputValue = staticValue
+
                 elif node.nodeClass == "random":
                     minValue = node.params["MINVALUE"]
                     maxValue = node.params["MAXVALUE"]
-                    print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
+                    #print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
                     rndValue = random.randrange(minValue, maxValue)
                     node.outputValue = rndValue
+                
+                elif node.nodeClass == "addition":
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
 
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        node.outputValue = value1 + value2
+                        #print("Addition performed: " + str(value1) + " + " + str(value2) + " = " + str(node.outputValue))
+                    except Exception as err:
+                        print("Error updating addition operation " + str(err), file=sys.stderr)
+                    pass
+
+                elif node.nodeClass == "subtraction":
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        node.outputValue = value1 - value2
+                        #print("Addition performed: " + str(value1) + " - " + str(value2) + " = " + str(node.outputValue))
+                    except Exception as err:
+                        print("Error updating subtraction operation " + str(err), file=sys.stderr)
+                    pass
+
+                elif node.nodeClass == "multiplication":
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        node.outputValue = value1 * value2
+                        #print("Addition performed: " + str(value1) + " * " + str(value2) + " = " + str(node.outputValue))
+                    except Exception as err:
+                        print("Error updating multiplication operation " + str(err), file=sys.stderr)
+                    pass
+
+                elif node.nodeClass == "division":
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        node.outputValue = value1 / value2
+                        #print("Addition performed: " + str(value1) + " / " + str(value2) + " = " + str(node.outputValue))
+                    except Exception as err:
+                        print("Error updating division operation " + str(err), file=sys.stderr)
+                    pass
+                
+                elif node.nodeClass == "model":
+                    pass
+                
                 elif node.nodeClass == "chart":
                     # Update the input variable
                     try:
@@ -113,7 +192,7 @@ class Flow():
                         if len(node.innerStorageArray) > 15:
                             node.innerStorageArray.pop(0)
                         node.outputValue = value
-                        print("Chart data previous node " + str(value), file=sys.stderr)
+                        #print("Chart data previous node " + str(value), file=sys.stderr)
                         #print(node.innerStorageArray, file=sys.stderr)
                     except Exception as err:
                         print("Error updating chart " + str(err), file=sys.stderr)

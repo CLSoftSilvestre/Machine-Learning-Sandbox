@@ -77,26 +77,6 @@ class PredictionModel:
     def SetDataStudioData(self, data):
         self.dataStudio = data
 
-    def __correctSingleQuoteJSON(self, s):
-        rstr = ""
-        escaped = False
-
-        for c in s:
-        
-            if c == "'" and not escaped:
-                c = '"' # replace single with double quote
-            
-            elif c == "'" and escaped:
-                rstr = rstr[:-1] # remove escape character before single quotes
-            
-            elif c == '"':
-                c = '\\' + c # escape existing double quotes
-    
-            escaped = (c == "\\") # check for an escape character
-            rstr += c # append the correct json
-        
-        return rstr
-
     def SetAutomationDiagram(self, diagramData):
         self.flow = Flow()
         self.flow.SetJsonLayout(json.loads(diagramData))
@@ -148,6 +128,16 @@ class PredictionModel:
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
 
+                elif elementClass == "static":
+                    staticValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["staticvalue"]
+
+                    params = {
+                        "STATICVALUE": float(staticValue),
+                    }
+
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+
                 elif elementClass == "random":
                     minValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["minvalue"]
                     maxValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["maxvalue"]
@@ -160,7 +150,75 @@ class PredictionModel:
                     node = Node(i, elementClass, params)
                     self.flow.AddNode(node)  
 
-                elif str(elementClass).__contains__("model_"):
+                elif elementClass == "addition":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "subtraction":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "multiplication":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "division":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+
+                elif elementClass == "model":
 
                     model_uuid = data["drawflow"]["Home"]["data"][str(i)]["data"]["model_uuid"]
                     features = int(data["drawflow"]["Home"]["data"][str(i)]["data"]["features_count"])
@@ -173,14 +231,15 @@ class PredictionModel:
                     #print(elementClass + " (UUID: " + model_uuid + ", Inputs: " + str(inputs) + ")", file=sys.stderr)
                     params = {
                         "UUID": model_uuid,
-                        "FEATURES": features
+                        "FEATURES": features,
+                        "MODEL": self.model,
                     }
 
                     node = Node(i, elementClass, params)
                     for z in range(0, features):
                         nodeId = inputs[z][0]["node"]
                         nodeInp = inputs[z][0]["input"]
-                        con = InputConnector(nodeId, nodeInp, ValueType.S7CONNECTION)
+                        con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
                         node.SetInputConnector(con)
                         #print(z, file=sys.stderr)
                     self.flow.AddNode(node)
@@ -195,7 +254,7 @@ class PredictionModel:
                     self.flow.AddNode(node)
 
             except Exception as err:
-                #print("Error in element: " + str(err), file=sys.stderr)
+                print("Error in element: " + str(err), file=sys.stderr)
                 pass
         
 

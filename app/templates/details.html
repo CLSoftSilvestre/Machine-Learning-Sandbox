@@ -18,7 +18,9 @@
         <div class="card-body">
           {% if loggedin %}
             <a class="btn btn-success" type="button" href="{{ url_for('usedataset', uuid=Model.uuid)}}"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>
+            {% if Model.modelType == 'regression' %}
             <a class="btn btn-success" type="button" href="{{ url_for('automation', uuid=Model.uuid)}}"><i class="fas fa-puzzle-piece"></i> Automation</a>
+            {% endif %}
           {% else %}
             <a class="btn btn-success disabled" type="button" href="#"><i class="fas fa-database"></i> Use this dataset in Data Studio</a>
           {% endif %}
