@@ -1,6 +1,4 @@
 import uuid
-import pickle
-import glob
 from datetime import datetime
 from enum import Enum
 from S7Connector import S7Connector, S7Variable
@@ -8,6 +6,7 @@ import sys
 import time
 from threading import Thread
 import random
+import pandas as pd
 
 
 class NodeType(Enum):
@@ -86,13 +85,17 @@ class Flow():
     def __loop(self):
         self.stop = False
         while not self.stop:
+
+            # First loop inputs
             for node in self.Nodes:
                 if node.nodeClass == "s7variable":
+                    node.clearError()
                     try:
                         #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
                         node.outputValue = float(node.rawObject[0].curProcValue)
-                    except:
-                        print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+                    except Exception as err:
+                        node.setError(str(err))
+                        #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
 
                 elif node.nodeClass == "static":
                     staticValue = node.params["STATICVALUE"]
@@ -101,11 +104,18 @@ class Flow():
                 elif node.nodeClass == "random":
                     minValue = node.params["MINVALUE"]
                     maxValue = node.params["MAXVALUE"]
-                    #print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
-                    rndValue = random.randrange(minValue, maxValue)
-                    node.outputValue = rndValue
+                    node.clearError()
+                    print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
+                    try:
+                        rndValue = random.randrange(minValue, maxValue)
+                        node.outputValue = rndValue
+                    except Exception as err:
+                        node.setError(str(err))
                 
-                elif node.nodeClass == "addition":
+            # Second loop operations
+            for node in self.Nodes:
+                if node.nodeClass == "addition":
+                    node.clearError()
                     try:
                         # Get the input nodes
                         prevNodeId1 = node.inputConnectors[0].nodeId
@@ -120,10 +130,11 @@ class Flow():
                         node.outputValue = value1 + value2
                         #print("Addition performed: " + str(value1) + " + " + str(value2) + " = " + str(node.outputValue))
                     except Exception as err:
-                        print("Error updating addition operation " + str(err), file=sys.stderr)
-                    pass
+                        node.setError(str(err))
+                        #print("Error updating addition operation " + str(err), file=sys.stderr)
 
                 elif node.nodeClass == "subtraction":
+                    node.clearError()
                     try:
                         # Get the input nodes
                         prevNodeId1 = node.inputConnectors[0].nodeId
@@ -138,10 +149,11 @@ class Flow():
                         node.outputValue = value1 - value2
                         #print("Addition performed: " + str(value1) + " - " + str(value2) + " = " + str(node.outputValue))
                     except Exception as err:
-                        print("Error updating subtraction operation " + str(err), file=sys.stderr)
-                    pass
+                        node.setError(str(err))
+                        #print("Error updating subtraction operation " + str(err), file=sys.stderr)
 
                 elif node.nodeClass == "multiplication":
+                    node.clearError()
                     try:
                         # Get the input nodes
                         prevNodeId1 = node.inputConnectors[0].nodeId
@@ -156,10 +168,11 @@ class Flow():
                         node.outputValue = value1 * value2
                         #print("Addition performed: " + str(value1) + " * " + str(value2) + " = " + str(node.outputValue))
                     except Exception as err:
-                        print("Error updating multiplication operation " + str(err), file=sys.stderr)
-                    pass
+                        node.setError(str(err))
+                        #print("Error updating multiplication operation " + str(err), file=sys.stderr)
 
                 elif node.nodeClass == "division":
+                    node.clearError()
                     try:
                         # Get the input nodes
                         prevNodeId1 = node.inputConnectors[0].nodeId
@@ -174,14 +187,48 @@ class Flow():
                         node.outputValue = value1 / value2
                         #print("Addition performed: " + str(value1) + " / " + str(value2) + " = " + str(node.outputValue))
                     except Exception as err:
-                        print("Error updating division operation " + str(err), file=sys.stderr)
-                    pass
-                
-                elif node.nodeClass == "model":
-                    pass
-                
-                elif node.nodeClass == "chart":
-                    # Update the input variable
+                        node.setError(str(err))
+                        #print("Error updating division operation " + str(err), file=sys.stderr)
+
+            # Third loop model
+            for node in self.Nodes:
+                if node.nodeClass == "model":
+                    node.clearError()
+                    mlModel = node.params["MODEL"]
+                    inpVariables = node.params["VARIABLES"]
+                    featuresCount = node.params["FEATURES"]
+                    inputsNodes=[]
+                    inputData = pd.DataFrame()
+
+                    for i in range(0, featuresCount):
+                        inputsNodes.append(self.GetNodeById(node.inputConnectors[i].nodeId))
+
+                    #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
+                    for i, variable in enumerate(inpVariables):
+                        print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
+                        inputData[variable] = [float(inputsNodes[i].outputValue)]
+                        #print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
+                    
+                    try:
+                        result = mlModel.predict(inputData)
+                    except Exception as err:
+                        node.setError(str(err))
+                    
+                    if result:
+                        try:
+                            resultValue = result[0][0]
+                        except:
+                            resultValue = result[0]
+                        node.outputValue = resultValue
+                        #print("Prediction: " + str(resultValue), file=sys.stderr)
+                    else:
+                        node.outputValue = None
+                        node.setError("Error predicting value.")
+
+            # Forth loop outputs
+            for node in self.Nodes:
+                if node.nodeClass == "chart":
+                    node.clearError()
                     try:
                         prevNodeId = node.inputConnectors[0].nodeId
                         #print("Chart data predious node id " + str(prevNodeId), file=sys.stderr)
@@ -195,8 +242,9 @@ class Flow():
                         #print("Chart data previous node " + str(value), file=sys.stderr)
                         #print(node.innerStorageArray, file=sys.stderr)
                     except Exception as err:
-                        print("Error updating chart " + str(err), file=sys.stderr)
-
+                        node.setError(str(err))
+                        #print("Error updating chart " + str(err), file=sys.stderr)
+            
             time.sleep(10)
         return False
     
@@ -219,12 +267,24 @@ class Node():
         self.outputValue = None
         self.innerStorageArray = []
         self.rawObject = []
+        self.error = False
+        self.errorText = ""
     
     def SetInputConnector(self, con:InputConnector=0):
         self.inputConnectors.append(con)
     
     def getInnerStorage(self):
         return self.innerStorageArray
+    
+    def clearError(self):
+        self.error = False
+        self.errorText = ""
+    
+    def setError(self, errText):
+        self.error = True
+        self.errorText = errText
+        print("Error in node " + str(self.id) + ", class: " + str(self.nodeClass) + ", message: " + str(errText), file=sys.stderr)
+
 
     
 

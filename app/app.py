@@ -66,7 +66,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.11"
+appversion = "1.4.0"
 model_version = 7 # Model includes automation diagram
 nodeRedRunning = False
 ollamaRunning = False
@@ -289,11 +289,12 @@ def automation(uuid):
                     UpdateModelsList()
                     # Start the execution of the Flow
                     #model.flow.Start()
-                    run = model.flow.service.is_alive()
+                    #run = model.flow.service.is_alive()
+                    run = False
 
                     return render_template('automation.html', models=modelsList, flowData=str(resultJson), Model=model, Run=run)        
-                except:
-                    print("Error saving model to " + model.modelPath, file=sys.stderr)
+                except Exception as err:
+                    print("Error saving model to " + model.modelPath + ", due to " + str(err), file=sys.stderr)
 
                 UpdateModelsList()
                 return render_template('automation.html', models=modelsList, flowData=str(resultJson), Model=model, Run=False)

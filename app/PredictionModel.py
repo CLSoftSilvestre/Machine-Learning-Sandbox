@@ -87,9 +87,9 @@ class PredictionModel:
         for i in range(100):
             try:  
                 elementClass = data["drawflow"]["Home"]["data"][str(i)]["class"]
-                #print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
-                #print("--------------------------------------", file=sys.stderr)
-                #print("Element class: " + str(elementClass), file=sys.stderr)
+                print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
+                print("--------------------------------------", file=sys.stderr)
+                print("Element class: " + str(elementClass), file=sys.stderr)
                 if elementClass == "s7connector":
                     #get data from s7 connector
                     ip = data["drawflow"]["Home"]["data"][str(i)]["data"]["s7"]["ip"]
@@ -227,12 +227,13 @@ class PredictionModel:
                     for x in range(1, features+1):
                         inputs.append(data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_" + str(x)]["connections"])
 
-                    print(inputs, file=sys.stderr)
+                    #print(inputs, file=sys.stderr)
                     #print(elementClass + " (UUID: " + model_uuid + ", Inputs: " + str(inputs) + ")", file=sys.stderr)
                     params = {
                         "UUID": model_uuid,
                         "FEATURES": features,
                         "MODEL": self.model,
+                        "VARIABLES": self.variables,
                     }
 
                     node = Node(i, elementClass, params)

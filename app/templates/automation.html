@@ -9,9 +9,9 @@
   <link rel="stylesheet" type="text/css" href="../static/css/beautifull.css" />
   <link rel="stylesheet" type="text/css" href="../static/css/drawflowtheme.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
-  <script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script>
+  <!--link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"-->
+  <!--script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script-->
+  <!--script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script-->
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -84,7 +84,7 @@
 
                 <!-- Static value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="static_value">
-                  <i class="fa-solid fa-hashtag"></i><span> Static value</span>
+                  <i class="fa-solid fa-thumbtack"></i><span> Static value</span>
                 </div>
 
                 <!-- Random value Nodes -->
@@ -241,8 +241,10 @@
         <div class="btn-save" onclick="saveDiagram()"><i class="fa-solid fa-floppy-disk"></i></div>
         <div class="btn-clear" onclick="deleteFlow()"><i class="fa-solid fa-trash-can"></i></div>
         <div class="btn-lock">
-          <i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i>
-          <i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i>
+          <i id="lock" class="fas fa-lock-open"></i>
+          <i id="unlock" class="fas fa-lock" style="display:none;"></i>
+          <!--i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i-->
+          <!--i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i-->
         </div>
         <div class="bar-zoom">
           <i class="fas fa-search-minus" onclick="editor.zoom_out()"></i>
@@ -528,7 +530,7 @@
         case 'static_value':
           var statictemplate = `
           <div>
-            <div class="title-box"><i class="fa-solid fa-hashtag "></i> Static value</div>
+            <div class="title-box"><i class="fa-solid fa-thumbtack "></i> Static value</div>
             <div class="box">
               <p>Enter the static value</p>
               <input type="number" df-staticvalue>
@@ -805,7 +807,7 @@
                         borderColor: '#00a87e',
                         borderWidth: 2,
                         pointStyle: 'circle',
-                        pointRadius: 3,
+                        pointRadius: 2,
                         pointHoverRadius: 7
                     }]
                 },
@@ -869,7 +871,7 @@
           });
 
           /* Stay only with the last n elements from array */          
-          if (predictionData.length > 100){
+          if (predictionData.length > 50){
             labelsData.shift();
             predictionData.shift();
           }
@@ -983,6 +985,11 @@
 
     {% if Run == True %}
     myFunc();
+    editor.editor_mode='fixed'
+    changeMode('lock');
+    {% else %}
+    editor.editor_mode='edit'
+    changeMode('unlock');
     {% endif %}
 
   </script>
