@@ -17,6 +17,17 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="text/javascript" src="../static/js/polyfit.js"></script>
 
+  <div class="toast-container bottom-0 end-0" id="toastPlacement">
+    <div class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <b>Warning</b> Only one instance of this node type is permited!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+  
   <div class="wrapper">
     <div class="col">
 
@@ -56,13 +67,13 @@
               <div class="form-group row">
 
                 <!-- MQTT Nodes -->
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
                   <i class="fa-solid fa-plug"></i><span> MQTT broker connector</span>
-                </div>
+                </div-->
           
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
                   <i class="fa-solid fa-hashtag"></i><span> MQTT topic subscription</span>
-                </div>
+                </div-->
 
                 <!-- S7 connection Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_connector">
@@ -74,13 +85,13 @@
                 </div>
 
                 <!-- OPC UA connection Nodes -->
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_connector">
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_connector">
                   <i class="fa-solid fa-plug"></i><span> OPC UA connector</span>
-                </div>
+                </div-->
           
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_variable">
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_variable">
                   <i class="fa-solid fa-hashtag"></i><span> OPC UA variable</span>
-                </div>
+                </div-->
 
                 <!-- Static value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="static_value">
@@ -161,20 +172,24 @@
             <div class="accordion-body">
               <div class="form-group row">
 
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_csv">
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_csv">
                   <i class="fa-solid fa-file-csv"></i><span> CSV file</span>
-                </div>
+                </div-->
 
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_sql">
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_sql">
                   <i class="fa-solid fa-database"></i><span> SQL server</span>
-                </div>
+                </div-->
 
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_email">
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_email">
                   <i class="fa-solid fa-at"></i><span> Email</span>
-                </div>
+                </div-->
 
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_chart">
                   <i class="fa-solid fa-chart-line"></i><span> Line Chart</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_display">
+                  <i class="fa-solid fa-display"></i><span> Display value</span>
                 </div>
 
               </div>
@@ -232,25 +247,28 @@
       </div>
       <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
 
-        {% if Run == True %}
-        <div class="btn-stop" onclick="stopFlow()"><i class="fa-solid fa-stop"></i></div>
-        {% else %}
-        <div class="btn-start" onclick="startFlow()"><i class="fa-solid fa-play"></i></div>
-        {% endif %}
+        <div class="btn-group btn-group-sm commands-group" role="group" aria-label="Action commands">
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Start flow" onclick="startFlow()" id="btnStartFlow"><i class="fa-solid fa-play"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Stop flow" onclick="stopFlow()" id="btnStopFlow"><i class="fa-solid fa-stop"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
+          <a href="#" type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="Delete flow" onclick="deleteFlow()" id="btnDeleteFlow"><i class="fa-solid fa-trash-can"></i></a>
+        </div>
 
-        <div class="btn-save" onclick="saveDiagram()"><i class="fa-solid fa-floppy-disk"></i></div>
-        <div class="btn-clear" onclick="deleteFlow()"><i class="fa-solid fa-trash-can"></i></div>
-        <div class="btn-lock">
+        <div class="btn-group btn-group-sm zoom-group" role="group" aria-label="Zoom commands">
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Decrease zoom" onclick="editor.zoom_out()" id="btnZoomMinus"><i class="fa fa-search-minus"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Reset zoom" onclick="editor.zoom_reset()" id="btnZoomReset"><i class="fa-solid fa-search"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Increase zoom" onclick="editor.zoom_in()" id="btnZoomPlus"><i class="fa fa-search-plus"></i></a>
+        </div>
+
+        <!--div class="btn-lock">
           <i id="lock" class="fas fa-lock-open"></i>
           <i id="unlock" class="fas fa-lock" style="display:none;"></i>
-          <!--i id="lock" class="fas fa-lock" onclick="editor.editor_mode='fixed'; changeMode('lock');"></i-->
-          <!--i id="unlock" class="fas fa-lock-open" onclick="editor.editor_mode='edit'; changeMode('unlock');" style="display:none;"></i-->
-        </div>
-        <div class="bar-zoom">
+        </div-->
+        <!--div class="bar-zoom">
           <i class="fas fa-search-minus" onclick="editor.zoom_out()"></i>
           <i class="fas fa-search" onclick="editor.zoom_reset()"></i>
           <i class="fas fa-search-plus" onclick="editor.zoom_in()"></i>
-        </div>
+        </div-->
         <div class="flow-status">
           {% if Run == True %}
           <p id="flow-status-text"><i class="fa-solid fa-circle-play"></i> Flow is running</p>
@@ -381,6 +399,45 @@
       pos_x = pos_x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
       pos_y = pos_y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
 
+      // Check for unique nodes (Model, Siemens Connector)
+      if(name == "model"){
+        modelLst = editor.getNodesFromName("model");
+        if (modelLst.length > 0){
+          console.log("Model already imported");
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "s7_connector"){
+        modelLst = editor.getNodesFromName("s7connector");
+        if (modelLst.length > 0){
+          console.log("Model already imported");
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "out_chart"){
+        modelLst = editor.getNodesFromName("chart");
+        if (modelLst.length > 0){
+          console.log("Model already imported");
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
 
       switch (name) {
         {% for model in models %}
@@ -576,12 +633,25 @@
           `;
           editor.addNode('chart', 1, 0, pos_x, pos_y, 'chart', {}, charttemplate );
           break;
+        case 'out_display':
+          var displaytemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-display"></i> Display value</div>
+            <div class="box">
+              <div class='display backlight'>
+                <input id='value' type='text' maxlength='12' class='content' value='-' disabled></input>
+              </div>
+            </div>
+          </div>
+          `;
+          editor.addNode('display', 1, 0, pos_x, pos_y, 'display', {}, displaytemplate );
+          break;
         case 'oper_addition':
           var additiontemplate = `
           <div>
-            <div class="title-box"><i class="fa-solid fa-calculator "></i> Addition operation</div>
+            <div class="title-box"><i class="fa-solid fa-calculator"></i> Addition operation</div>
             <br>
-            <p class="text-center">Out 1 = Inp 1 + Inp 2</p>
+            <p class="text-center">Input 1 <i class="fa-solid fa-plus"></i> Input 2</span></p>
           </div>
           `;
           editor.addNode('addition', 2, 1, pos_x, pos_y, 'addition', {}, additiontemplate );
@@ -591,7 +661,7 @@
           <div>
             <div class="title-box"><i class="fa-solid fa-calculator "></i> Subtraction operation</div>
             <br>
-            <p class="text-center">Out 1 = Inp 1 - Inp 2</p>
+            <p class="text-center">Input 1 <i class="fa-solid fa-minus"></i> Input 2</span></p>
           </div>
           `;
           editor.addNode('subtraction', 2, 1, pos_x, pos_y, 'subtraction', {}, subtractiontemplate );
@@ -601,7 +671,7 @@
           <div>
             <div class="title-box"><i class="fa-solid fa-calculator "></i> Multiplication operation</div>
             <br>
-            <p class="text-center">Out 1 = Inp 1 * Inp 2</p>
+            <p class="text-center">Input 1 <i class="fa-solid fa-xmark"></i> Input 2</span></p>
           </div>
           `;
           editor.addNode('multiplication', 2, 1, pos_x, pos_y, 'multiplication', {}, multiplicationtemplate );
@@ -611,7 +681,7 @@
           <div>
             <div class="title-box"><i class="fa-solid fa-calculator "></i> Division operation</div>
             <br>
-            <p class="text-center">Out 1 = Inp 1 / Inp 2</p>
+            <p class="text-center">Input 1 <i class="fa-solid fa-divide"></i> Input 2</span></p>
           </div>
           `;
           editor.addNode('division', 2, 1, pos_x, pos_y, 'division', {}, divisiontemplate );
@@ -792,7 +862,13 @@
     }
 
     /* CHART scripts */
-    const ctx = document.getElementById('myChart').getContext('2d');
+    let ctx = null
+    try {
+      ctx = document.getElementById('myChart').getContext('2d');
+    } catch {
+      console.log("Error getting chart")
+    }
+      
     labelsData = [];
     predictionData = []
 
@@ -837,13 +913,12 @@
                 }
               });
     
-    /* Update chart if exist (Dummy data) */
-    function myFunc()
+    function getNodeStatus()
     {
       setTimeout(function() {
 
         var data2 = {
-          "COMMAND": "get_data",
+          "COMMAND": "get_node_status",
         }
 
         const apiUrl = '/automation/{{Model.uuid}}';
@@ -861,25 +936,17 @@
             if (!response.ok) {
               throw new Error('Network response was not ok');
             }
-            //window.location.reload();
             return response.json();
           })
           .then(data => {
-            let now = new Date();
-            labelsData.push(now.toLocaleTimeString("pt-PT"));
-            predictionData.push(data);
+            // Update the status of each node
+            for (var i=0; i < data.length; i++){
+              //console.log("Node id: " + data[i].nodeId + ", Node type: " + data[i].nodeClass + ", Value: ", + data[i].value + ", Error: ", + data[i].error + ", Message: " + data[i].errorMessage);
+              updateStatusNode(data[i]);
+            }
+ 
           });
-
-          /* Stay only with the last n elements from array */          
-          if (predictionData.length > 50){
-            labelsData.shift();
-            predictionData.shift();
-          }
-          
-          myChart.update();
-
-          myFunc();
-
+          getNodeStatus();
         }, 5000);
     }
 
@@ -915,7 +982,7 @@
     }
 
     function stopFlow(){
-
+      document.getElementById("btnStopFlow").classList.add("disabled")
       document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-pause"></i> Flow is stopping';
 
       var data = {
@@ -937,14 +1004,20 @@
           if (!response.ok) {
             throw new Error('Network response was not ok');
           }
-          window.location.reload();
           return response.json();
         })
         .then(data => {
           console.log(data)
-          if (data == "success"){
-            window.location.reload();
-          }  
+          window.location.reload();
+          //if (data == "success"){
+            // Means flow stoped...
+            //window.location.reload();
+            //document.getElementById("btnStartFlow").classList.remove("disabled")
+            //document.getElementById("btnStopFlow").classList.add("disabled")
+            //document.getElementById("btnSaveFlow").classList.remove("disabled")
+            //document.getElementById("btnDeleteFlow").classList.remove("disabled")
+            //document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-stop"></i> Flow is stopped';
+          //}  
         });
         
 
@@ -983,13 +1056,78 @@
         });
     }
 
+    function addStatusNode(){
+      var elements = document.getElementsByClassName('drawflow-node');
+      for (var i = 0; i < elements.length; i++) {
+        //get node id
+        let rawId = elements[i].id
+        let nodeId = rawId.split("node-")[1]
+        //console.log(nodeId)
+
+        let status = document.createElement("div");
+        status.classList.add("node-status");
+        status.id = "status-" + nodeId;
+        status.innerText = "⚠️";
+        elements[i].appendChild(status);
+        
+      }
+    }
+
+    function updateStatusNode(nodeData){
+      var id = "status-" + nodeData.nodeId
+      if (nodeData.error){
+        document.getElementById(id).innerText = "⚠️";
+      } else {
+        document.getElementById(id).innerText = "";
+      }
+
+      if (nodeData.nodeClass == "display"){
+        var elements = document.getElementsByClassName('drawflow-node');
+        for (var i = 0; i < elements.length; i++) {
+          let rawId = elements[i].id
+          let nodeId = rawId.split("node-")[1]
+
+          if (nodeId == nodeData.nodeId){
+            valueField = elements[i].querySelectorAll("input") 
+            valueField[0].value = nodeData.value
+          }
+        }
+      }
+
+      if (nodeData.nodeClass == "chart"){
+        //Update chart data
+        let now = new Date();
+        labelsData.push(now.toLocaleTimeString("pt-PT"));
+        predictionData.push(nodeData.value);
+        /* Stay only with the last n elements from array */          
+        if (predictionData.length > 50){
+            labelsData.shift();
+            predictionData.shift();
+          }   
+          myChart.update();
+      }
+    }
+
+
     {% if Run == True %}
-    myFunc();
+    addStatusNode();
+    getNodeStatus()
     editor.editor_mode='fixed'
-    changeMode('lock');
+    //changeMode('lock');
+    document.getElementById("btnStartFlow").classList.add("disabled")
+    document.getElementById("btnStopFlow").classList.remove("disabled")
+    document.getElementById("btnSaveFlow").classList.add("disabled")
+    document.getElementById("btnDeleteFlow").classList.add("disabled")
+
     {% else %}
+    //addStatusNode();
+    //getNodeStatus();
     editor.editor_mode='edit'
-    changeMode('unlock');
+    //changeMode('unlock');
+    document.getElementById("btnStartFlow").classList.remove("disabled")
+    document.getElementById("btnStopFlow").classList.add("disabled")
+    document.getElementById("btnSaveFlow").classList.remove("disabled")
+    document.getElementById("btnDeleteFlow").classList.remove("disabled")
     {% endif %}
 
   </script>

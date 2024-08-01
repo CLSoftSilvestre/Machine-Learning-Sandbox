@@ -94,22 +94,28 @@ class Flow():
                         #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
                         node.outputValue = float(node.rawObject[0].curProcValue)
                     except Exception as err:
+                        node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
 
                 elif node.nodeClass == "static":
-                    staticValue = node.params["STATICVALUE"]
-                    node.outputValue = staticValue
-
-                elif node.nodeClass == "random":
-                    minValue = node.params["MINVALUE"]
-                    maxValue = node.params["MAXVALUE"]
-                    node.clearError()
-                    print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
                     try:
+                        staticValue = node.params["STATICVALUE"]
+                        node.outputValue = staticValue
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+                elif node.nodeClass == "random":   
+                    node.clearError()   
+                    try:
+                        minValue = node.params["MINVALUE"]
+                        maxValue = node.params["MAXVALUE"]
+                        print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
                         rndValue = random.randrange(minValue, maxValue)
                         node.outputValue = rndValue
                     except Exception as err:
+                        node.outputValue = None
                         node.setError(str(err))
                 
             # Second loop operations
@@ -130,6 +136,7 @@ class Flow():
                         node.outputValue = value1 + value2
                         #print("Addition performed: " + str(value1) + " + " + str(value2) + " = " + str(node.outputValue))
                     except Exception as err:
+                        node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating addition operation " + str(err), file=sys.stderr)
 
@@ -149,6 +156,7 @@ class Flow():
                         node.outputValue = value1 - value2
                         #print("Addition performed: " + str(value1) + " - " + str(value2) + " = " + str(node.outputValue))
                     except Exception as err:
+                        node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating subtraction operation " + str(err), file=sys.stderr)
 
@@ -168,6 +176,7 @@ class Flow():
                         node.outputValue = value1 * value2
                         #print("Addition performed: " + str(value1) + " * " + str(value2) + " = " + str(node.outputValue))
                     except Exception as err:
+                        node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating multiplication operation " + str(err), file=sys.stderr)
 
@@ -186,44 +195,51 @@ class Flow():
                         # Perform operation
                         node.outputValue = value1 / value2
                         #print("Addition performed: " + str(value1) + " / " + str(value2) + " = " + str(node.outputValue))
+                    except ZeroDivisionError:
+                        node.outputValue = "div/0"
+                        node.setError("Division by zero")
                     except Exception as err:
+                        node.outputValue = None
                         node.setError(str(err))
-                        #print("Error updating division operation " + str(err), file=sys.stderr)
 
             # Third loop model
             for node in self.Nodes:
                 if node.nodeClass == "model":
                     node.clearError()
-                    mlModel = node.params["MODEL"]
-                    inpVariables = node.params["VARIABLES"]
-                    featuresCount = node.params["FEATURES"]
-                    inputsNodes=[]
-                    inputData = pd.DataFrame()
-
-                    for i in range(0, featuresCount):
-                        inputsNodes.append(self.GetNodeById(node.inputConnectors[i].nodeId))
-
-                    #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
-                    for i, variable in enumerate(inpVariables):
-                        print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
-                        inputData[variable] = [float(inputsNodes[i].outputValue)]
-                        #print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
-                    
                     try:
-                        result = mlModel.predict(inputData)
-                    except Exception as err:
-                        node.setError(str(err))
-                    
-                    if result:
+                        mlModel = node.params["MODEL"]
+                        inpVariables = node.params["VARIABLES"]
+                        featuresCount = node.params["FEATURES"]
+                        inputsNodes=[]
+                        inputData = pd.DataFrame()
+
+                        for i in range(0, featuresCount):
+                            inputsNodes.append(self.GetNodeById(node.inputConnectors[i].nodeId))
+
+                        #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
+                        for i, variable in enumerate(inpVariables):
+                            print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
+                            inputData[variable] = [float(inputsNodes[i].outputValue)]
+                            #print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
+                        
                         try:
-                            resultValue = result[0][0]
-                        except:
-                            resultValue = result[0]
-                        node.outputValue = resultValue
-                        #print("Prediction: " + str(resultValue), file=sys.stderr)
-                    else:
+                            result = mlModel.predict(inputData)
+                        except Exception as err:
+                            node.setError(str(err))
+                        
+                        if result:
+                            try:
+                                resultValue = result[0][0]
+                            except:
+                                resultValue = result[0]
+                            node.outputValue = resultValue
+                            #print("Prediction: " + str(resultValue), file=sys.stderr)
+                        else:
+                            node.outputValue = None
+                            node.setError("Error predicting value.")
+                    except Exception as err:
                         node.outputValue = None
-                        node.setError("Error predicting value.")
+                        node.setError(str(err))
 
             # Forth loop outputs
             for node in self.Nodes:
@@ -242,17 +258,35 @@ class Flow():
                         #print("Chart data previous node " + str(value), file=sys.stderr)
                         #print(node.innerStorageArray, file=sys.stderr)
                     except Exception as err:
+                        node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating chart " + str(err), file=sys.stderr)
+
+                if node.nodeClass == "display":
+                    node.clearError()
+                    try:
+                        prevNodeId = node.inputConnectors[0].nodeId
+                        prevNode = self.GetNodeById(prevNodeId)
+                        value = prevNode.outputValue
+                        node.outputValue = value
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
             
             time.sleep(10)
         return False
     
     def Stop(self):
-        self.stop = True
-        self.service.join()  
-        self.s7plc = []
-        self.s7variables = []
+        # Stop PLC Services
+        try:
+            for plc in self.s7plc:
+                plc.StopService()
+            self.stop = True
+            self.service.join()  
+            #self.s7plc = []
+            #self.s7variables = []
+        except Exception as err:
+            print("Error during Flow stopping process: " + str(err))
     
     def Restart(self):
         self.service=Thread(target=self.__loop)

@@ -253,6 +253,15 @@ class PredictionModel:
                     con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
+                
+                elif elementClass == "display":
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    node = Node(i, elementClass, None)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
 
             except Exception as err:
                 print("Error in element: " + str(err), file=sys.stderr)

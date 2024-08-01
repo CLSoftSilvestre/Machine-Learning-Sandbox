@@ -311,15 +311,31 @@ def automation(uuid):
                 if resultJson['COMMAND'] == "start_flow":
                     try:
                         model.flow.Start()
-                        return "success", 200 
+                        status = {
+                            "Command" : "start_flow",
+                            "Status" : "success"
+                        }
+                        return jsonify(status), 200
                     except:
-                        return "Error starting flow", 200
+                        status = {
+                            "Command" : "start_flow",
+                            "Status" : "fail"
+                        }
+                        return jsonify(status), 412
                 elif resultJson['COMMAND'] == "stop_flow":
                     try:
                         model.flow.Stop()
-                        return "success", 200 
+                        status = {
+                            "Command" : "stop_flow",
+                            "Status" : "success"
+                        }
+                        return jsonify(status), 200
                     except:
-                        return "Error stoping flow", 200 
+                        status = {
+                            "Command" : "stop_flow",
+                            "Status" : "fail"
+                        }
+                        return jsonify(status), 412 
                 elif resultJson['COMMAND'] == "delete_flow":
                     try:
                         model.flow
@@ -345,6 +361,21 @@ def automation(uuid):
                         if thisnode.nodeClass == "chart":
                             #print("Node id " + str(thisnode.id) + " Node type: " + str(thisnode.nodeClass) + " Value: " + str(thisnode.outputValue), file=sys.stderr)
                             return jsonify(thisnode.outputValue), 200
+                # Get node status
+                elif resultJson['COMMAND'] == "get_node_status":
+                    nodeStatus = []
+                    for thisnode in model.flow.Nodes:
+                        nodeData = {
+                            'nodeId': thisnode.id,
+                            'nodeClass': thisnode.nodeClass,
+                            'value': thisnode.outputValue,
+                            'error': thisnode.error,
+                            'errorText': thisnode.errorText,
+                        }
+
+                        nodeStatus.append(nodeData)
+
+                    return jsonify(nodeStatus), 200
 
 
 @app.route("/flows/", methods=['GET'])
