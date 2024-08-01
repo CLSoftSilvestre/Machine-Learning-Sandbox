@@ -45,7 +45,7 @@ services:
       start_period: 10s
     volumes:
       - ollama_data:/root/.ollama
-      - ./ollama:/root/modelfile
+      - ./ollama/model:/root/modelfile
   
   ollama-models-pull:
     image: curlimages/curl:8.6.0

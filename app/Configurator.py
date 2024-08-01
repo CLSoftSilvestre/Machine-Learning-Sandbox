@@ -27,7 +27,8 @@ class AppUser():
         self.role = role
     
     def ChangeUserPassword(self, oldPassword, newPassword):
-        if oldPassword == bcrypt.hashpw(oldPassword.encode('ASCII'), self.password):
+
+        if self.password == bcrypt.hashpw(oldPassword.encode('ASCII'), self.password):
             rawPassword = newPassword.encode('ASCII')
             salt = bcrypt.gensalt()
             hashed = bcrypt.hashpw(rawPassword, salt)
@@ -81,6 +82,9 @@ class Configuration():
         self.Ollama = use
         self.OllamaModel = model
         self.OllamaEndpoint = endpoint
+    
+    def SetPyGWalker(self, use):
+        self.usePyGWalker = use
     
     def AddAppUser(self, user : AppUser = 0):
         self.users.append(user)

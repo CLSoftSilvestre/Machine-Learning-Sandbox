@@ -20,13 +20,10 @@ from sklearn.svm import SVR
 from sklearn import tree
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.neural_network import MLPRegressor
-#from sklearn.inspection import permutation_importance
-
-from sklearn.datasets import load_iris, load_diabetes, load_digits, load_wine, load_breast_cancer
 
 from sklearn.feature_selection import SelectFromModel, SelectKBest, f_classif
 
-from models import LinearRegression, KnnRegression, model_data_input, knn_regressor_params, base_params, svm_regressor_params, random_forest_regressor_params
+from models import LinearRegression, KnnRegression, LofDetection, IsolationForestDetection, model_data_input, lof_detection_params, knn_regressor_params, base_params, svm_regressor_params, random_forest_regressor_params, isolationForest_detection_params
 
 
 from sklearn.model_selection import train_test_split
@@ -38,13 +35,13 @@ from ModelManager import ModelManager
 from utils import CleanColumnHeaderName
 
 from Configurator import Configuration, Configurator, AppUser, UserRole
+from FlowsManager import Flow, Node, NodeType
 
 import os
 import io
 import json
 from werkzeug.utils import secure_filename
 
-# from outlierextractor import CreateOutliersBoxplot
 from datetime import datetime
 
 from DataStudio import DataStudio, DataOperation
@@ -54,8 +51,9 @@ import copy
 from urllib.request import urlopen
 from urllib.error import *
 
-# import for usage of LLM models (Ollama)
-from chatAI import ChatAI
+import pygwalker as pyg
+from types import SimpleNamespace
+import time
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -68,8 +66,8 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.3.10"
-model_version = 6
+appversion = "1.4.0"
+model_version = 7 # Model includes automation diagram
 nodeRedRunning = False
 ollamaRunning = False
 
@@ -85,6 +83,7 @@ def inject_model_version():
 def set_global_html_variable_values():
     #session['autenticated'] = True
     if session.get('autenticated'):
+        useruuid = session.get('useruuid')
         role = session.get('role')
         loggedIn = session.get('autenticated')
         name = session.get('user')
@@ -92,8 +91,9 @@ def set_global_html_variable_values():
         role = ""
         loggedIn = False
         name = ""
+        useruuid = ""
 
-    template_config = {'loggedin': loggedIn, 'username': name, 'role': role}
+    template_config = {'loggedin': loggedIn, 'username': name, 'role': role, 'useruuid':useruuid}
 
     return template_config
 
@@ -113,9 +113,19 @@ def show_session_warning():
     session['information'] = ""
     return template_config
 
+@app.context_processor
+def show_app_configurations():
+    config = Configuration()
+    if len(confList) > 0:
+        config = confList[0]
+
+    return dict(app_config = config)
+
 @app.route("/index")
 @app.route("/")
 def index():
+    if(len(confList) == 0):
+        UpdateConfigurationList()
 
     # Check if configuration exists inserver. Otherwise start new configuration process
     if(len(confList) == 0):
@@ -137,27 +147,39 @@ def index():
 @app.route("/configurator/", methods=['GET', 'POST'])
 def configurator():
     if(request.method == 'POST'):
-        # Get data and save in configuration file
-        useAuth = bool(request.form.get('useAutentication'))
-        adminPassword = request.form['adminPassword']
+
         useNodeRed = bool(request.form.get('useNodeRed'))
         nodeRedPath = request.form['nodeRedEndpoint']
         useOllama = bool(request.form.get('useOllama'))
         ollamaPath = request.form['ollamaEndpoint']
         ollamaModel = request.form['ollamaModel']
-        
+        usePyGWalker = bool(request.form.get('usePyGWalker'))
+
         configuration = Configuration()
+
+        # Check if configuration already exists
+        if len(confList)>0:
+            useAuth = confList[0].useLogin
+            users = confList[0].users
+            configuration.users = users
+
+        else:
+            # Get data and save in configuration file
+            useAuth = bool(request.form.get('useAutentication'))
+            adminPassword = request.form['adminPassword']
+
+            #Add base admin user
+            admUser = AppUser("admin", adminPassword, UserRole.ADMIN)
+            configuration.AddAppUser(admUser)
+        
         configuration.SetBase(useAuth)
         configuration.SetNodeRed(useNodeRed, nodeRedPath)
         configuration.SetOllama(useOllama, ollamaModel, ollamaPath)
+        configuration.SetPyGWalker(usePyGWalker)
 
         cfMan = Configurator()
         configName = "base.conf"
         filepath = os.path.join(app.root_path, 'config', configName)
-
-        #Add base admin user
-        admUser = AppUser("admin", adminPassword, UserRole.ADMIN)
-        configuration.AddAppUser(admUser)
 
         cfMan.SaveConfiguration(configuration, filepath)
 
@@ -172,7 +194,40 @@ def configurator():
             return render_template('configurator.html')
         else:
             return redirect('/index')
-     
+
+@app.route("/changepassword/", methods=['POST'])
+def changepassword():
+    if(request.method == 'POST'):
+        useruuid = request.form['useruuid']
+        oldPassword = request.form['oldpassword']
+        newPassword = request.form['newpassword']
+        repeatPassword = request.form['repeatpassword']
+
+        if(repeatPassword == newPassword):
+            # print("Passwords são iguais", file=sys.stderr)
+            for user in confList[0].users:
+                if user.uuid == useruuid:
+                    # print("Utilizador encontrado", file=sys.stderr)
+                    success = user.ChangeUserPassword(oldPassword, newPassword)
+
+                    if (success == True):
+                        
+                        # Save configuration file with user info
+                        configName = "base.conf"
+                        filepath = os.path.join(app.root_path, 'config', configName)
+                        cfg.SaveConfiguration(confList[0], filepath)
+
+                        session['information'] = "Password changed with success!"
+                        return redirect('/index')
+                    else:
+                        session['warning'] = "Error changing password! Please check old password."
+                        return redirect('/index')
+
+        session['warning'] = "Error changing password! New password does not match."
+        return redirect('/index')
+
+    return redirect('/index')
+
 @app.route("/sandbox/", methods=['GET'])
 def sandbox():
     if (session.get('autenticated') != True):
@@ -195,6 +250,134 @@ def usage():
 
     return render_template('usage.html')
 
+@app.route("/automation/<uuid>", methods=['GET', 'POST', 'PUT'])
+def automation(uuid):
+    if(request.method == 'GET'):
+        #flowData = session.get('automation')
+        for model in modelsList:
+            if (model.uuid == uuid):
+                diagram = None
+                run = False
+                if hasattr(model, 'flow'):
+                    try:
+                        diagram = model.flow.jsonLayout
+                        run = model.flow.service.is_alive()
+                    except:
+                        run=False
+                return render_template('automation.html', models=modelsList, flowData=diagram, Model=model, Run=run)
+
+        return render_template('automation.html', models=modelsList, flowData="", uuid=uuid, Run=False)
+    
+    if(request.method == 'POST'):
+        resultJson = json.loads(request.data)
+        #print(str(resultJson), file=sys.stderr)
+        for model in modelsList:
+            if (model.uuid == uuid):
+                #model.SetAutomationDiagram(str(resultJson))
+                model.SetAutomationDiagram(request.data)
+                # Save model with new data
+                try:
+                    # Auto Update from version 6 to 7 by applying the Automation
+                    if model.modelVersion == 6:
+                        model.modelVersion = 7
+
+                    # Save the model
+                    mMan = ModelManager()
+                    modelFileName = model.name + ".model"
+                    filepath = os.path.join(app.root_path, 'models', modelFileName)
+                    mMan.SaveModel(model, filepath)
+                    UpdateModelsList()
+                    # Start the execution of the Flow
+                    #model.flow.Start()
+                    #run = model.flow.service.is_alive()
+                    run = False
+
+                    return render_template('automation.html', models=modelsList, flowData=str(resultJson), Model=model, Run=run)        
+                except Exception as err:
+                    print("Error saving model to " + model.modelPath + ", due to " + str(err), file=sys.stderr)
+
+                UpdateModelsList()
+                return render_template('automation.html', models=modelsList, flowData=str(resultJson), Model=model, Run=False)
+
+       #return render_template('automation.html', models=modelsList, flowData=str(resultJson), uuid=uuid)
+    
+    if(request.method == 'PUT'):
+        # Control the satus of the flow
+        resultJson = json.loads(request.data)
+
+        for model in modelsList:
+            if (model.uuid == uuid):
+                # Flow commands
+                if resultJson['COMMAND'] == "start_flow":
+                    try:
+                        model.flow.Start()
+                        status = {
+                            "Command" : "start_flow",
+                            "Status" : "success"
+                        }
+                        return jsonify(status), 200
+                    except:
+                        status = {
+                            "Command" : "start_flow",
+                            "Status" : "fail"
+                        }
+                        return jsonify(status), 412
+                elif resultJson['COMMAND'] == "stop_flow":
+                    try:
+                        model.flow.Stop()
+                        status = {
+                            "Command" : "stop_flow",
+                            "Status" : "success"
+                        }
+                        return jsonify(status), 200
+                    except:
+                        status = {
+                            "Command" : "stop_flow",
+                            "Status" : "fail"
+                        }
+                        return jsonify(status), 412 
+                elif resultJson['COMMAND'] == "delete_flow":
+                    try:
+                        model.flow
+                        model.flow = Flow()
+                        model.flow.SetJsonLayout(json.loads(""))
+                        
+                        # Save the model
+                        mMan = ModelManager()
+                        modelFileName = model.name + ".model"
+                        filepath = os.path.join(app.root_path, 'models', modelFileName)
+                        mMan.SaveModel(model, filepath)
+                        UpdateModelsList()
+                        
+                        return "success", 200 
+                    except:
+                        return "Error deleting flow", 200 
+                # Get node data
+                elif resultJson['COMMAND'] == "get_data":
+                    for thisnode in model.flow.Nodes:
+                        if thisnode.nodeClass == "s7variable":
+                            print(thisnode.outputValue, file=sys.stderr)
+
+                        if thisnode.nodeClass == "chart":
+                            #print("Node id " + str(thisnode.id) + " Node type: " + str(thisnode.nodeClass) + " Value: " + str(thisnode.outputValue), file=sys.stderr)
+                            return jsonify(thisnode.outputValue), 200
+                # Get node status
+                elif resultJson['COMMAND'] == "get_node_status":
+                    nodeStatus = []
+                    for thisnode in model.flow.Nodes:
+                        nodeData = {
+                            'nodeId': thisnode.id,
+                            'nodeClass': thisnode.nodeClass,
+                            'value': thisnode.outputValue,
+                            'error': thisnode.error,
+                            'errorText': thisnode.errorText,
+                        }
+
+                        nodeStatus.append(nodeData)
+
+                    return jsonify(nodeStatus), 200
+
+
 @app.route("/flows/", methods=['GET'])
 def flows():
     conf = confList[0]
@@ -205,6 +388,14 @@ def details(uuid):
     for model in modelsList:
         if (model.uuid == uuid):
             equation = ""
+
+            if model.modelType == "detection":
+                values = pd.DataFrame(model.realTestList)
+                #print(values, file=sys.stderr)
+                rawdata = list(values.values.tolist())
+                #print(rawdata, file=sys.stderr)
+                return render_template('details.html', Model=model, equation=equation, rawdata=rawdata)
+
             # Check if it's linear regression and calculate the equation
             if str(model.model) == "LinearRegression()":
                 equation = "y = "
@@ -214,7 +405,6 @@ def details(uuid):
                     pos = pos+1
                 
                 equation = equation + str(round(model.model.intercept_,3))
-
 
             return render_template('details.html', Model=model, equation=equation)
   
@@ -287,8 +477,9 @@ def predict(uuid):
             if (model.uuid == uuid):
                 activeModel = model
                 try:
-                    result =model.model.predict(inputData)
-                except:
+                    result = model.model.predict(inputData)
+                except Exception as error:
+                    print(str(error), file=sys.stderr)
                     return render_template('predict.html', Model=activeModel, Error=True) 
 
         #print(round(result[0][0],2), file=sys.stderr)
@@ -298,12 +489,15 @@ def predict(uuid):
                 resultValue = result[0][0]
             except:
                 resultValue = result[0]
-            #return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(result[0][0],2)))
-            # Calculate the min and max expected according MSE score
-            minResult = resultValue - (math.sqrt(activeModel.MSE)/2)
-            maxResult = resultValue + (math.sqrt(activeModel.MSE)/2)
-
-            return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
+            
+            if activeModel.modelType != "detection":
+                #return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(result[0][0],2)))
+                # Calculate the min and max expected according MSE score
+                minResult = resultValue - (math.sqrt(activeModel.MSE)/2)
+                maxResult = resultValue + (math.sqrt(activeModel.MSE)/2)
+                return render_template('predict.html', Model=activeModel, Result="{:,}".format(round(resultValue,2)), Features=features, MinResult="{:,}".format(round(minResult,2)), MaxResult="{:,}".format(round(maxResult,2)), Units=activeModel.pVariableUnits) 
+            else:
+                return render_template('predict.html', Model=activeModel, Result=resultValue, Features=features)
         else:
             return redirect(url_for('index'))
 
@@ -445,6 +639,15 @@ def datastudio():
             dataOperation = DataOperation("filtercol", params)
             session['data_studio'].AddOperation(dataOperation)
         
+        elif(request.form['mod']=='remoutliers'):
+            column = request.form['column']
+            top = bool(request.form.get('upperOutliers'))
+            bottom = bool(request.form.get('lowerOutliers'))
+
+            params = [column, top, bottom]
+            dataOperation = DataOperation("remoutliers", params)
+            session['data_studio'].AddOperation(dataOperation)
+        
         elif(request.form['mod']=="deloperation"):
             operationUUID = request.form['uuid']
             id = request.form['pos']
@@ -532,6 +735,13 @@ def datastudio():
                 value = request.form['filtervalue']
                 params = [column, operator, value]
                 session['data_studio'].EditOperation(operationuuid, params)
+            
+            elif(operationType == "remoutliers"):
+                column = request.form['column']
+                upper = bool(request.form.get('upperOutliers'))
+                lower = bool(request.form.get('lowerOutliers'))
+                params = [column, upper, lower]
+                session['data_studio'].EditOperation(operationuuid, params)
 
             elif(operationType == "script"):
                 script = request.form['editcode']
@@ -556,10 +766,13 @@ def datastudio():
                             "v":session['data_studio'].processedData[titleX].corr(session['data_studio'].processedData[titleY])}
                             )
 
-            print(config.Ollama, file=sys.stderr)
+            #print(config.Ollama, file=sys.stderr)
+            if (config.usePyGWalker == True):
+                visualizationData = pyg.to_html(session['data_studio'].processedData, default_tab='data', appearance='light')
+            else:
+                visualizationData = ""
 
-
-            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console, config=config)
+            return render_template('datastudio.html', tables=[session['data_studio'].processedData.head(n=10).to_html(classes='table table-hover table-sm text-center table-bordered', header="true")], titles=session['data_studio'].processedData.columns.values, uploaded=True, descTable=[session['data_studio'].processedData.describe().to_html(classes='table table-hover text-center table-bordered', header="true")], datatypes = session['data_studio'].processedData.dtypes, rawdata=list(session['data_studio'].processedData.values.tolist()), datastudio=session['data_studio'], matrixData = matrix, matrixTitles = matrixTitles, console=session['data_studio'].console, config=config,html_str=visualizationData)
         else:
             emptyList = []
             emptyList.append((0,1))
@@ -576,7 +789,7 @@ def datastudio():
 
 @app.route("/usermanager/", methods=['GET', 'POST'])
 def usermanager():
-    if (session.get('role') != 'Administrator'):
+    if (session.get('role') != UserRole.ADMIN):
         return redirect('/notauthorized')
 
     return render_template('usermanager.html')
@@ -719,6 +932,97 @@ def knnreg():
         # TODO: Add here the code to push the max of features to the page
         featuresCount = len(session['temp_df_x'].columns)
         return render_template('knnreg.html', FeaturesCount = featuresCount)
+
+@app.route("/lof/", methods=['GET', 'POST'])
+def lof():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    if(request.method == 'POST'):
+
+        params = lof_detection_params()
+        params.name = request.form['name']
+        params.description = request.form['description']
+        params.keywords = request.form['keywords'].split(";")
+        params.scaling = True
+        params.featureRed = False
+        params.testSize = int(request.form['testsize']) / 100
+        params.contamination = float(request.form['contamination'])
+        params.novelty = True
+        params.n_neighbors = int(request.form['neighbors'])
+        params.algorithm = request.form['algorithm']
+        params.leaf_size = int(request.form['leaf'])
+        params.p = int(request.form['p2'])
+        params.metric = request.form['metric']
+
+        if request.form['n_jobs'] == 'none':
+            params.n_jobs = None
+        else:
+            params.n_jobs == -1
+
+        pModel = LofDetection(session['temp_df'], session['temp_df_units'], params)
+        # Setup the remaing data of the model
+        pModel.SetModelVersion(model_version, appversion)
+        pModel.SetDataStudioData(session['data_studio'])
+
+        # Save the model
+        mMan = ModelManager()
+        modelFileName = params.name + ".model"
+        filepath = os.path.join(app.root_path, 'models', modelFileName)
+        mMan.SaveModel(pModel, filepath)
+
+        UpdateModelsList()
+        return redirect('/sandbox')
+    
+    else:
+        # TODO: Add here the code to push the max of features to the page
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('lof.html', FeaturesCount = featuresCount)
+
+@app.route("/isolationforest/", methods=['GET', 'POST'])
+def isolationforest():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    
+    if(request.method == 'POST'):
+
+        params = isolationForest_detection_params()
+        params.name = request.form['name']
+        params.description = request.form['description']
+        params.keywords = request.form['keywords'].split(";")
+        params.scaling = True
+        params.featureRed = False
+        #params.testSize = int(request.form['testsize']) / 100
+        params.testSize = 0.3
+
+        params.n_estimators=int(request.form['estimators'])
+        params.max_samples='auto'
+        params.contamination = float(request.form['contamination'])
+        params.max_features=1.0
+        params.bootstrap=False
+        params.n_jobs=None
+        params.random_state=None
+        params.verbose=0
+        params.warm_start=False
+
+        pModel = IsolationForestDetection(session['temp_df'], session['temp_df_units'], params)
+        # Setup the remaing data of the model
+        pModel.SetModelVersion(model_version, appversion)
+        pModel.SetDataStudioData(session['data_studio'])
+
+        # Save the model
+        mMan = ModelManager()
+        modelFileName = params.name + ".model"
+        filepath = os.path.join(app.root_path, 'models', modelFileName)
+        mMan.SaveModel(pModel, filepath)
+
+        UpdateModelsList()
+        return redirect('/sandbox')
+    
+    else:
+        # TODO: Add here the code to push the max of features to the page
+        featuresCount = len(session['temp_df_x'].columns)
+        return render_template('isolationforest.html', FeaturesCount = featuresCount)
 
 @app.route("/knn/", methods=['GET', 'POST'])
 def knn():
@@ -1399,7 +1703,7 @@ def Login():
 
     user = confList[0].UserLogin(name, password)
 
-    print(user)
+    #print(user)
 
     if (user != None):
         session['user'] = user.name
@@ -1416,10 +1720,6 @@ def Login():
         session['temp_df_x'] = pd.DataFrame()
         session['temp_df_units'] = []
         session['temp_best_models'] = []
-
-        if len(confList) > 0:
-            if confList[0].Ollama == True:
-                session['ChatAI'] = ChatAI(confList[0].OllamaEndpoint, confList[0].OllamaModel)
 
     else:
         session['warning'] = "Error login. Wrong username or password!"
@@ -1535,39 +1835,44 @@ def ApiPredict(uuid):
                     except:
                         innerResult = result[0]
                     
-                    minResult = innerResult - (math.sqrt(model.MSE)/2)
-                    maxResult = innerResult + (math.sqrt(model.MSE)/2)
+                    if model.modelType != "detection":
+                        minResult = innerResult - (math.sqrt(model.MSE)/2)
+                        maxResult = innerResult + (math.sqrt(model.MSE)/2)
 
-                    data = {
-                        "UUID" : model.uuid,
-                        "Model" : model.name,
-                        "Description" : model.description,
-                        "Prediction" : innerResult,
-                        "MinPrediction" : minResult,
-                        "MaxPrediction" : maxResult,
-                        "Features": json.loads(featuresJson)
-                    }
+                        data = {
+                            "UUID" : model.uuid,
+                            "Model" : model.name,
+                            "Description" : model.description,
+                            "Prediction" : innerResult,
+                            "MinPrediction" : minResult,
+                            "MaxPrediction" : maxResult,
+                            "Features": json.loads(featuresJson)
+                        }
 
-                    return jsonify(data), 200
-                except:
+                        return jsonify(data), 200
+                    else:
+                        isAnomally = False
+                        if innerResult == -1:
+                            isAnomally = True
 
+                        data = {
+                            "UUID" : model.uuid,
+                            "Model" : model.name,
+                            "Description" : model.description,
+                            "Prediction" : str(innerResult),
+                            "IsAnomaly" : isAnomally,
+                            "Features": json.loads(featuresJson)
+                        }
+
+                        return jsonify(data), 200
+
+                except Exception as error:
+                    print(str(error), file=sys.stderr)
                     return "Error predicting value.", 404
         
         return "Model not found", 404
-
-# ChatAI API
-@app.route("/api/chat/ask", methods=['POST'])
-def AskQuestion():
-    body = json.loads(request.data)
-    question = body["prompt"]
-
-    assistent = ChatAI("http://localhost:11434/api/","gemma:2b")
-    response = assistent.AskQuestion(question)
-    return jsonify(response), 200
-
 
 if __name__ == '__main__':
     UpdateModelsList()
     UpdateConfigurationList()
     app.run(host="0.0.0.0", port=5001, debug=True)
-

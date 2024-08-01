@@ -74,6 +74,8 @@
                                   <td style="vertical-align: middle;"><span class="badge rounded-pill bg-warning">Not defined</span></td>
                                   {% endif %}
                                   <td style="vertical-align: middle;">{{model.datetime.strftime('%d/%m/%Y %H:%M')}}</td>
+
+                                  {% if model.modelType != "detection" %}
                                   <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better" id="tour-index-rmse">{{ '%0.1f'|format(model.RMSE)}} {{model.pVariableUnits}}</td>
                                   <!--td data-toggle="tooltip" title="R2 score: Higher is better">{{ '%0.1f'|format(model.R2 * 100)}}%</td-->
                                   <td style="vertical-align: middle;" id="tour-index-r2">
@@ -87,6 +89,15 @@
                                       {% endif %}  
                                     </div>
                                   </td>
+                                  {% else %}
+                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better" id="tour-index-rmse">N/D</td>
+                                  <td style="vertical-align: middle;" id="tour-index-r2">
+                                    <div class="progress">
+                                      <div class="progress-bar bg-secondary" style="width:100%">not defined</div>
+                                    </div> 
+                                  </td>
+                                  {% endif %}
+
                                   <td style="vertical-align: middle;">
                                     <div class="btn-group" role="group" aria-label="Action commands" id="tour-index-commands">
                                         <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>

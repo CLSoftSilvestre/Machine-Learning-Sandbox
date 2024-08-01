@@ -1,0 +1,1134 @@
+{% extends 'base.html' %}
+
+{% block title %} Automation {% endblock %}
+
+{% block content %}
+  <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js" integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow@0.0.48/dist/drawflow.min.css">
+  <link rel="stylesheet" type="text/css" href="../static/css/beautifull.css" />
+  <link rel="stylesheet" type="text/css" href="../static/css/drawflowtheme.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
+  <!--link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"-->
+  <!--script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script-->
+  <!--script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script-->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="text/javascript" src="../static/js/polyfit.js"></script>
+
+  <div class="toast-container bottom-0 end-0" id="toastPlacement">
+    <div class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <b>Warning</b> Only one instance of this node type is permited!
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="wrapper">
+    <div class="col">
+
+      <div class="accordion acordion-flush" id="accordionParameters">
+
+        <!-- Generic nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingGeneric">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseGeneric" aria-expanded="true" aria-controls="collapseGeneric">
+              <h5><i class="fa-solid fa-home"></i> Generic nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseGeneric" class="accordion-collapse collapse show" aria-labelledby="headingGeneric" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <!-- Comment Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="generic_comment">
+                  <i class="fa-solid fa-message"></i><span> Comment</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Connectivity nodes -->
+         <div class="accordion-item">
+          <h2 class="accordion-header" id="headingConnectivity">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseConnectivity" aria-expanded="true" aria-controls="collapseConnectivity">
+              <h5><i class="fa-solid fa-plug"></i> Inbount nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseConnectivity" class="accordion-collapse collapse show" aria-labelledby="headingConnectivity" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <!-- MQTT Nodes -->
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
+                  <i class="fa-solid fa-plug"></i><span> MQTT broker connector</span>
+                </div-->
+          
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
+                  <i class="fa-solid fa-hashtag"></i><span> MQTT topic subscription</span>
+                </div-->
+
+                <!-- S7 connection Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_connector">
+                  <i class="fa-solid fa-plug"></i><span> Siemens S7 connector</span>
+                </div>
+          
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_variable">
+                  <i class="fa-solid fa-hashtag"></i><span> Siemens S7 variable</span>
+                </div>
+
+                <!-- OPC UA connection Nodes -->
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_connector">
+                  <i class="fa-solid fa-plug"></i><span> OPC UA connector</span>
+                </div-->
+          
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_variable">
+                  <i class="fa-solid fa-hashtag"></i><span> OPC UA variable</span>
+                </div-->
+
+                <!-- Static value Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="static_value">
+                  <i class="fa-solid fa-thumbtack"></i><span> Static value</span>
+                </div>
+
+                <!-- Random value Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="random_value">
+                  <i class="fa-solid fa-dice"></i><span> Random value</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Models nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingModels">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseModels" aria-expanded="true" aria-controls="collapseModels">
+              <h5><i class="fa-solid fa-square-root-variable"></i> Models nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseModels" class="accordion-collapse collapse show" aria-labelledby="headingModels" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <!-- Model Node -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="model">
+                  <i class="fa-solid fa-square-root-variable"></i><span> {{Model.name}}</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operations nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOperations">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseOperations" aria-expanded="true" aria-controls="collapseOperations">
+              <h5><i class="fa-solid fa-calculator"></i> Data operation nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseOperations" class="accordion-collapse collapse show" aria-labelledby="headingOperations" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_addition">
+                  <i class="fa-solid fa-calculator"></i><span> Addition</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_subtraction">
+                  <i class="fa-solid fa-calculator"></i><span> Subtraction</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_multiplication">
+                  <i class="fa-solid fa-calculator"></i><span> Multiplication</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_division">
+                  <i class="fa-solid fa-calculator"></i><span> Division</span>
+                </div>
+   
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outbound nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOutbound">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseOutbound" aria-expanded="true" aria-controls="collapseOutbound">
+              <h5><i class="fa-solid fa-file-export"></i> Outbount nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseOutbound" class="accordion-collapse collapse show" aria-labelledby="headingOutbound" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_csv">
+                  <i class="fa-solid fa-file-csv"></i><span> CSV file</span>
+                </div-->
+
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_sql">
+                  <i class="fa-solid fa-database"></i><span> SQL server</span>
+                </div-->
+
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_email">
+                  <i class="fa-solid fa-at"></i><span> Email</span>
+                </div-->
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_chart">
+                  <i class="fa-solid fa-chart-line"></i><span> Line Chart</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_display">
+                  <i class="fa-solid fa-display"></i><span> Display value</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="facebook">
+        <i class="fab fa-facebook"></i><span> Facebook</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="slack">
+        <i class="fab fa-slack"></i><span> Slack receive message</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="github">
+        <i class="fab fa-github"></i><span> Github Star</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="telegram">
+        <i class="fab fa-telegram"></i><span> Telegram send message</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="aws">
+        <i class="fab fa-aws"></i><span> AWS</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="log">
+        <i class="fas fa-file-signature"></i><span> File Log</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="google">
+        <i class="fab fa-google-drive"></i><span> Google Drive save</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="email">
+        <i class="fas fa-at"></i><span> Email send</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="template">
+        <i class="fas fa-code"></i><span> Template</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="multiple">
+        <i class="fas fa-code-branch"></i><span> Multiple inputs/outputs</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="personalized">
+        <i class="fas fa-fill"></i><span> Personalized</span>
+      </div>
+      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="dbclick">
+        <i class="fas fa-mouse"></i><span> DBClick!</span>
+      </div-->
+
+
+    </div>
+    <div class="col-right">
+      <div class="menu">
+        <ul>
+          <li onclick="editor.changeModule('Home'); changeModule(event);" class="selected">Automation flow</li>
+          <!--li onclick="editor.changeModule('Other'); changeModule(event);">Other Module</li-->
+        </ul>
+      </div>
+      <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+        <div class="btn-group btn-group-sm commands-group" role="group" aria-label="Action commands">
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Start flow" onclick="startFlow()" id="btnStartFlow"><i class="fa-solid fa-play"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Stop flow" onclick="stopFlow()" id="btnStopFlow"><i class="fa-solid fa-stop"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
+          <a href="#" type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="Delete flow" onclick="deleteFlow()" id="btnDeleteFlow"><i class="fa-solid fa-trash-can"></i></a>
+        </div>
+
+        <div class="btn-group btn-group-sm zoom-group" role="group" aria-label="Zoom commands">
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Decrease zoom" onclick="editor.zoom_out()" id="btnZoomMinus"><i class="fa fa-search-minus"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Reset zoom" onclick="editor.zoom_reset()" id="btnZoomReset"><i class="fa-solid fa-search"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Increase zoom" onclick="editor.zoom_in()" id="btnZoomPlus"><i class="fa fa-search-plus"></i></a>
+        </div>
+
+        <!--div class="btn-lock">
+          <i id="lock" class="fas fa-lock-open"></i>
+          <i id="unlock" class="fas fa-lock" style="display:none;"></i>
+        </div-->
+        <!--div class="bar-zoom">
+          <i class="fas fa-search-minus" onclick="editor.zoom_out()"></i>
+          <i class="fas fa-search" onclick="editor.zoom_reset()"></i>
+          <i class="fas fa-search-plus" onclick="editor.zoom_in()"></i>
+        </div-->
+        <div class="flow-status">
+          {% if Run == True %}
+          <p id="flow-status-text"><i class="fa-solid fa-circle-play"></i> Flow is running</p>
+          {% else %}
+          <p id="flow-status-text"><i class="fa-solid fa-circle-stop"></i> Flow is stopped</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var id = document.getElementById("drawflow");
+    const editor = new Drawflow(id);
+    editor.reroute = true;
+
+    editor.start();
+    const False = Boolean(false);
+    const True = Boolean(true);
+    const flowData = {{flowData|safe}};
+    console.log(flowData);
+    editor.import(flowData);
+
+    // Events!
+    editor.on('nodeCreated', function(id) {
+      console.log("Node created " + id);
+    })
+
+    editor.on('nodeRemoved', function(id) {
+      console.log("Node removed " + id);
+    })
+
+    editor.on('nodeSelected', function(id) {
+      console.log("Node selected " + id);
+    })
+
+    editor.on('moduleCreated', function(name) {
+      console.log("Module Created " + name);
+    })
+
+    editor.on('moduleChanged', function(name) {
+      console.log("Module Changed " + name);
+    })
+
+    editor.on('connectionCreated', function(connection) {
+      console.log('Connection created');
+      console.log(connection);
+    })
+
+    editor.on('connectionRemoved', function(connection) {
+      console.log('Connection removed');
+      console.log(connection);
+    })
+
+    editor.on('mouseMove', function(position) {
+      //console.log('Position mouse x:' + position.x + ' y:'+ position.y);
+    })
+
+    editor.on('nodeMoved', function(id) {
+      console.log("Node moved " + id);
+    })
+
+    editor.on('zoom', function(zoom) {
+      console.log('Zoom level ' + zoom);
+    })
+
+    editor.on('translate', function(position) {
+      console.log('Translate x:' + position.x + ' y:'+ position.y);
+    })
+
+    editor.on('addReroute', function(id) {
+      console.log("Reroute added " + id);
+    })
+
+    editor.on('removeReroute', function(id) {
+      console.log("Reroute removed " + id);
+    })
+
+    /* DRAG EVENT */
+
+    /* Mouse and Touch Actions */
+
+    var elements = document.getElementsByClassName('drag-drawflow');
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].addEventListener('touchend', drop, false);
+      elements[i].addEventListener('touchmove', positionMobile, false);
+      elements[i].addEventListener('touchstart', drag, false );
+    }
+
+    var mobile_item_selec = '';
+    var mobile_last_move = null;
+
+   function positionMobile(ev) {
+     mobile_last_move = ev;
+   }
+
+   function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      if (ev.type === "touchstart") {
+        mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
+      } else {
+      ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+      }
+    }
+
+    function drop(ev) {
+      if (ev.type === "touchend") {
+        var parentdrawflow = document.elementFromPoint( mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
+        if(parentdrawflow != null) {
+          addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
+        }
+        mobile_item_selec = '';
+      } else {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("node");
+        addNodeToDrawFlow(data, ev.clientX, ev.clientY);
+      }
+
+    }
+
+    function addNodeToDrawFlow(name, pos_x, pos_y) {
+      if(editor.editor_mode === 'fixed') {
+        return false;
+      }
+      pos_x = pos_x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
+      pos_y = pos_y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
+
+      // Check for unique nodes (Model, Siemens Connector)
+      if(name == "model"){
+        modelLst = editor.getNodesFromName("model");
+        if (modelLst.length > 0){
+          console.log("Model already imported");
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "s7_connector"){
+        modelLst = editor.getNodesFromName("s7connector");
+        if (modelLst.length > 0){
+          console.log("Model already imported");
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "out_chart"){
+        modelLst = editor.getNodesFromName("chart");
+        if (modelLst.length > 0){
+          console.log("Model already imported");
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      switch (name) {
+        {% for model in models %}
+        case 'generic_comment':
+          var commenttemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-message"></i> Comment </div>
+            <div class="box">
+              <textarea type="text" df-textcomment><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('comment', 0, 0, pos_x, pos_y, 'comment', { "textcomment": ''}, commenttemplate );
+          break;
+        case 'model':
+          var model = `
+          <div>
+            <div class="title-box"><img src="../static/img/deep-learning-digitops.png" style="max-width:30px;"> MLS Model</div>
+            <span style="margin:10px;">{{Model.name}}</span><br><br>
+            <div style="margin-left:10px; margin-right:10px;">
+              <span>Inputs list:</span>
+              {% for variable in Model.variables %}
+                <li><b>Input {{loop.index0 + 1}}</b> - {{variable.name}}</li>
+              {% endfor %}
+            </div>
+          </div>
+        `;
+          editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}"}, model);
+          break;
+        {% endfor %}
+        case 'mqtt_connector':
+          var mqttconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Connector </div>
+            <div class="box">
+              <p>Broker parameters</p>
+              <input type="text" df-mqtt-server placeholder="http://localhost/"><br><br>
+              <input type="number" df-mqtt-port placeholder="1883" value=1883><br><br>
+              <input type="text" df-mqtt-username placeholder="user"><br><br>
+              <input type="password" df-mqtt-password placeholder="password"><br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('mqttconnector', 0, 1, pos_x, pos_y, 'mqttconnector', { "mqtt": { "server": '', "port": '', "username": '', "password": '' }}, mqttconnector );
+          break;
+        case 'mqtt_topic':
+          var mqtttopic = `
+          <div>
+            <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Subscription </div>
+            <div class="box">
+              <p>MQTT Topic</p>
+            <input type="text" df-topic>
+            </div>
+          </div>
+          `;
+          editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": ''}, mqtttopic );
+          break;
+        case 'opcua_connector':
+          var opcuaconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/opcua.png" style="max-width:80px;">Connector </div>
+            <div class="box">
+              <p>OPC UA server parameters</p>
+              <input type="text" df-opcua-endpoint placeholder="opc.tcp://localhost"><br><br>
+              <input type="number" df-opcua-port placeholder="4840" value=4840><br>
+              <p>Security policy</p>
+              <select df-opcua-policy>
+                <option value="none">None</option>
+              </select> <br><br>
+              <input type="text" df-opcua-username placeholder="user"><br><br>
+              <input type="password" df-opcua-password placeholder="password"><br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('opcuaconnector', 0, 1, pos_x, pos_y, 'opcuaconnector', { "opcua": { "endpoint": '', "port": '', "policy": '', "username": '', "password": '' }}, opcuaconnector );
+          break;
+        case 'opcua_variable':
+          var opcuavariable = `
+          <div>
+            <div class="title-box"><img src="../static/img/opcua.png" style="max-width:80px;">Variable </div>
+            <div class="box">
+              <p>OPC UA Address</p>
+            <input type="text" df-variable placeholder="ns=2;s=MyVariable"><br><br>
+            <select df-opcua-type>
+                <option value="Int8">Int8</option>
+                <option value="Int16">Int16</option>
+                <option value="Int32">Int32</option>
+                <option value="Int64">Int64</option>
+                <option value="UInt8">UInt8</option>
+                <option value="UInt16">UInt16</option>
+                <option value="UInt32">UInt32</option>
+                <option value="UInt64">UInt64</option>
+                <option value="Byte">Byte</option>
+                <option value="SByte">SByte</option>
+                <option value="Float">Float</option>
+                <option value="Double">Double</option>
+                <option value="Boolean">Boolean</option>
+            </select> <br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('opcuavariable', 1, 1, pos_x, pos_y, 'opcuavariable', { "variable": ''}, opcuavariable );
+          break;
+        case 's7_connector':
+          var s7connector = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> S7 Connector </div>
+            <div class="box">
+              <p>Simatic PLC parameters</p>
+              <p>PLC IP address</p>
+              <input type="text" df-s7-ip placeholder="192.168.0.1"><br>
+              <p>PLC Family</p>
+              <select df-s7-family>
+                <option value="logo">Logo!</option>
+                <option value="300">S7-300</option>
+                <option value="400">S7-400</option>
+                <option value="1200">S7-1200</option>
+                <option value="1500">S7-1500</option>
+              </select> <br>
+              <p>Rack</p>
+              <input type="number" df-s7-rack placeholder="rack number" value=1><br>
+              <p>Slot</p>
+              <input type="number" df-s7-slot placeholder="slot number" value=2><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('s7connector', 0, 1, pos_x, pos_y, 's7connector', { "s7": { "ip": '', "rack": '', "slot": '', "family": ''}}, s7connector );
+          break;
+        case 's7_variable':
+          var s7variable = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> S7 Variable </div>
+            <div class="box">
+              <p>S7 variable settings</p>
+              <p>DB number</p>
+              <input type="number" df-db placeholder="DB number"><br>
+              <p>Start offset</p>
+              <input type="number" df-start placeholder="Start offset"><br>
+              <p>Size in bytes</p>
+              <input type="number" df-size placeholder="Size"><br>
+
+            </div>
+          </div>
+          `;
+          editor.addNode('s7variable', 1, 1, pos_x, pos_y, 's7variable', { "db": '', "start": '',"size": ''}, s7variable );
+          break;
+        case 'static_value':
+          var statictemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-thumbtack "></i> Static value</div>
+            <div class="box">
+              <p>Enter the static value</p>
+              <input type="number" df-staticvalue>
+            </div>
+          </div>
+          `;
+          editor.addNode('static', 0, 1, pos_x, pos_y, 'static', { "staticvalue": ''}, statictemplate );
+          break;
+        case 'random_value':
+          var randomtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-dice "></i> Random value</div>
+            <div class="box">
+              <p>Minimum value</p>
+              <input type="number" df-minvalue>
+              <p>Maximum value</p>
+              <input type="number" df-maxvalue>
+            </div>
+          </div>
+          `;
+          editor.addNode('random', 0, 1, pos_x, pos_y, 'random', { "minvalue": '',"maxvalue": ''}, randomtemplate );
+          break;
+        case 'out_email':
+          var emailtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-at "></i> Email</div>
+            <div class="box">
+              <p>Destination</p>
+              <input type="text" df-destination>
+            </div>
+          </div>
+          `;
+          editor.addNode('email', 1, 0, pos_x, pos_y, 'email', { "destination": ''}, emailtemplate );
+          break;
+        case 'out_chart':
+          var charttemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-chart-line"></i> Line chart</div>
+            <div class="box">
+              <canvas id="myChart" width="300" height="200"></canvas>
+            </div>
+          </div>
+          `;
+          editor.addNode('chart', 1, 0, pos_x, pos_y, 'chart', {}, charttemplate );
+          break;
+        case 'out_display':
+          var displaytemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-display"></i> Display value</div>
+            <div class="box">
+              <div class='display backlight'>
+                <input id='value' type='text' maxlength='12' class='content' value='-' disabled></input>
+              </div>
+            </div>
+          </div>
+          `;
+          editor.addNode('display', 1, 0, pos_x, pos_y, 'display', {}, displaytemplate );
+          break;
+        case 'oper_addition':
+          var additiontemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-calculator"></i> Addition operation</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-plus"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('addition', 2, 1, pos_x, pos_y, 'addition', {}, additiontemplate );
+          break;
+        case 'oper_subtraction':
+          var subtractiontemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-calculator "></i> Subtraction operation</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-minus"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('subtraction', 2, 1, pos_x, pos_y, 'subtraction', {}, subtractiontemplate );
+          break;
+        case 'oper_multiplication':
+          var multiplicationtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-calculator "></i> Multiplication operation</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-xmark"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('multiplication', 2, 1, pos_x, pos_y, 'multiplication', {}, multiplicationtemplate );
+          break;
+        case 'oper_division':
+          var divisiontemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-calculator "></i> Division operation</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-divide"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('division', 2, 1, pos_x, pos_y, 'division', {}, divisiontemplate );
+          break;
+        case 'telegram':
+          var telegrambot = `
+          <div>
+            <div class="title-box"><i class="fab fa-telegram-plane"></i> Telegram bot</div>
+            <div class="box">
+              <p>Send to telegram</p>
+              <p>select channel</p>
+              <select df-channel>
+                <option value="channel_1">Channel 1</option>
+                <option value="channel_2">Channel 2</option>
+                <option value="channel_3">Channel 3</option>
+                <option value="channel_4">Channel 4</option>
+              </select>
+            </div>
+          </div>
+          `;
+          editor.addNode('telegram', 1, 0, pos_x, pos_y, 'telegram', { "channel": 'channel_3'}, telegrambot );
+          break;
+        case 'aws':
+          var aws = `
+          <div>
+            <div class="title-box"><i class="fab fa-aws"></i> Aws Save </div>
+            <div class="box">
+              <p>Save in aws</p>
+              <input type="text" df-db-dbname placeholder="DB name"><br><br>
+              <input type="text" df-db-key placeholder="DB key">
+              <p>Output Log</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('aws', 1, 1, pos_x, pos_y, 'aws', { "db": { "dbname": '', "key": '' }}, aws );
+          break;
+        case 'log':
+          var log = `
+          <div>
+            <div class="title-box"><i class="fas fa-file-signature"></i> Save log file </div>
+          </div>
+          `;
+          editor.addNode('log', 1, 0, pos_x, pos_y, 'log', {}, log );
+          break;
+        case 'google':
+          var google = `
+          <div>
+            <div class="title-box"><i class="fab fa-google-drive"></i> Google Drive save </div>
+          </div>
+          `;
+          editor.addNode('google', 1, 0, pos_x, pos_y, 'google', {}, google );
+          break;
+        case 'email':
+          var email = `
+          <div>
+            <div class="title-box"><i class="fas fa-at"></i> Send Email </div>
+          </div>
+          `;
+          editor.addNode('email', 1, 0, pos_x, pos_y, 'email', {}, email );
+          break;
+        case 'template':
+          var template = `
+          <div>
+            <div class="title-box"><i class="fas fa-code"></i> Template</div>
+            <div class="box">
+              Ger Vars
+              <textarea df-template></textarea>
+              Output template with vars
+            </div>
+          </div>
+          `;
+          editor.addNode('template', 1, 1, pos_x, pos_y, 'template', { "template": 'Write your template'}, template );
+          break;
+        case 'multiple':
+          var multiple = `
+          <div>
+            <div class="box">
+              Multiple!
+            </div>
+          </div>
+          `;
+          editor.addNode('multiple', 3, 4, pos_x, pos_y, 'multiple', {}, multiple );
+          break;
+        case 'dbclick':
+          var dbclick = `
+          <div>
+          <div class="title-box"><i class="fas fa-mouse"></i> Db Click</div>
+            <div class="box dbclickbox" ondblclick="showpopup(event)">
+              Db Click here
+              <div class="modal" style="display:none">
+                <div class="modal-content">
+                  <span class="close" onclick="closemodal(event)">&times;</span>
+                  Change your variable {name} !
+                  <input type="text" df-name>
+                </div>
+
+              </div>
+            </div>
+          </div>
+          `;
+          editor.addNode('dbclick', 1, 1, pos_x, pos_y, 'dbclick', { name: ''}, dbclick );
+          break;
+        default:
+      }
+    }
+
+  var transform = '';
+  function showpopup(e) {
+    e.target.closest(".drawflow-node").style.zIndex = "9999";
+    e.target.children[0].style.display = "block";
+    //document.getElementById("modalfix").style.display = "block";
+
+    //e.target.children[0].style.transform = 'translate('+translate.x+'px, '+translate.y+'px)';
+    transform = editor.precanvas.style.transform;
+    editor.precanvas.style.transform = '';
+    editor.precanvas.style.left = editor.canvas_x +'px';
+    editor.precanvas.style.top = editor.canvas_y +'px';
+    console.log(transform);
+
+    //e.target.children[0].style.top  =  -editor.canvas_y - editor.container.offsetTop +'px';
+    //e.target.children[0].style.left  =  -editor.canvas_x  - editor.container.offsetLeft +'px';
+    editor.editor_mode = "fixed";
+
+  }
+
+   function closemodal(e) {
+     e.target.closest(".drawflow-node").style.zIndex = "2";
+     e.target.parentElement.parentElement.style.display  ="none";
+     //document.getElementById("modalfix").style.display = "none";
+     editor.precanvas.style.transform = transform;
+       editor.precanvas.style.left = '0px';
+       editor.precanvas.style.top = '0px';
+      editor.editor_mode = "edit";
+   }
+
+    function changeModule(event) {
+      var all = document.querySelectorAll(".menu ul li");
+        for (var i = 0; i < all.length; i++) {
+          all[i].classList.remove('selected');
+        }
+      event.target.classList.add('selected');
+    }
+
+    function changeMode(option) {
+
+    //console.log(lock.id);
+      if(option == 'lock') {
+        lock.style.display = 'none';
+        unlock.style.display = 'block';
+      } else {
+        lock.style.display = 'block';
+        unlock.style.display = 'none';
+      }
+
+    }
+
+    function saveDiagram(){
+      //teste
+      var data = editor.export() 
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        });
+    }
+
+    /* CHART scripts */
+    let ctx = null
+    try {
+      ctx = document.getElementById('myChart').getContext('2d');
+    } catch {
+      console.log("Error getting chart")
+    }
+      
+    labelsData = [];
+    predictionData = []
+
+    const myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labelsData,
+                    datasets: [{
+                        label: 'real',
+                        fill: false,
+                        data: predictionData,
+                        borderColor: '#00a87e',
+                        borderWidth: 2,
+                        pointStyle: 'circle',
+                        pointRadius: 2,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                  plugins: {
+                    legend: {
+                      display: false
+                    }
+                  },
+                  responsive: true,
+                  scales: {
+                    x: {
+                      display: true,
+                      title: {
+                        display: false,
+                        text: "Prediction test number",
+                      }  
+                    },
+                    y: {
+                      display: true,
+                      title: {
+                        display: false,
+                        text: "Value",
+                      } 
+                    }
+                  }
+                }
+              });
+    
+    function getNodeStatus()
+    {
+      setTimeout(function() {
+
+        var data2 = {
+          "COMMAND": "get_node_status",
+        }
+
+        const apiUrl = '/automation/{{Model.uuid}}';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data2),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Update the status of each node
+            for (var i=0; i < data.length; i++){
+              //console.log("Node id: " + data[i].nodeId + ", Node type: " + data[i].nodeClass + ", Value: ", + data[i].value + ", Error: ", + data[i].error + ", Message: " + data[i].errorMessage);
+              updateStatusNode(data[i]);
+            }
+ 
+          });
+          getNodeStatus();
+        }, 5000);
+    }
+
+    function startFlow(){
+      var data = {
+        "COMMAND": "start_flow"
+      }
+
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          if (data == "success"){
+            window.location.reload();
+          }  
+        });
+    }
+
+    function stopFlow(){
+      document.getElementById("btnStopFlow").classList.add("disabled")
+      document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-pause"></i> Flow is stopping';
+
+      var data = {
+        "COMMAND": "stop_flow"
+      }
+      
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          window.location.reload();
+          //if (data == "success"){
+            // Means flow stoped...
+            //window.location.reload();
+            //document.getElementById("btnStartFlow").classList.remove("disabled")
+            //document.getElementById("btnStopFlow").classList.add("disabled")
+            //document.getElementById("btnSaveFlow").classList.remove("disabled")
+            //document.getElementById("btnDeleteFlow").classList.remove("disabled")
+            //document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-stop"></i> Flow is stopped';
+          //}  
+        });
+        
+
+    }
+
+    function deleteFlow(){
+      //editor.clearModuleSelected()
+
+      var data = {
+        "COMMAND": "delete_flow"
+      }
+      
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          if (data == "success"){
+            window.location.reload();
+          }  
+        });
+    }
+
+    function addStatusNode(){
+      var elements = document.getElementsByClassName('drawflow-node');
+      for (var i = 0; i < elements.length; i++) {
+        //get node id
+        let rawId = elements[i].id
+        let nodeId = rawId.split("node-")[1]
+        //console.log(nodeId)
+
+        let status = document.createElement("div");
+        status.classList.add("node-status");
+        status.id = "status-" + nodeId;
+        status.innerText = "⚠️";
+        elements[i].appendChild(status);
+        
+      }
+    }
+
+    function updateStatusNode(nodeData){
+      var id = "status-" + nodeData.nodeId
+      if (nodeData.error){
+        document.getElementById(id).innerText = "⚠️";
+      } else {
+        document.getElementById(id).innerText = "";
+      }
+
+      if (nodeData.nodeClass == "display"){
+        var elements = document.getElementsByClassName('drawflow-node');
+        for (var i = 0; i < elements.length; i++) {
+          let rawId = elements[i].id
+          let nodeId = rawId.split("node-")[1]
+
+          if (nodeId == nodeData.nodeId){
+            valueField = elements[i].querySelectorAll("input") 
+            valueField[0].value = nodeData.value
+          }
+        }
+      }
+
+      if (nodeData.nodeClass == "chart"){
+        //Update chart data
+        let now = new Date();
+        labelsData.push(now.toLocaleTimeString("pt-PT"));
+        predictionData.push(nodeData.value);
+        /* Stay only with the last n elements from array */          
+        if (predictionData.length > 50){
+            labelsData.shift();
+            predictionData.shift();
+          }   
+          myChart.update();
+      }
+    }
+
+
+    {% if Run == True %}
+    addStatusNode();
+    getNodeStatus()
+    editor.editor_mode='fixed'
+    //changeMode('lock');
+    document.getElementById("btnStartFlow").classList.add("disabled")
+    document.getElementById("btnStopFlow").classList.remove("disabled")
+    document.getElementById("btnSaveFlow").classList.add("disabled")
+    document.getElementById("btnDeleteFlow").classList.add("disabled")
+
+    {% else %}
+    //addStatusNode();
+    //getNodeStatus();
+    editor.editor_mode='edit'
+    //changeMode('unlock');
+    document.getElementById("btnStartFlow").classList.remove("disabled")
+    document.getElementById("btnStopFlow").classList.add("disabled")
+    document.getElementById("btnSaveFlow").classList.remove("disabled")
+    document.getElementById("btnDeleteFlow").classList.remove("disabled")
+    {% endif %}
+
+  </script>
+{% endblock %}

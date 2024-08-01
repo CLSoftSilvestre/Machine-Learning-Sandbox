@@ -64,6 +64,20 @@
                             <i class="fa-solid fa-gear"></i> Configuration
                         </a>
                       </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('usermanager') }}">
+                            <i class="fa-solid fa-users"></i> User management
+                        </a>
+                      </li>
+                      {% endif %}
+
+                      {% if loggedin %}
+
+                      <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                          <i class="fa-solid fa-key"></i> Change password
+                        </a>
+                      </li>
                       {% endif %}
 
                       <li class="nav-item float-right">
@@ -98,13 +112,103 @@
                     <h5 class="modal-title" id="configurationModalLabel">Application configuration</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
-                  <div class="modal-body">
-                    <!-- INSERT HERE THE CONFIGURATION FORM -->
-                  </div>
+                  <form action="{{url_for('configurator')}}" method="post">
+                    <div class="modal-body">
+                      <!-- INSERT HERE THE CONFIGURATION FORM -->
+            
+                        <div class="form-check form-switch">
+                          <input id="useNodeRed" class="form-check-input" type="checkbox" name="useNodeRed" {% if app_config.NodeRed %} checked {% endif %}>
+                          <label for="useNodeRed" class="form-check-label">Use Node-Red integration</label>
+                        </div>
+            
+                        <div class="mb-3">
+                          <label for="nodeRedEndpoint" class="form-label">Node-Red Endpoint</label>
+                          <input type="text" class="form-control" name="nodeRedEndpoint" id="nodeRedEndpoint" placeholder="http://127.0.0.1:1880" value="{{app_config.NodeRedEndpoint}}">
+                        </div>
+            
+                        <hr>
+            
+                        <div class="form-check form-switch">
+                          <input id="useOllama" class="form-check-input" type="checkbox" name="useOllama" {% if app_config.Ollama %} checked {% endif %}>
+                          <label for="useOllama" class="form-check-label">Use Ollama integration</label>
+                        </div>
+            
+                        <div class="mb-3">
+                          <label for="ollamaEndpoint" class="form-label">Ollama Endpoint</label>
+                          <input type="text" class="form-control" name="ollamaEndpoint" id="ollamaEndpoint" placeholder="http://127.0.0.1:11434/api/" value="{{app_config.OllamaEndpoint}}">
+                        </div>
+            
+                        <div class="mb-3">
+                          <label for="ollamaModel" class="form-label">Ollama Model</label>
+                          <input type="text" class="form-control" name="ollamaModel" id="ollamaModel" placeholder="gemma:2b" value="{{app_config.OllamaModel}}">
+                        </div>
 
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+                        <hr>
+
+                        <div class="form-check form-switch">
+                          <input id="usePyGWalker" class="form-check-input" type="checkbox" name="usePyGWalker" {% if app_config.usePyGWalker %} checked {% endif %}>
+                          <label for="usePyGWalker" class="form-check-label">Use PyGWalker advanced data visualization framework</label>
+                        </div>
+                        <p><i class="fas fa-circle-info"></i> Activating PyGWalker framework can have impact in the Data Studio performance.</p>
+  
+                    </div>
+  
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Save</button>
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    </div>
+
+                  </form>
+                  
+                </div>
+              </div>
+            </div>
+
+            <!-- ChangePassword Modal -->
+            <div class="modal fade" id="changePasswordModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="changePasswordModalLabel">Change password</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                   </div>
+                  <form action="{{url_for('changepassword')}}" method="post">
+                    <div class="modal-body">
+
+                      <div class="mb-3" hidden>
+                        <label for="useruuid" class="form-label">User UUID</label>
+                        <input type="text" class="form-control" name="useruuid" id="useruuid" value="{{useruuid}}">
+                      </div>
+
+                        <div class="mb-3">
+                          <label for="username" class="form-label">Username</label>
+                          <input type="text" class="form-control" name="username" id="username" value="{{username}}" disabled>
+                        </div>
+            
+                        <div class="mb-3">
+                          <label for="oldpassword" class="form-label">Old password</label>
+                          <input type="password" class="form-control" name="oldpassword" id="oldpassword">
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="newpassword" class="form-label">New password</label>
+                          <input type="password" class="form-control" name="newpassword" id="newpassword">
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="repeatpassword" class="form-label">Repeat new password</label>
+                          <input type="password" class="form-control" name="repeatpassword" id="repeatpassword">
+                        </div>
+  
+                    </div>
+  
+                    <div class="modal-footer">
+                      <button type="submit" class="btn btn-success" data-bs-dismiss="modal">Change password</button>
+                      <button type="button" class="btn btn-primary" data-bs-dismiss="modal" aria-label="Close">Close</button>
+                    </div>
+
+                  </form>
+                  
                 </div>
               </div>
             </div>

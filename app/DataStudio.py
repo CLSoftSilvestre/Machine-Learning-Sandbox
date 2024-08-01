@@ -131,6 +131,56 @@ class DataStudio:
                 operation.error = True
                 operation.errorMessage = error
             return ""
+        
+        elif(operation.operation == "remoutliers"):
+            try:
+                column = operation.params[0]
+                upper = operation.params[1]
+                lower = operation.params[2]
+
+                Q1 = self.processedData[column].quantile([0.25][0])
+                Q3 = self.processedData[column].quantile([0.75][0])
+                IQR = Q3-Q1
+
+                wiskersMax = Q3 + 1.5 * IQR
+                wiskersMin = Q1 - 1.5 * IQR
+
+                #print("Q1 : " + str(Q1), file=sys.stderr)
+                #print("Q3 : " + str(Q3), file=sys.stderr)
+                #print("Max whisker : " + str(wiskersMax), file=sys.stderr)
+                #print("Min whisker : " + str(wiskersMin), file=sys.stderr)
+
+                if(upper == True):
+                    tempFilteredDf = pd.DataFrame()
+                    tempFilteredDf = self.processedData
+                    before = len(self.processedData)
+
+                    tempFilteredDf = self.processedData.loc[self.processedData[column] < wiskersMax]
+                    self.processedData = tempFilteredDf
+                    self.processedData.reset_index(drop=True, inplace=True)
+
+                    after = len(self.processedData)
+                    operation.run = True
+                    self.__addToConsole("Removed upper outliers from " + column + ". " + str(before-after) + " rows affected.")
+
+                if(lower == True):
+                    tempFilteredDf = pd.DataFrame()
+                    tempFilteredDf = self.processedData
+                    before = len(self.processedData)
+
+                    tempFilteredDf = self.processedData.loc[self.processedData[column] > wiskersMin]
+                    self.processedData = tempFilteredDf
+                    self.processedData.reset_index(drop=True, inplace=True)
+
+                    after = len(self.processedData)
+                    operation.run = True
+                    self.__addToConsole("Removed lower outliers from " + column + ". " + str(before-after) + " rows affected.")
+
+            except Exception as error:
+                operation.run = False
+                operation.error = True
+                operation.errorMessage = error
+            return ""
 
         # Change column name
         elif(operation.operation == "setcolumnname"):
