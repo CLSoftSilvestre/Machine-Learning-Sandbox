@@ -48,12 +48,10 @@ from DataStudio import DataStudio, DataOperation
 import uuid
 import copy
 
-from urllib.request import urlopen
 from urllib.error import *
 
 import pygwalker as pyg
-from types import SimpleNamespace
-import time
+
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -66,10 +64,8 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.0"
+appversion = "1.4.1"
 model_version = 7 # Model includes automation diagram
-nodeRedRunning = False
-ollamaRunning = False
 
 @app.context_processor
 def inject_app_version():
@@ -147,13 +143,11 @@ def index():
 @app.route("/configurator/", methods=['GET', 'POST'])
 def configurator():
     if(request.method == 'POST'):
-
-        useNodeRed = bool(request.form.get('useNodeRed'))
-        nodeRedPath = request.form['nodeRedEndpoint']
-        useOllama = bool(request.form.get('useOllama'))
-        ollamaPath = request.form['ollamaEndpoint']
-        ollamaModel = request.form['ollamaModel']
         usePyGWalker = bool(request.form.get('usePyGWalker'))
+        useAutomation = bool(request.form.get('useAutomation'))
+        useSiemens = bool(request.form.get('useSiemens'))
+        useMqtt = bool(request.form.get('useMqtt'))
+        useOpcUa = bool(request.form.get('useOpcUa'))
 
         configuration = Configuration()
 
@@ -173,9 +167,11 @@ def configurator():
             configuration.AddAppUser(admUser)
         
         configuration.SetBase(useAuth)
-        configuration.SetNodeRed(useNodeRed, nodeRedPath)
-        configuration.SetOllama(useOllama, ollamaModel, ollamaPath)
         configuration.SetPyGWalker(usePyGWalker)
+        configuration.SetAutomation(useAutomation)
+        configuration.SetSiemensConnector(useSiemens)
+        configuration.SetMqttConnector(useMqtt)
+        configuration.SetOpcUaConnector(useOpcUa)
 
         cfMan = Configurator()
         configName = "base.conf"
@@ -376,12 +372,6 @@ def automation(uuid):
                         nodeStatus.append(nodeData)
 
                     return jsonify(nodeStatus), 200
-
-
-@app.route("/flows/", methods=['GET'])
-def flows():
-    conf = confList[0]
-    return render_template('flows.html', nodeRed = nodeRedRunning, config = conf)
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):
@@ -608,11 +598,8 @@ def datastudio():
     if (session.get('autenticated') != True):
         return redirect('/notauthorized')
     
-    # Check if user configured the OLLAMA connection
-    #config = Configuration()
     config = confList[0]
 
-    
     # acording to the command will perform mod on the data before push again to the page.
 
     if(request.method == 'POST'):

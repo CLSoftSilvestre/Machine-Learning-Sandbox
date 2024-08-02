@@ -170,7 +170,7 @@ if ( (y== "" || y == "false") && !importView){
         {
             element: document.getElementById('tour-datastudio-console'),
             title: "Console",
-            intro: 'Here users can access the console output. If the Olama integration is activated, users can also ask questions.',
+            intro: 'Here users can access the console output.',
             position: 'left'
         }]
     }).start().oncomplete(function () {

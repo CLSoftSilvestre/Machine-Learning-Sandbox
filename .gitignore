@@ -5,7 +5,4 @@
 /app/static/img/heatmap*
 /flask_session
 /app/flask_session
-/app/database/*.db
 /app/config/*.conf
-/ollama/ingest/*.pdf
-/.chroma

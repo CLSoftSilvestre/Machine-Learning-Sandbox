@@ -115,41 +115,40 @@
                   <form action="{{url_for('configurator')}}" method="post">
                     <div class="modal-body">
                       <!-- INSERT HERE THE CONFIGURATION FORM -->
-            
-                        <div class="form-check form-switch">
-                          <input id="useNodeRed" class="form-check-input" type="checkbox" name="useNodeRed" {% if app_config.NodeRed %} checked {% endif %}>
-                          <label for="useNodeRed" class="form-check-label">Use Node-Red integration</label>
-                        </div>
-            
-                        <div class="mb-3">
-                          <label for="nodeRedEndpoint" class="form-label">Node-Red Endpoint</label>
-                          <input type="text" class="form-control" name="nodeRedEndpoint" id="nodeRedEndpoint" placeholder="http://127.0.0.1:1880" value="{{app_config.NodeRedEndpoint}}">
-                        </div>
-            
-                        <hr>
-            
-                        <div class="form-check form-switch">
-                          <input id="useOllama" class="form-check-input" type="checkbox" name="useOllama" {% if app_config.Ollama %} checked {% endif %}>
-                          <label for="useOllama" class="form-check-label">Use Ollama integration</label>
-                        </div>
-            
-                        <div class="mb-3">
-                          <label for="ollamaEndpoint" class="form-label">Ollama Endpoint</label>
-                          <input type="text" class="form-control" name="ollamaEndpoint" id="ollamaEndpoint" placeholder="http://127.0.0.1:11434/api/" value="{{app_config.OllamaEndpoint}}">
-                        </div>
-            
-                        <div class="mb-3">
-                          <label for="ollamaModel" class="form-label">Ollama Model</label>
-                          <input type="text" class="form-control" name="ollamaModel" id="ollamaModel" placeholder="gemma:2b" value="{{app_config.OllamaModel}}">
-                        </div>
-
-                        <hr>
-
+          
                         <div class="form-check form-switch">
                           <input id="usePyGWalker" class="form-check-input" type="checkbox" name="usePyGWalker" {% if app_config.usePyGWalker %} checked {% endif %}>
                           <label for="usePyGWalker" class="form-check-label">Use PyGWalker advanced data visualization framework</label>
                         </div>
                         <p><i class="fas fa-circle-info"></i> Activating PyGWalker framework can have impact in the Data Studio performance.</p>
+
+                        <hr>
+
+                        <div class="form-check form-switch">
+                          <input id="useAutomation" class="form-check-input" type="checkbox" name="useAutomation" {% if app_config.enableAutomation %} checked {% endif %}>
+                          <label for="useAutomation" class="form-check-label">Use Automation Flows</label>
+                        </div>
+            
+                        <hr>
+            
+                        <div class="form-check form-switch">
+                          <input id="useSiemens" class="form-check-input" type="checkbox" name="useSiemens" {% if app_config.useSiemensConnector %} checked {% endif %}>
+                          <label for="useSiemens" class="form-check-label">Use Siemens PLC connector</label>
+                        </div>
+            
+                        <hr>
+            
+                        <div class="form-check form-switch">
+                          <input id="useMqtt" class="form-check-input" type="checkbox" name="useMqtt" {% if app_config.useMqttConnector %} checked {% endif %}>
+                          <label for="useSMqtt" class="form-check-label">Use MQTT connector</label>
+                        </div>
+            
+                        <hr>
+            
+                        <div class="form-check form-switch">
+                          <input id="useOpcUa" class="form-check-input" type="checkbox" name="useOpcUa" {% if app_config.useOpcUaConnector %} checked {% endif %}>
+                          <label for="useOpcUa" class="form-check-label">Use OPC UA connector</label>
+                        </div>
   
                     </div>
   
