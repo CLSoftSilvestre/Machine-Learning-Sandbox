@@ -62,23 +62,31 @@ class Flow():
         # Create list of variables before setting the Simatic connector
         for node in self.Nodes:
             if node.nodeClass == "s7variable":
-                print("variable"+ str(int(node.params["DB"])) + " - " + str(int(node.params["START"])) + " - "+ str(int(node.params["SIZE"])))
-                s7var = S7Variable("variable", int(node.params["DB"]), int(node.params["START"]), int(node.params["SIZE"]))
-                node.rawObject.append(s7var)
-                self.s7variables.append(s7var)
+                try:
+                    #print("variable"+ str(int(node.params["DB"])) + " - " + str(int(node.params["START"])) + " - "+ str(int(node.params["SIZE"])))
+                    s7var = S7Variable("variable", int(node.params["DB"]), int(node.params["START"]), int(node.params["SIZE"]))
+                    node.rawObject.append(s7var)
+                    self.s7variables.append(s7var)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
 
         # Setup the PLC connector
         for node in self.Nodes:
             if node.nodeClass == "s7connector":
-                # Create Siemens Connector Instance
-                s7con = S7Connector(ip=node.params["IP"], rack=int(node.params["RACK"]), slot=int(node.params["SLOT"]), tcp_port=102)
-                for variable in self.s7variables:
-                    s7con.AddVariable(variable)
-                self.s7plc.append(s7con)
-                s7con.Connect()
-                print("Connected to Siemens PLC " + s7con.ip + " - Status: " + str(s7con.client.get_connected()))
-                s7con.StartService()
-        
+                try:
+                    # Create Siemens Connector Instance
+                    s7con = S7Connector(ip=node.params["IP"], rack=int(node.params["RACK"]), slot=int(node.params["SLOT"]), tcp_port=102)
+                    for variable in self.s7variables:
+                        s7con.AddVariable(variable)
+                    self.s7plc.append(s7con)
+                    s7con.Connect()
+                    print("Connected to Siemens PLC " + s7con.ip + " - Status: " + str(s7con.client.get_connected()))
+                    s7con.StartService()
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
         # Start the Loop of the Flow
         self.Restart()
     
@@ -268,7 +276,10 @@ class Flow():
                         prevNodeId = node.inputConnectors[0].nodeId
                         prevNode = self.GetNodeById(prevNodeId)
                         value = prevNode.outputValue
-                        node.outputValue = value
+                        if value == None:
+                            node.outputValue = "NULL"
+                        else:
+                            node.outputValue = value
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
@@ -280,7 +291,10 @@ class Flow():
         # Stop PLC Services
         try:
             for plc in self.s7plc:
-                plc.StopService()
+                try:
+                    plc.StopService()
+                except Exception as err:
+                    print("Error stoping PLC comunication: " + str(err))
             self.stop = True
             self.service.join()  
             #self.s7plc = []
