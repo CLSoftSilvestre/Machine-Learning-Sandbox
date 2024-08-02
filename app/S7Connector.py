@@ -51,6 +51,8 @@ class S7Connector:
                     elif var.size == 4:
                         var.curProcValue = util.get_real(var.curRawValue, 0)
                 time.sleep(self.interval)
+            # Stop service if not connected
+            self.StopService()
         return False
     
     def StartService(self):

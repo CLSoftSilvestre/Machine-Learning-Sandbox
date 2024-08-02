@@ -69,9 +69,9 @@
                 <!-- MQTT Nodes -->
                 <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
                   <i class="fa-solid fa-plug"></i><span> MQTT broker connector</span>
-                </div-->
+                </div>
           
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
                   <i class="fa-solid fa-hashtag"></i><span> MQTT topic subscription</span>
                 </div-->
 
@@ -415,6 +415,19 @@
 
       if(name == "s7_connector"){
         modelLst = editor.getNodesFromName("s7connector");
+        if (modelLst.length > 0){
+          console.log("Model already imported");
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "mqtt_connector"){
+        modelLst = editor.getNodesFromName("mqttconnector");
         if (modelLst.length > 0){
           console.log("Model already imported");
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
@@ -1058,6 +1071,7 @@
 
     function addStatusNode(){
       var elements = document.getElementsByClassName('drawflow-node');
+      // data-toggle="tooltip" title="Delete flow"
       for (var i = 0; i < elements.length; i++) {
         //get node id
         let rawId = elements[i].id
@@ -1066,6 +1080,8 @@
 
         let status = document.createElement("div");
         status.classList.add("node-status");
+        status.setAttribute("data-toggle", "tooltip");
+        status.setAttribute("title", "Error message");
         status.id = "status-" + nodeId;
         status.innerText = "⚠️";
         elements[i].appendChild(status);
@@ -1077,8 +1093,10 @@
       var id = "status-" + nodeData.nodeId
       if (nodeData.error){
         document.getElementById(id).innerText = "⚠️";
+        document.getElementById(id).setAttribute("title", nodeData.errorText);
       } else {
         document.getElementById(id).innerText = "";
+        document.getElementById(id).setAttribute("title", "");
       }
 
       if (nodeData.nodeClass == "display"){
