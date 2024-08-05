@@ -139,7 +139,7 @@ class PredictionModel:
                         "SERVER": server,
                         "PORT": port,
                         "USERNAME": username,
-                        "PASSWORD": password
+                        "PASSWORD": password,
                     }
 
                     # Create the Node and add the connections
@@ -150,6 +150,7 @@ class PredictionModel:
                     #get data from mqtt topic connector
                     topic = data["drawflow"]["Home"]["data"][str(i)]["data"]["topic"]
                     qos = data["drawflow"]["Home"]["data"][str(i)]["data"]["qos"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
 
                     params = {
                         "TOPIC": topic,

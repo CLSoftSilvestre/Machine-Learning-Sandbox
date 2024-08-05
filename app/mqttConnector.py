@@ -33,7 +33,7 @@ class MqttConnector:
     def Loop(self):
         self.stop = False
         while not self.stop and self.client.loop()==0:
-            print("Connected to Broker: " + str(self.client.is_connected()))
+            #print("Connected to Broker: " + str(self.client.is_connected()))
             pass
 
     def on_connect():
@@ -42,7 +42,7 @@ class MqttConnector:
     def on_message(self, mosq, obj, msg):
         for topic in self.topics:
             if topic.topic == str(msg.topic):
-                topic.payload = str(msg.payload)
+                topic.payload = msg.payload.decode("utf-8")
 
     def StartService(self):
         self.service = Thread(target=self.Loop)
