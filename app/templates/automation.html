@@ -324,8 +324,8 @@
     })
 
     editor.on('connectionCreated', function(connection) {
-      console.log('Connection created');
-      console.log(connection);
+      //console.log('Connection created');
+      //console.log(connection);
 
       // Validate the connection otherwise delete it...
       input_class = connection.input_class;
@@ -336,7 +336,23 @@
       // Check if is Siemens Variable (Only can connect to Siemens Connector)
       nodeInputClass = editor.getNodeFromId(input_id);
       nodeOutputClass = editor.getNodeFromId(output_id);
-      console.log(nodeInputClass.class);
+      //console.log(nodeInputClass.class);
+
+      // Check if node input already has other connection (Only one connection per input)
+      //console.log(nodeInputClass.inputs.input_["input_" + input_id].connections);
+      //const x = eval(`document.forms.form_name.elements.${strFormControl}.value`);
+      //console.log(nodeInputClass);
+      
+      if (nodeInputClass.inputs[input_class].connections.length > 1){
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
 
       if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
         // Delete the connection
@@ -357,6 +373,32 @@
         editor.removeSingleConnection(output_id, input_id, output_class, input_class)
 
         document.getElementById("warning-text").innerText = "Connection not compatible! Siemens Connectors can only be connected to input of Siemens Variables.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "mqtttopic" && nodeOutputClass.class != "mqttconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! MQTT topic subscription input can only be connected to output of MQTT broker connections.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "mqttconnector" && nodeInputClass.class != "mqtttopic"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! MQTT Broker Connectors can only be connected to input of MQTT topic subscription.";
         var toastElList = [].slice.call(document.querySelectorAll('.toast'))
         var toastList = toastElList.map(function(toastEl) {
           return new bootstrap.Toast(toastEl)
