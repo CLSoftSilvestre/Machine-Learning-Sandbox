@@ -128,6 +128,41 @@ class PredictionModel:
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
 
+                elif elementClass == "mqttconnector":
+                    #get data from mqtt connector
+                    server = data["drawflow"]["Home"]["data"][str(i)]["data"]["mqtt"]["server"]
+                    port = data["drawflow"]["Home"]["data"][str(i)]["data"]["mqtt"]["port"]
+                    username = data["drawflow"]["Home"]["data"][str(i)]["data"]["mqtt"]["username"]
+                    password = data["drawflow"]["Home"]["data"][str(i)]["data"]["mqtt"]["password"]
+
+                    params = {
+                        "SERVER": server,
+                        "PORT": port,
+                        "USERNAME": username,
+                        "PASSWORD": password
+                    }
+
+                    # Create the Node and add the connections
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "mqtttopic":
+                    #get data from mqtt topic connector
+                    topic = data["drawflow"]["Home"]["data"][str(i)]["data"]["topic"]
+                    qos = data["drawflow"]["Home"]["data"][str(i)]["data"]["qos"]
+
+                    params = {
+                        "TOPIC": topic,
+                        "QOS": qos,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.MQTTCONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+
                 elif elementClass == "static":
                     staticValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["staticvalue"]
 

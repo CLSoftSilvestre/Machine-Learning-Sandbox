@@ -72,13 +72,13 @@
               <div class="form-group row">
 
                 <!-- MQTT Nodes -->
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
                   <i class="fa-solid fa-plug"></i><span> MQTT broker connector</span>
                 </div>
           
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
                   <i class="fa-solid fa-hashtag"></i><span> MQTT topic subscription</span>
-                </div-->
+                </div>
 
                 <!-- S7 connection Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_connector">
@@ -559,11 +559,17 @@
             <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Subscription </div>
             <div class="box">
               <p>MQTT Topic</p>
-            <input type="text" df-topic>
+              <input type="text" df-topic><br>
+              <p>QoS</p>
+              <select df-qos>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select><br>
             </div>
           </div>
           `;
-          editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": ''}, mqtttopic );
+          editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": '', "qos": ''}, mqtttopic );
           break;
         case 'opcua_connector':
           var opcuaconnector = `

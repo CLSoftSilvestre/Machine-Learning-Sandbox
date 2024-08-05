@@ -312,7 +312,7 @@ def automation(uuid):
                             "Status" : "success"
                         }
                         return jsonify(status), 200
-                    except:
+                    except Exception as err:
                         status = {
                             "Command" : "start_flow",
                             "Status" : "fail"
