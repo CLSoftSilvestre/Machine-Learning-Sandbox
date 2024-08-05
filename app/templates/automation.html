@@ -21,7 +21,7 @@
     <div class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">
-          <b>Warning</b> Only one instance of this node type is permited!
+          <b>Warning</b> <p id="warning-text">Show here the warning text description!</p>
         </div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
@@ -43,6 +43,11 @@
           <div id="collapseGeneric" class="accordion-collapse collapse show" aria-labelledby="headingGeneric" data-bs-parent="#accordionParameters">
             <div class="accordion-body">
               <div class="form-group row">
+
+                <!-- Comment Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="generic_label">
+                  <i class="fa-solid fa-tag"></i><span> Label</span>
+                </div>
 
                 <!-- Comment Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="generic_comment">
@@ -92,6 +97,11 @@
                 <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_variable">
                   <i class="fa-solid fa-hashtag"></i><span> OPC UA variable</span>
                 </div-->
+
+                <!-- Toggle value Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="toggle_value">
+                  <i class="fa-solid fa-toggle-on"></i><span> Toggle switch</span>
+                </div>
 
                 <!-- Static value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="static_value">
@@ -316,6 +326,44 @@
     editor.on('connectionCreated', function(connection) {
       console.log('Connection created');
       console.log(connection);
+
+      // Validate the connection otherwise delete it...
+      input_class = connection.input_class;
+      input_id = connection.input_id;
+      output_class = connection.output_class;
+      output_id = connection.output_id;
+
+      // Check if is Siemens Variable (Only can connect to Siemens Connector)
+      nodeInputClass = editor.getNodeFromId(input_id);
+      nodeOutputClass = editor.getNodeFromId(output_id);
+      console.log(nodeInputClass.class);
+
+      if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Siemens Variables input can only be connected to output of Siemens Connectors.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "s7connector" && nodeInputClass.class != "s7variable"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Siemens Connectors can only be connected to input of Siemens Variables.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
     })
 
     editor.on('connectionRemoved', function(connection) {
@@ -403,7 +451,7 @@
       if(name == "model"){
         modelLst = editor.getNodesFromName("model");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of model node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -416,7 +464,7 @@
       if(name == "s7_connector"){
         modelLst = editor.getNodesFromName("s7connector");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of Siemens S7 connector node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -429,7 +477,7 @@
       if(name == "mqtt_connector"){
         modelLst = editor.getNodesFromName("mqttconnector");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of MQTT connector node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -442,7 +490,7 @@
       if(name == "out_chart"){
         modelLst = editor.getNodesFromName("chart");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of Line Chart node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -453,7 +501,17 @@
       }
 
       switch (name) {
-        {% for model in models %}
+        case 'generic_label':
+          var labeltemplate = `
+          <div>
+            <!--div class="title-box"><i class="fa-solid fa-message"></i> Label </div-->
+            <div class="box">
+              <input type="text" df-textlabel><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('label', 0, 0, pos_x, pos_y, 'label', { "textlabel": ''}, labeltemplate );
+          break;
         case 'generic_comment':
           var commenttemplate = `
           <div>
@@ -480,7 +538,6 @@
         `;
           editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}"}, model);
           break;
-        {% endfor %}
         case 'mqtt_connector':
           var mqttconnector = `
           <div>
@@ -596,6 +653,24 @@
           </div>
           `;
           editor.addNode('s7variable', 1, 1, pos_x, pos_y, 's7variable', { "db": '', "start": '',"size": ''}, s7variable );
+          break;
+        case 'toggle_value':
+          var toggletemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-toggle-on"></i> Switch</div>
+            <div class="box">
+              <!--div class='legend'><span>Switch</span></div-->
+              <div class='checkboxGroup'>
+                <label class='checkboxControl'>
+                  <input type='checkbox' df-value />
+                  <div>ΟΙ</div><b></b>
+                  <span class='indicator'></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          `;
+          editor.addNode('toggle', 0, 1, pos_x, pos_y, 'toggle', { "value": ''}, toggletemplate );
           break;
         case 'static_value':
           var statictemplate = `
@@ -1147,6 +1222,56 @@
     document.getElementById("btnSaveFlow").classList.remove("disabled")
     document.getElementById("btnDeleteFlow").classList.remove("disabled")
     {% endif %}
+
+    document.addEventListener('change', function(e){
+      if(e.target.parentNode.className.indexOf('checkboxControl') != -1){
+        parent = e.target.parentNode;
+        grandParent = parent.parentNode;
+        grandParent2 = grandParent.parentNode;
+        grandParent3 = grandParent2.parentNode;
+        grandParent4 = grandParent3.parentNode;
+        grandParent5 = grandParent4.parentNode;
+        //console.log(grandParent5);
+        nodeId = grandParent5.id.split("node-")[1];
+
+        //console.log(e.srcElement.checked);
+        //console.log("Element: " + nodeId);
+
+        let statusValue = 0;
+        if (e.srcElement.checked){
+          statusValue = 1
+        }
+
+        // Update the value of all toggles
+        var data = {
+          "COMMAND": "set_node_status",
+          "NODEID": nodeId,
+          "STATUS": statusValue,
+        }
+      
+        const apiUrl = '/automation/{{Model.uuid}}';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data)
+            //window.location.reload();
+          });
+        }
+      });
 
   </script>
 {% endblock %}

@@ -138,6 +138,17 @@ class PredictionModel:
                     node = Node(i, elementClass, params)
                     self.flow.AddNode(node)
 
+                elif elementClass == "toggle":
+                    #value = data["drawflow"]["Home"]["data"][str(i)]["data"]["value"]
+                    
+                    params = {
+                        "VALUE": 0,
+                    }
+                    
+                    node = Node(i, elementClass, params)
+                    node.outputValue = 0
+                    self.flow.AddNode(node)  
+
                 elif elementClass == "random":
                     minValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["minvalue"]
                     maxValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["maxvalue"]

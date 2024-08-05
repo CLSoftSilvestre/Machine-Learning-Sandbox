@@ -372,6 +372,26 @@ def automation(uuid):
                         nodeStatus.append(nodeData)
 
                     return jsonify(nodeStatus), 200
+                # Set node status
+                elif resultJson['COMMAND'] == "set_node_status":
+                    nodeId = resultJson['NODEID']
+                    try:
+                        for thisnode in model.flow.Nodes:
+                            if str(thisnode.id) == str(nodeId) and thisnode.nodeClass == "toggle":
+                                #print("This node id " + str(thisnode.id) + ", Node Id: " + str(nodeId), file=sys.stderr)
+                                print("This node id " + str(thisnode.id) + ", Status: " + str(int(resultJson['STATUS'])), file=sys.stderr)
+                                thisnode.outputValue = int(resultJson['STATUS'])
+                                status = {
+                                    "Command" : "set_node_status",
+                                    "Status" : "success",
+                                }
+                                return jsonify(status), 200
+                    except Exception as err:
+                        status = {
+                            "Command" : "set_node_status",
+                            "Status" : str(err),
+                        }
+                        return jsonify(status), 412
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):

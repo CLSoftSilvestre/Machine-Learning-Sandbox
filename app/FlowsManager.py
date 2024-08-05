@@ -63,6 +63,7 @@ class Flow():
         for node in self.Nodes:
             if node.nodeClass == "s7variable":
                 try:
+                    node.rawObject = []
                     #print("variable"+ str(int(node.params["DB"])) + " - " + str(int(node.params["START"])) + " - "+ str(int(node.params["SIZE"])))
                     s7var = S7Variable("variable", int(node.params["DB"]), int(node.params["START"]), int(node.params["SIZE"]))
                     node.rawObject.append(s7var)
@@ -113,6 +114,7 @@ class Flow():
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
+                
 
                 elif node.nodeClass == "random":   
                     node.clearError()   
