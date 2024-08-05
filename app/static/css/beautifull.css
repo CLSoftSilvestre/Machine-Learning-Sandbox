@@ -23,10 +23,12 @@
     border-bottom: 1px solid var(--border-color);
     padding-left: 20px;
   }
+
   header h2 {
     margin: 0px;
     line-height: 66px;
   }
+
   header a {
     color: black;
   }
@@ -51,6 +53,7 @@
     cursor: move;
     user-select: none;
   }
+
   .menu {
     position: absolute;
     height: 40px;
@@ -58,6 +61,7 @@
     background: white;
     width: 100%;
   }
+
   .menu ul {
     padding: 0px;
     margin: 0px;
@@ -156,6 +160,7 @@
     cursor: pointer;
     z-index: 5;
   }
+
   .swal-wide{
       width:80% !important;
   }
@@ -194,10 +199,12 @@
     border-right: 1px solid var(--border-color);
     z-index: 5;
   }
+
   .bar-zoom svg {
     cursor: pointer;
     padding-left: 10px;
   }
+
   .bar-zoom svg:nth-child(1) {
     padding-left: 0px;
   }
@@ -241,8 +248,6 @@
       width: calc(100vw - 51px);
     }
   }
-  
-  
   
   /* Editing Drawflow */
   
@@ -316,15 +321,18 @@
     padding-left: 10px;
     padding-right: 10px;
   }
+
   .drawflow .title-box svg {
     position: initial;
   }
+
   .drawflow-node .box {
     padding: 10px 10px 10px 10px;
     font-size: 14px;
     color: #555555;
   
   }
+
   .drawflow-node .box p {
     margin-top: 5px;
     margin-bottom: 5px;
@@ -413,9 +421,11 @@
     text-align: center;
     color: white;
   }
+
   .drawflow-node.personalized .input {
     background: yellow;
   }
+
   .drawflow-node.personalized .output {
     background: green;
   }
@@ -508,7 +518,6 @@
   }
 
   /* https://codepen.io/pluton/pen/DWwBpr */
-
   /* TOGGLE Style */
 
   .drawflow-node.toggle {
@@ -551,7 +560,7 @@
   }
 
   .drawflow-node.toggle .checkboxControl {
-    border:2px solid #102838;
+    border:2px solid #3b3b3b; /*was #102838 */
     border-radius:7px;
     display:inline-block;
     width: 100px; /* era 100 */
@@ -560,23 +569,28 @@
     position:relative;
     vertical-align:middle;
     margin:0 60px 10px 0;
-    color:#297597;
+    color:#9b9b9b; /* was #297597 */
     box-shadow: 0 0 5px rgba(255,255,255,.4), 
           0 2px 1px -1px rgba(255,255,255,.7) inset, 
-          8px 0 5px -5px #02425C inset,
-          -8px 0 5px -5px #02425C inset;
+          8px 0 5px -5px #535353 inset, /* was #02425C */
+          -8px 0 5px -5px #535353 inset; /* was #02425C */
 	  -moz-user-select:none; -webkit-user-select:none; 
-	  background:#80DCE9;
+	  background:#e6e6e6; /* was #80DCE9 */
   }
 
   .drawflow-node.toggle .checkboxControl input{ 
     position:absolute; visibility:hidden;
   }
 
-  .drawflow-node.toggle .checkboxControl > div{  
+  .drawflow-node.toggle .checkboxControl > div{
+    background:-webkit-linear-gradient(left, #e4e4e4 0%,#c4c4c4 53%,#8f8f8f 56%,#474747 99%,#ffffff 100%);
+		background:linear-gradient(to right, #e4e4e4 0%,#c4c4c4 53%,#8f8f8f 56%,#474747 99%,#ffffff 100%);
+		box-shadow:-2px 0 1px 0 #c4c4c4 inset;
+    /*
     background:-webkit-linear-gradient(left, #8FD9E4 0%,#A0F2FE 53%,#69DCF1 56%,#33AFCE 99%,#CEF5FF 100%);
 		background:linear-gradient(to right, #8FD9E4 0%,#A0F2FE 53%,#69DCF1 56%,#33AFCE 99%,#CEF5FF 100%);
 		box-shadow:-2px 0 1px 0 #A6F2FE inset;
+    */
 		border-radius:5px; line-height:50px; font-weight:bold; cursor:pointer; position:relative; z-index:1; text-shadow:0 1px rgba(255,255,255,0.5);
 		
 		transform-origin:0 0; -webkit-transform-origin:0 0; 
@@ -591,16 +605,25 @@
 
   .drawflow-node.toggle .checkboxControl :checked ~ div{ 
 		transform-origin:100% 0; -webkit-transform-origin:100% 0;
-		box-shadow:2px 0 1px 0 #A6F2FE inset;
-		background:-webkit-linear-gradient(left, #CEF5FF 0%,#33AFCE 1%,#69DCF1 47%,#A0F2FE 50%,#8FD9E4 100%);
+		box-shadow:2px 0 1px 0 #c4c4c4 inset;
+		background:-webkit-linear-gradient(left, #ffffff 0%,#474747 1%,#8f8f8f 47%,#c4c4c4 50%,#e4e4e4 100%);
+		background:linear-gradient(to right, #ffffff 0%,#474747 1%,#8f8f8f 47%,#c4c4c4 50%,#e4e4e4 100%);
+    /*
+    background:-webkit-linear-gradient(left, #CEF5FF 0%,#33AFCE 1%,#69DCF1 47%,#A0F2FE 50%,#8FD9E4 100%);
 		background:linear-gradient(to right, #CEF5FF 0%,#33AFCE 1%,#69DCF1 47%,#A0F2FE 50%,#8FD9E4 100%);
+    */
 	}
 
   .drawflow-node.toggle .checkboxControl > b{ 
     position:absolute; bottom:0; right:0; width:50%; height:100%; border-radius:8px; -webkit-transform:skewY(5deg); transform:skewY(5deg); box-shadow: 0 6px 8px -5px #000;
   }
 
-  .drawflow-node.toggle .checkboxControl :checked ~ b{ right:auto; left:0; -webkit-transform:skewY(-5deg); transform:skewY(-5deg); }
+  .drawflow-node.toggle .checkboxControl :checked ~ b{
+    right:auto;
+    left:0;
+    -webkit-transform:skewY(-5deg);
+    transform:skewY(-5deg);
+  }
 
   .drawflow-node.toggle .checkboxControl .indicator{
     position:absolute; top:14px; right:-20px; width:8px; height:25px; box-shadow:0 0 8px #000 inset; border:1px solid rgba(255,255,255,0.1); border-radius:15px; transition:0.2s; -webkit-transition:0.2s; 
