@@ -348,15 +348,6 @@ def automation(uuid):
                         return "success", 200 
                     except:
                         return "Error deleting flow", 200 
-                # Get node data
-                elif resultJson['COMMAND'] == "get_data":
-                    for thisnode in model.flow.Nodes:
-                        if thisnode.nodeClass == "s7variable":
-                            print(thisnode.outputValue, file=sys.stderr)
-
-                        if thisnode.nodeClass == "chart":
-                            #print("Node id " + str(thisnode.id) + " Node type: " + str(thisnode.nodeClass) + " Value: " + str(thisnode.outputValue), file=sys.stderr)
-                            return jsonify(thisnode.outputValue), 200
                 # Get node status
                 elif resultJson['COMMAND'] == "get_node_status":
                     nodeStatus = []
@@ -386,6 +377,12 @@ def automation(uuid):
                                     "Status" : "success",
                                 }
                                 return jsonify(status), 200
+                            
+                        status = {
+                                    "Command" : "set_node_status",
+                                    "Status" : "Node not found",
+                                }
+                        return jsonify(status), 200
                     except Exception as err:
                         status = {
                             "Command" : "set_node_status",

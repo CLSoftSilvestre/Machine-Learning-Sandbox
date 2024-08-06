@@ -75,9 +75,9 @@
     --dfLineHoverColor: rgba(129, 212, 192, 1);
     --dfLineSelectedColor: rgba(0, 92, 68, 1);
   
-    --dfRerouteBorderWidth: 4px;
-    --dfRerouteBorderColor: #000000;
-    --dfRerouteBackgroundColor: #ffffff;
+    --dfRerouteBorderWidth: 1px;
+    --dfRerouteBorderColor: rgba(0, 92, 68, 1);
+    --dfRerouteBackgroundColor: #fff;
   
     --dfRerouteHoverBorderWidth: 2px;
     --dfRerouteHoverBorderColor: #000000;

@@ -59,7 +59,6 @@
           </div>
         </div>
 
-
         <!-- Connectivity nodes -->
          <div class="accordion-item">
           <h2 class="accordion-header" id="headingConnectivity">
@@ -194,12 +193,12 @@
                   <i class="fa-solid fa-at"></i><span> Email</span>
                 </div-->
 
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_chart">
-                  <i class="fa-solid fa-chart-line"></i><span> Line Chart</span>
-                </div>
-
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_display">
                   <i class="fa-solid fa-display"></i><span> Display value</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_chart">
+                  <i class="fa-solid fa-chart-line"></i><span> Line Chart</span>
                 </div>
 
               </div>
@@ -263,6 +262,12 @@
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
           <a href="#" type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="Delete flow" onclick="deleteFlow()" id="btnDeleteFlow"><i class="fa-solid fa-trash-can"></i></a>
         </div>
+
+        <div class="btn-group btn-group-sm show-hide-group" role="group" aria-label="Show hide commands">
+          <a href="#" type="button" class="btn btn-outline-success disabled" data-toggle="tooltip" title="Locked flow" id="btnLockedFlow"><i id="lock-btn-icon" class="fa-solid fa-unlock"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Show/Hide connections" onclick="toggleConnectors()" id="btnHideConnectors"><i class="fa-solid fa-route"></i></a>
+        </div>
+
 
         <div class="btn-group btn-group-sm zoom-group" role="group" aria-label="Zoom commands">
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Decrease zoom" onclick="editor.zoom_out()" id="btnZoomMinus"><i class="fa fa-search-minus"></i></a>
@@ -1249,6 +1254,40 @@
       }
     }
 
+    function toggleConnectors(){
+
+      //Show hide connection points
+      var all = document.querySelectorAll(".inputs");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+
+      //Show hide connection points
+      var all = document.querySelectorAll(".outputs");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+
+      // Show / hide connection lines
+      var all = document.querySelectorAll(".main-path");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+      //event.target.classList.add('selected');
+      //"main-path"
+    }
 
     {% if Run == True %}
     addStatusNode();
@@ -1259,6 +1298,9 @@
     document.getElementById("btnStopFlow").classList.remove("disabled")
     document.getElementById("btnSaveFlow").classList.add("disabled")
     document.getElementById("btnDeleteFlow").classList.add("disabled")
+    // Change icon of lock button
+    document.getElementById("lock-btn-icon").classList.remove("fa-unlock")
+    document.getElementById("lock-btn-icon").classList.add("fa-lock")
 
     {% else %}
     //addStatusNode();
@@ -1269,6 +1311,9 @@
     document.getElementById("btnStopFlow").classList.add("disabled")
     document.getElementById("btnSaveFlow").classList.remove("disabled")
     document.getElementById("btnDeleteFlow").classList.remove("disabled")
+    // Change icon of lock button
+    document.getElementById("lock-btn-icon").classList.remove("fa-lock")
+    document.getElementById("lock-btn-icon").classList.add("fa-unlock")
     {% endif %}
 
     document.addEventListener('change', function(e){

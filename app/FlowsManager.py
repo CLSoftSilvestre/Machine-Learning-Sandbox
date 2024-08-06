@@ -354,7 +354,16 @@ class Flow():
     def Restart(self):
         self.service=Thread(target=self.__loop)
         self.service.start()
-        
+
+    def getStatus(self):
+        flowRunning = False
+        try:
+            flowRunning = self.service.is_alive()
+        except:
+            pass
+
+        return flowRunning
+
 class Node():
     def __init__(self, id, nodeClass, params):
         self.id = id

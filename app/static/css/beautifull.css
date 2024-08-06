@@ -101,6 +101,16 @@
     z-index: 5;
   }
 
+  .show-hide-group {
+    float: right;
+    position: absolute;
+    bottom: 20px;
+    right: 125px;
+    color: white;
+    font-size: 20px;
+    z-index: 5;
+  }
+
   .btn-start {
     float: right;
     position: absolute;
@@ -687,4 +697,27 @@
     transition:0.1s;
     -webkit-transition:0.1s;
   }
+
+  .main-path.hide {
+    visibility: hidden;
+  }
+
+  .inputs.hide {
+    visibility: hidden;
+  }
+
+  .outputs.hide {
+    visibility: hidden;
+  }
+
+  /* DataTable specific CSS */
+
+  .dt-search {
+    display: none;
+  }
+
+  .dt-layout-row {
+    display: none;
+  }
+  
   
