@@ -87,9 +87,9 @@ class PredictionModel:
         for i in range(100):
             try:  
                 elementClass = data["drawflow"]["Home"]["data"][str(i)]["class"]
-                print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
-                print("--------------------------------------", file=sys.stderr)
-                print("Element class: " + str(elementClass), file=sys.stderr)
+                #print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
+                #print("--------------------------------------", file=sys.stderr)
+                #print("Element class: " + str(elementClass), file=sys.stderr)
                 if elementClass == "s7connector":
                     #get data from s7 connector
                     ip = data["drawflow"]["Home"]["data"][str(i)]["data"]["s7"]["ip"]
@@ -314,7 +314,6 @@ class PredictionModel:
                 print("Error in element: " + str(err), file=sys.stderr)
                 pass
         
-
 class InputFeature:
     
     def __init__(self, name, varType, description):

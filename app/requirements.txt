@@ -17,3 +17,4 @@ gunicorn
 urlopen
 pygwalker
 python-snap7
+paho-mqtt
