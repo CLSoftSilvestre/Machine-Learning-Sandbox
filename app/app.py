@@ -368,7 +368,7 @@ def automation(uuid):
                     nodeId = resultJson['NODEID']
                     try:
                         for thisnode in model.flow.Nodes:
-                            if str(thisnode.id) == str(nodeId) and thisnode.nodeClass == "toggle":
+                            if str(thisnode.id) == str(nodeId) and (thisnode.nodeClass == "toggle" or thisnode.nodeClass == "slider"):
                                 #print("This node id " + str(thisnode.id) + ", Node Id: " + str(nodeId), file=sys.stderr)
                                 print("This node id " + str(thisnode.id) + ", Status: " + str(int(resultJson['STATUS'])), file=sys.stderr)
                                 thisnode.outputValue = int(resultJson['STATUS'])

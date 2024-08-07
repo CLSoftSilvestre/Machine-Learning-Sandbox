@@ -183,6 +183,15 @@ class PredictionModel:
                     
                     node = Node(i, elementClass, params)
                     node.outputValue = 0
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "slider":  
+                    params = {
+                        "VALUE": 0,
+                    }
+                    
+                    node = Node(i, elementClass, params)
+                    node.outputValue = 0
                     self.flow.AddNode(node)  
 
                 elif elementClass == "random":

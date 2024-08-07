@@ -172,10 +172,36 @@
     border-radius: var(--dfOutputHoverBorderRadius);
   }
   
+
   .drawflow .connection .main-path {
     stroke-width: var(--dfLineWidth);
     stroke: var(--dfLineColor);
   }
+
+  .drawflow .connection .main-path.flowing {
+    animation: flowing 5s infinite linear normal !important;
+  }
+
+  @keyframes flowing {
+    0% {
+      stroke-width: var(--dfLineWidth);
+    }
+    80% {
+      stroke-width: var(--dfLineWidth);
+    }
+    85% {
+      stroke-width: var(--dfLineWidth);
+      stroke: var(--dfLineHoverColor);
+    }
+    90% {
+      stroke-width: 4px;
+      stroke: var(--dfLineSelectedColor);
+    }
+    100% {
+      stroke-width: var(--dfLineWidth);
+    }
+  }
+
   
   .drawflow .connection .main-path:hover {
     stroke: var(--dfLineHoverColor);
