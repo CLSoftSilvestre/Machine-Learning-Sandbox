@@ -6,7 +6,7 @@ Created on Mon Jul 29 14:57:06 2024
 """
 
 import snap7 as s7
-from snap7 import Client, Area, util
+from snap7 import util
 import time
 from threading import Thread
 
@@ -51,8 +51,9 @@ class S7Connector:
                     elif var.size == 4:
                         var.curProcValue = util.get_real(var.curRawValue, 0)
                 time.sleep(self.interval)
-            # Stop service if not connected
-            self.StopService()
+            else:
+                # Stop service if not connected
+                self.StopService()
         return False
     
     def StartService(self):

@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from enum import Enum
 from S7Connector import S7Connector, S7Variable
+from mqttConnector import MqttConnector, MqttTopic
 import sys
 import time
 from threading import Thread
@@ -40,8 +41,11 @@ class Flow():
         self.timestamp = datetime.now()
         self.s7plc = []
         self.s7variables = []
+        self.mqttbrokers = []
+        self.mqtttopics = []
         self.stop = True
         self.service = None
+
     
     def AddNode(self, node):
         self.Nodes.append(node)
@@ -59,10 +63,13 @@ class Flow():
     def Start(self):
         self.s7plc = []
         self.s7variables = []
+        self.mqttbrokers = []
+        self.mqtttopics = []
         # Create list of variables before setting the Simatic connector
         for node in self.Nodes:
             if node.nodeClass == "s7variable":
                 try:
+                    node.rawObject = []
                     #print("variable"+ str(int(node.params["DB"])) + " - " + str(int(node.params["START"])) + " - "+ str(int(node.params["SIZE"])))
                     s7var = S7Variable("variable", int(node.params["DB"]), int(node.params["START"]), int(node.params["SIZE"]))
                     node.rawObject.append(s7var)
@@ -87,6 +94,33 @@ class Flow():
                     node.outputValue = None
                     node.setError(str(err))
 
+        # Create list of topics before stting the MQTT Broker connector
+        for node in self.Nodes:
+            if node.nodeClass == "mqtttopic":
+                try:
+                    node.rawObject = []
+                    mqtt_topic = MqttTopic("variable", node.params["TOPIC"], int(node.params["QOS"]))
+                    node.rawObject.append(mqtt_topic)
+                    self.mqtttopics.append(mqtt_topic)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+        
+        # Setup the MQTT Broker connection
+        for node in self.Nodes:
+            if node.nodeClass == "mqttconnector":
+                try:
+                    mqttcon = MqttConnector("tcp", node.params["SERVER"], int(node.params["PORT"]))
+                    for topic in self.mqtttopics:
+                        mqttcon.topics.append(topic)
+                    self.mqttbrokers.append(mqttcon)
+                    mqttcon.Connect()
+                    print("CStart connection to MQTT Broker ")
+                    mqttcon.StartService()
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
         # Start the Loop of the Flow
         self.Restart()
     
@@ -105,6 +139,14 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+                
+                if node.nodeClass == "mqtttopic":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(node.rawObject[0].payload)
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
 
                 elif node.nodeClass == "static":
                     try:
@@ -113,7 +155,7 @@ class Flow():
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
-
+                
                 elif node.nodeClass == "random":   
                     node.clearError()   
                     try:
@@ -126,7 +168,7 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                 
-            # Second loop operations
+            # Second loop operations and conditionals
             for node in self.Nodes:
                 if node.nodeClass == "addition":
                     node.clearError()
@@ -210,6 +252,132 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
 
+                elif node.nodeClass == "equal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 == value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "notequal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 != value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "greater":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 > value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "greaterequal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 >= value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "lower":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 < value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "lowerequal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 <= value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
             # Third loop model
             for node in self.Nodes:
                 if node.nodeClass == "model":
@@ -283,6 +451,21 @@ class Flow():
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
+
+                if node.nodeClass == "notification":
+                    node.clearError()
+                    try:
+                        message = node.params["MESSAGE"]
+                        prevNodeId = node.inputConnectors[0].nodeId
+                        prevNode = self.GetNodeById(prevNodeId)
+                        value = prevNode.outputValue
+                        if value < 1:
+                            node.outputValue = None
+                        else:
+                            node.outputValue = message
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
             
             time.sleep(10)
         return False
@@ -295,6 +478,13 @@ class Flow():
                     plc.StopService()
                 except Exception as err:
                     print("Error stoping PLC comunication: " + str(err))
+            
+            for broker in self.mqttbrokers:
+                try:
+                    broker.StopService()
+                except Exception as err:
+                    print("Error stoping MQTT broker comunication: " + str(err))
+
             self.stop = True
             self.service.join()  
             #self.s7plc = []
@@ -305,7 +495,16 @@ class Flow():
     def Restart(self):
         self.service=Thread(target=self.__loop)
         self.service.start()
-        
+
+    def getStatus(self):
+        flowRunning = False
+        try:
+            flowRunning = self.service.is_alive()
+        except:
+            pass
+
+        return flowRunning
+
 class Node():
     def __init__(self, id, nodeClass, params):
         self.id = id

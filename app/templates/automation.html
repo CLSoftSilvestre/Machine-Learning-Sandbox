@@ -9,9 +9,6 @@
   <link rel="stylesheet" type="text/css" href="../static/css/beautifull.css" />
   <link rel="stylesheet" type="text/css" href="../static/css/drawflowtheme.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
-  <!--link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"-->
-  <!--script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script-->
-  <!--script src="https://unpkg.com/micromodal/dist/micromodal.min.js"></script-->
 
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -21,7 +18,7 @@
     <div class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">
-          <b>Warning</b> Only one instance of this node type is permited!
+          <b>Warning</b> <p id="warning-text">Show here the warning text description!</p>
         </div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
       </div>
@@ -45,6 +42,11 @@
               <div class="form-group row">
 
                 <!-- Comment Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="generic_label">
+                  <i class="fa-solid fa-tag"></i><span> Label</span>
+                </div>
+
+                <!-- Comment Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="generic_comment">
                   <i class="fa-solid fa-message"></i><span> Comment</span>
                 </div>
@@ -53,7 +55,6 @@
             </div>
           </div>
         </div>
-
 
         <!-- Connectivity nodes -->
          <div class="accordion-item">
@@ -67,15 +68,18 @@
               <div class="form-group row">
 
                 <!-- MQTT Nodes -->
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
+                {% if app_config.useMqttConnector == True %}
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
                   <i class="fa-solid fa-plug"></i><span> MQTT broker connector</span>
                 </div>
           
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
                   <i class="fa-solid fa-hashtag"></i><span> MQTT topic subscription</span>
-                </div-->
+                </div>
+                {% endif %}
 
                 <!-- S7 connection Nodes -->
+                {% if app_config.useSiemensConnector == True %}
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_connector">
                   <i class="fa-solid fa-plug"></i><span> Siemens S7 connector</span>
                 </div>
@@ -83,15 +87,28 @@
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_variable">
                   <i class="fa-solid fa-hashtag"></i><span> Siemens S7 variable</span>
                 </div>
+                {% endif %}
 
                 <!-- OPC UA connection Nodes -->
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_connector">
+                {% if app_config.useOpcUaConnector == True %}
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_connector">
                   <i class="fa-solid fa-plug"></i><span> OPC UA connector</span>
-                </div-->
+                </div>
           
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_variable">
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_variable">
                   <i class="fa-solid fa-hashtag"></i><span> OPC UA variable</span>
-                </div-->
+                </div>
+                {% endif %}
+
+                <!-- Toggle value Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="toggle_value">
+                  <i class="fa-solid fa-toggle-on"></i><span> Toggle switch</span>
+                </div>
+
+                <!-- Slider value Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="slider_value">
+                  <i class="fa-solid fa-sliders"></i><span> Slider</span>
+                </div>
 
                 <!-- Static value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="static_value">
@@ -133,7 +150,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingOperations">
             <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseOperations" aria-expanded="true" aria-controls="collapseOperations">
-              <h5><i class="fa-solid fa-calculator"></i> Data operation nodes</h5>
+              <h5><i class="fa-solid fa-calculator"></i> Math operation nodes</h5>
             </button>
           </h2>
           <div id="collapseOperations" class="accordion-collapse collapse show" aria-labelledby="headingOperations" data-bs-parent="#accordionParameters">
@@ -155,7 +172,47 @@
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_division">
                   <i class="fa-solid fa-calculator"></i><span> Division</span>
                 </div>
-   
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditional nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingConditional">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseConditional" aria-expanded="true" aria-controls="collapseConditional">
+              <h5><i class="fa-solid fa-not-equal"></i> Conditional nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseConditional" class="accordion-collapse collapse show" aria-labelledby="headingConditional" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_equal">
+                  <i class="fa-solid fa-equals"></i><span> Equal</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_not_equal">
+                  <i class="fa-solid fa-not-equal"></i><span> Not equal</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_greater">
+                  <i class="fa-solid fa-chevron-right"></i><span> Greater than</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_greater_equal">
+                  <i class="fa-solid fa-greater-than-equal"></i><span> Greater or equal</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_lower">
+                  <i class="fa-solid fa-chevron-left"></i><span> Lower than</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_lower_equal">
+                  <i class="fa-solid fa-less-than-equal"></i><span> Lower or equal</span>
+                </div>
+                
               </div>
             </div>
           </div>
@@ -184,12 +241,16 @@
                   <i class="fa-solid fa-at"></i><span> Email</span>
                 </div-->
 
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_display">
+                  <i class="fa-solid fa-display"></i><span> Display value</span>
+                </div>
+
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_chart">
                   <i class="fa-solid fa-chart-line"></i><span> Line Chart</span>
                 </div>
 
-                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_display">
-                  <i class="fa-solid fa-display"></i><span> Display value</span>
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_notification">
+                  <i class="fa-solid fa-bell"></i><span> Notification message</span>
                 </div>
 
               </div>
@@ -250,9 +311,15 @@
         <div class="btn-group btn-group-sm commands-group" role="group" aria-label="Action commands">
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Start flow" onclick="startFlow()" id="btnStartFlow"><i class="fa-solid fa-play"></i></a>
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Stop flow" onclick="stopFlow()" id="btnStopFlow"><i class="fa-solid fa-stop"></i></a>
-          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success disabled" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
           <a href="#" type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="Delete flow" onclick="deleteFlow()" id="btnDeleteFlow"><i class="fa-solid fa-trash-can"></i></a>
         </div>
+
+        <div class="btn-group btn-group-sm show-hide-group" role="group" aria-label="Show hide commands">
+          <a href="#" type="button" class="btn btn-outline-success disabled" data-toggle="tooltip" title="Locked flow" id="btnLockedFlow"><i id="lock-btn-icon" class="fa-solid fa-unlock"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Show/Hide connections" onclick="toggleConnectors()" id="btnHideConnectors"><i class="fa-solid fa-route"></i></a>
+        </div>
+
 
         <div class="btn-group btn-group-sm zoom-group" role="group" aria-label="Zoom commands">
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Decrease zoom" onclick="editor.zoom_out()" id="btnZoomMinus"><i class="fa fa-search-minus"></i></a>
@@ -288,16 +355,20 @@
     editor.start();
     const False = Boolean(false);
     const True = Boolean(true);
+    {% if flowData is not none %}
     const flowData = {{flowData|safe}};
     console.log(flowData);
     editor.import(flowData);
-
+    {% endif %}
+    
     // Events!
     editor.on('nodeCreated', function(id) {
+      modifiedFlow("modified");
       console.log("Node created " + id);
     })
 
     editor.on('nodeRemoved', function(id) {
+      modifiedFlow("modified");
       console.log("Node removed " + id);
     })
 
@@ -314,11 +385,94 @@
     })
 
     editor.on('connectionCreated', function(connection) {
-      console.log('Connection created');
-      console.log(connection);
+      //console.log('Connection created');
+      //console.log(connection);
+
+      // Validate the connection otherwise delete it...
+      input_class = connection.input_class;
+      input_id = connection.input_id;
+      output_class = connection.output_class;
+      output_id = connection.output_id;
+
+      // Check if is Siemens Variable (Only can connect to Siemens Connector)
+      nodeInputClass = editor.getNodeFromId(input_id);
+      nodeOutputClass = editor.getNodeFromId(output_id);
+      //console.log(nodeInputClass.class);
+
+      // Check if node input already has other connection (Only one connection per input)
+      //console.log(nodeInputClass.inputs.input_["input_" + input_id].connections);
+      //const x = eval(`document.forms.form_name.elements.${strFormControl}.value`);
+      //console.log(nodeInputClass);
+      
+      if (nodeInputClass.inputs[input_class].connections.length > 1){
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Siemens Variables input can only be connected to output of Siemens Connectors.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "s7connector" && nodeInputClass.class != "s7variable"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Siemens Connectors can only be connected to input of Siemens Variables.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "mqtttopic" && nodeOutputClass.class != "mqttconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! MQTT topic subscription input can only be connected to output of MQTT broker connections.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "mqttconnector" && nodeInputClass.class != "mqtttopic"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! MQTT Broker Connectors can only be connected to input of MQTT topic subscription.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      modifiedFlow("modified");
+
     })
 
     editor.on('connectionRemoved', function(connection) {
+      modifiedFlow("modified");
       console.log('Connection removed');
       console.log(connection);
     })
@@ -328,6 +482,7 @@
     })
 
     editor.on('nodeMoved', function(id) {
+      modifiedFlow("modified");
       console.log("Node moved " + id);
     })
 
@@ -340,10 +495,12 @@
     })
 
     editor.on('addReroute', function(id) {
+      modifiedFlow("modified");
       console.log("Reroute added " + id);
     })
 
     editor.on('removeReroute', function(id) {
+      modifiedFlow("modified");
       console.log("Reroute removed " + id);
     })
 
@@ -403,7 +560,7 @@
       if(name == "model"){
         modelLst = editor.getNodesFromName("model");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of model node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -416,7 +573,7 @@
       if(name == "s7_connector"){
         modelLst = editor.getNodesFromName("s7connector");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of Siemens S7 connector node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -429,7 +586,7 @@
       if(name == "mqtt_connector"){
         modelLst = editor.getNodesFromName("mqttconnector");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of MQTT connector node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -442,7 +599,7 @@
       if(name == "out_chart"){
         modelLst = editor.getNodesFromName("chart");
         if (modelLst.length > 0){
-          console.log("Model already imported");
+          document.getElementById("warning-text").innerText = "Only one instance of Line Chart node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -453,7 +610,17 @@
       }
 
       switch (name) {
-        {% for model in models %}
+        case 'generic_label':
+          var labeltemplate = `
+          <div>
+            <!--div class="title-box"><i class="fa-solid fa-message"></i> Label </div-->
+            <div class="box">
+              <input type="text" df-textlabel><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('label', 0, 0, pos_x, pos_y, 'label', { "textlabel": ''}, labeltemplate );
+          break;
         case 'generic_comment':
           var commenttemplate = `
           <div>
@@ -480,7 +647,6 @@
         `;
           editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}"}, model);
           break;
-        {% endfor %}
         case 'mqtt_connector':
           var mqttconnector = `
           <div>
@@ -502,11 +668,17 @@
             <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Subscription </div>
             <div class="box">
               <p>MQTT Topic</p>
-            <input type="text" df-topic>
+              <input type="text" df-topic><br>
+              <p>QoS</p>
+              <select df-qos>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select><br>
             </div>
           </div>
           `;
-          editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": ''}, mqtttopic );
+          editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": '', "qos": ''}, mqtttopic );
           break;
         case 'opcua_connector':
           var opcuaconnector = `
@@ -597,6 +769,40 @@
           `;
           editor.addNode('s7variable', 1, 1, pos_x, pos_y, 's7variable', { "db": '', "start": '',"size": ''}, s7variable );
           break;
+        case 'toggle_value':
+          var toggletemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-toggle-on"></i> Switch</div>
+            <div class="box">
+              <!--div class='legend'><span>Switch</span></div-->
+              <div class='checkboxGroup'>
+                <label class='checkboxControl'>
+                  <input type='checkbox' df-value />
+                  <div>ΟΙ</div><b></b>
+                  <span class='indicator'></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          `;
+          editor.addNode('toggle', 0, 1, pos_x, pos_y, 'toggle', { "value": ''}, toggletemplate );
+          break;
+        case 'slider_value':
+          var slidertemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-sliders"></i> Slider</div>
+            <div class="box">
+              <div class='display backlight'>
+                <input id='value' type='text' maxlength='12' class='content' value='-' disabled></input>
+              </div>
+              <input class='range' type='range' step='1' min='0' max='100' value='0' onClick=setSliderValue(event)></input>
+              <button class="btnRangeMinus" onClick="decreaseSlider(event)">-</button>
+              <button class="btnRangePlus" onClick="increaseSlider(event)">+</button>
+            </div>
+          </div>
+          `;
+          editor.addNode('slider', 0, 1, pos_x, pos_y, 'slider', {}, slidertemplate );
+          break;
         case 'static_value':
           var statictemplate = `
           <div>
@@ -659,6 +865,18 @@
           `;
           editor.addNode('display', 1, 0, pos_x, pos_y, 'display', {}, displaytemplate );
           break;
+        case 'out_notification':
+          var notificationtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-bell"></i> Notification message</div>
+            <div class="box">
+              <p>Message</p>
+              <input type="text" df-message>
+            </div>
+          </div>
+          `;
+          editor.addNode('notification', 1, 0, pos_x, pos_y, 'notification', { "message": ''}, notificationtemplate );
+          break;
         case 'oper_addition':
           var additiontemplate = `
           <div>
@@ -698,6 +916,66 @@
           </div>
           `;
           editor.addNode('division', 2, 1, pos_x, pos_y, 'division', {}, divisiontemplate );
+          break;
+        case 'cond_equal':
+          var equaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-equals "></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-equals"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('equal', 2, 1, pos_x, pos_y, 'equal', {}, equaltemplate );
+          break;
+        case 'cond_not_equal':
+          var notequaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-not-equal "></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-not-equal"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('notequal', 2, 1, pos_x, pos_y, 'notequal', {}, notequaltemplate );
+          break;
+        case 'cond_greater':
+          var greatertemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-chevron-right"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-chevron-right"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('greater', 2, 1, pos_x, pos_y, 'greater', {}, greatertemplate );
+          break;
+        case 'cond_greater_equal':
+          var greaterequaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-greater-than-equal"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-greater-than-equal"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('greaterequal', 2, 1, pos_x, pos_y, 'greaterequal', {}, greaterequaltemplate );
+          break;
+        case 'cond_lower':
+          var lowertemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-chevron-left"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-chevron-left"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('lower', 2, 1, pos_x, pos_y, 'lower', {}, lowertemplate );
+          break;
+        case 'cond_lower_equal':
+          var lowerequaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-less-than-equal"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-less-than-equal"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('lowerequal', 2, 1, pos_x, pos_y, 'lowerequal', {}, lowerequaltemplate );
           break;
         case 'telegram':
           var telegrambot = `
@@ -802,33 +1080,34 @@
     }
 
   var transform = '';
-  function showpopup(e) {
-    e.target.closest(".drawflow-node").style.zIndex = "9999";
-    e.target.children[0].style.display = "block";
-    //document.getElementById("modalfix").style.display = "block";
 
-    //e.target.children[0].style.transform = 'translate('+translate.x+'px, '+translate.y+'px)';
-    transform = editor.precanvas.style.transform;
-    editor.precanvas.style.transform = '';
-    editor.precanvas.style.left = editor.canvas_x +'px';
-    editor.precanvas.style.top = editor.canvas_y +'px';
-    console.log(transform);
+    function showpopup(e) {
+      e.target.closest(".drawflow-node").style.zIndex = "9999";
+      e.target.children[0].style.display = "block";
+      //document.getElementById("modalfix").style.display = "block";
 
-    //e.target.children[0].style.top  =  -editor.canvas_y - editor.container.offsetTop +'px';
-    //e.target.children[0].style.left  =  -editor.canvas_x  - editor.container.offsetLeft +'px';
-    editor.editor_mode = "fixed";
+      //e.target.children[0].style.transform = 'translate('+translate.x+'px, '+translate.y+'px)';
+      transform = editor.precanvas.style.transform;
+      editor.precanvas.style.transform = '';
+      editor.precanvas.style.left = editor.canvas_x +'px';
+      editor.precanvas.style.top = editor.canvas_y +'px';
+      console.log(transform);
 
-  }
+      //e.target.children[0].style.top  =  -editor.canvas_y - editor.container.offsetTop +'px';
+      //e.target.children[0].style.left  =  -editor.canvas_x  - editor.container.offsetLeft +'px';
+      editor.editor_mode = "fixed";
 
-   function closemodal(e) {
-     e.target.closest(".drawflow-node").style.zIndex = "2";
-     e.target.parentElement.parentElement.style.display  ="none";
-     //document.getElementById("modalfix").style.display = "none";
-     editor.precanvas.style.transform = transform;
-       editor.precanvas.style.left = '0px';
-       editor.precanvas.style.top = '0px';
+    }
+
+    function closemodal(e) {
+      e.target.closest(".drawflow-node").style.zIndex = "2";
+      e.target.parentElement.parentElement.style.display  ="none";
+      //document.getElementById("modalfix").style.display = "none";
+      editor.precanvas.style.transform = transform;
+        editor.precanvas.style.left = '0px';
+        editor.precanvas.style.top = '0px';
       editor.editor_mode = "edit";
-   }
+    }
 
     function changeModule(event) {
       var all = document.querySelectorAll(".menu ul li");
@@ -849,6 +1128,18 @@
         unlock.style.display = 'none';
       }
 
+    }
+
+    function modifiedFlow(option) {
+      if (option == 'modified'){
+        // Deactivate the Play button and activate the Save Button
+        if (!document.getElementById("btnStartFlow").classList.contains("disabled")){
+          document.getElementById("btnStartFlow").classList.add("disabled")
+        }
+        if (document.getElementById("btnSaveFlow").classList.contains("disabled")){
+          document.getElementById("btnSaveFlow").classList.remove("disabled")
+        }
+      }
     }
 
     function saveDiagram(){
@@ -1099,6 +1390,21 @@
         document.getElementById(id).setAttribute("title", "");
       }
 
+      if (nodeData.nodeClass == "slider"){
+        var elements = document.getElementsByClassName('drawflow-node');
+        for (var i = 0; i < elements.length; i++) {
+          let rawId = elements[i].id
+          let nodeId = rawId.split("node-")[1]
+
+          if (nodeId == nodeData.nodeId){
+            valueField = elements[i].querySelectorAll("input")
+            valueField[0].value = nodeData.value
+            valueField[1].value = nodeData.value
+          }
+        }
+
+      }
+
       if (nodeData.nodeClass == "display"){
         var elements = document.getElementsByClassName('drawflow-node');
         for (var i = 0; i < elements.length; i++) {
@@ -1124,18 +1430,77 @@
           }   
           myChart.update();
       }
+
+      if (nodeData.nodeClass == "notification"){
+        message = nodeData.value
+
+        if (message != null){
+          document.getElementById("warning-text").innerText = message;
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+        }
+      }
+
     }
 
+    function toggleConnectors(){
+
+      //Show hide connection points
+      var all = document.querySelectorAll(".inputs");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+
+      //Show hide connection points
+      var all = document.querySelectorAll(".outputs");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+
+      // Show / hide connection lines
+      var all = document.querySelectorAll(".main-path");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+      //event.target.classList.add('selected');
+      //"main-path"
+    }
 
     {% if Run == True %}
     addStatusNode();
-    getNodeStatus()
-    editor.editor_mode='fixed'
+    getNodeStatus();
+    editor.editor_mode='fixed' //fixed
     //changeMode('lock');
     document.getElementById("btnStartFlow").classList.add("disabled")
     document.getElementById("btnStopFlow").classList.remove("disabled")
     document.getElementById("btnSaveFlow").classList.add("disabled")
     document.getElementById("btnDeleteFlow").classList.add("disabled")
+    // Change icon of lock button
+    document.getElementById("lock-btn-icon").classList.remove("fa-unlock")
+    document.getElementById("lock-btn-icon").classList.add("fa-lock")
+
+    //Add flowing to main-path
+    var all = document.querySelectorAll(".main-path");
+    for (var i = 0; i < all.length; i++) {
+      if (!all[i].classList.contains('flowing')){
+        all[i].classList.add('flowing');
+      }
+    }
 
     {% else %}
     //addStatusNode();
@@ -1144,9 +1509,211 @@
     //changeMode('unlock');
     document.getElementById("btnStartFlow").classList.remove("disabled")
     document.getElementById("btnStopFlow").classList.add("disabled")
-    document.getElementById("btnSaveFlow").classList.remove("disabled")
+    //document.getElementById("btnSaveFlow").classList.remove("disabled")
     document.getElementById("btnDeleteFlow").classList.remove("disabled")
+    // Change icon of lock button
+    document.getElementById("lock-btn-icon").classList.remove("fa-lock")
+    document.getElementById("lock-btn-icon").classList.add("fa-unlock")
     {% endif %}
+
+    document.addEventListener('change', function(e){
+      if(e.target.parentNode.className.indexOf('checkboxControl') != -1){
+        parent = e.target.parentNode;
+        grandParent = parent.parentNode;
+        grandParent2 = grandParent.parentNode;
+        grandParent3 = grandParent2.parentNode;
+        grandParent4 = grandParent3.parentNode;
+        grandParent5 = grandParent4.parentNode;
+        //console.log(grandParent5);
+        nodeId = grandParent5.id.split("node-")[1];
+
+        //console.log(e.srcElement.checked);
+        //console.log("Element: " + nodeId);
+
+        let statusValue = 0;
+        if (e.srcElement.checked){
+          statusValue = 1
+        }
+
+        // Update the value of all toggles
+        var data = {
+          "COMMAND": "set_node_status",
+          "NODEID": nodeId,
+          "STATUS": statusValue,
+        }
+      
+        const apiUrl = '/automation/{{Model.uuid}}';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data)
+            //window.location.reload();
+          });
+        }
+      });
+    
+    function setSliderValue(event){
+      element = event.srcElement
+      value = event.srcElement.value
+      textElement = element.previousElementSibling.childNodes[1]
+      textElement.value = value
+
+      //console.log(event)
+      parent = event.target.parentNode;
+      grandParent = parent.parentNode;
+      grandParent2 = grandParent.parentNode;
+      grandParent3 = grandParent2.parentNode;
+      nodeId = grandParent3.id.split("node-")[1];
+
+      // Send updated value to Flow
+      var data = {
+            "COMMAND": "set_node_status",
+            "NODEID": nodeId,
+            "STATUS": value,
+          }
+
+          const apiUrl = '/automation/{{Model.uuid}}';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data)
+            //window.location.reload();
+          });
+    }
+
+    function decreaseSlider(event){
+      element = event.srcElement
+      //value = event.srcElement.value
+      //console.log(element)
+      //textElement = element.previousElementSibling.childNodes[1]
+      value = parseInt(element.previousElementSibling.value)
+
+      if (value > 0){
+        value -=1;
+        element.previousElementSibling.value = value;
+        display = element.previousElementSibling.previousElementSibling.childNodes[1];
+        display.value = value;
+
+        parent = event.target.parentNode;
+        grandParent = parent.parentNode;
+        grandParent2 = grandParent.parentNode;
+        grandParent3 = grandParent2.parentNode;
+        nodeId = grandParent3.id.split("node-")[1];
+        console.log(nodeId);
+
+        // Send updated value to Flow
+        var data = {
+            "COMMAND": "set_node_status",
+            "NODEID": nodeId,
+            "STATUS": value,
+          }
+
+          const apiUrl = '/automation/{{Model.uuid}}';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data)
+            //window.location.reload();
+          });
+      }
+
+    }
+
+    function increaseSlider(event){
+      element = event.srcElement
+      //value = event.srcElement.value
+      //console.log(element)
+      //textElement = element.previousElementSibling.childNodes[1]
+      //console.log(element.previousElementSibling.previousElementSibling)
+      value = parseInt(element.previousElementSibling.previousElementSibling.value)
+
+      if (value < 100){
+        value +=1;
+        element.previousElementSibling.previousElementSibling.value = value;
+        display = element.previousElementSibling.previousElementSibling.previousElementSibling.childNodes[1];
+        display.value = value;
+
+        parent = event.target.parentNode;
+        grandParent = parent.parentNode;
+        grandParent2 = grandParent.parentNode;
+        grandParent3 = grandParent2.parentNode;
+        nodeId = grandParent3.id.split("node-")[1];
+        //console.log(nodeId);
+
+        // Send updated value to Flow
+        var data = {
+            "COMMAND": "set_node_status",
+            "NODEID": nodeId,
+            "STATUS": value,
+          }
+
+          const apiUrl = '/automation/{{Model.uuid}}';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data)
+            //window.location.reload();
+          });
+
+      }
+
+    }
 
   </script>
 {% endblock %}

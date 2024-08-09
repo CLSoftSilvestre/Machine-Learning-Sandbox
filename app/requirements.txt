@@ -15,7 +15,6 @@ pandas==1.5.3
 bcrypt==4.0.1
 gunicorn
 urlopen
-langchain
-ollama
 pygwalker
 python-snap7
+paho-mqtt

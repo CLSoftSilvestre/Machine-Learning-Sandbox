@@ -73,18 +73,21 @@ class Configuration():
 
     def SetBase(self, useLogin):
         self.useLogin = useLogin
-
-    def SetNodeRed(self, use, endpoint):
-        self.NodeRed = use
-        self.NodeRedEndpoint = endpoint
-    
-    def SetOllama(self, use, model, endpoint):
-        self.Ollama = use
-        self.OllamaModel = model
-        self.OllamaEndpoint = endpoint
     
     def SetPyGWalker(self, use):
         self.usePyGWalker = use
+
+    def SetAutomation(self, use):
+        self.enableAutomation = use
+
+    def SetSiemensConnector(self, use):
+        self.useSiemensConnector = use
+    
+    def SetMqttConnector(self, use):
+        self.useMqttConnector = use
+    
+    def SetOpcUaConnector(self, use):
+        self.useOpcUaConnector = use
     
     def AddAppUser(self, user : AppUser = 0):
         self.users.append(user)

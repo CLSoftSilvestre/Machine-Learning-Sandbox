@@ -1783,33 +1783,6 @@
             {%- endfor %}        
         </textarea>
 
-        {% if config.Ollama %}
-
-        <div class="row prompt-row form-group row">
-            <div class="col-sm-1">
-                <label for="prompt" class="col-sm-5 col-form-label">Prompt</label>
-            </div>
-            
-            <div class="col-sm-9">
-                <input type="text" class="form-control text-left" id="prompt" name="prompt" placeholder="Add here your question and press send button..."></input>
-            </div>
-
-            <div class="col-sm-2">
-                <button class="btn btn-sm send" id="sendBtn"><i class="fa-solid fa-paper-plane" id="sendLogo"></i></button>
-            </div>
-
-            <span id="OllamaEndpoint" hidden>{{config.OllamaEndpoint}}</span>
-            <span id="OllamaModel" hidden>{{config.OllamaModel}}</span>
-
-            <br>
-
-        </div>
-
-        
-
-        {% endif %}
-
-        <!--button type="submit" class="btn btn-success">Send</button-->
         <button type="button" class="btn btn-success cancel" onclick="closeForm()">Close</button>
     </div>
     </div>
@@ -1822,7 +1795,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ollama-js-client@1.0.2/dist/browser/iife/ollama-js.global.js"></script>
 
 <!-- Editor code -->
 <script>

@@ -11,15 +11,6 @@ services:
       - ./app/models:/app/models
       - ./app/config:/app/config
     scale: 1
-  
-  nodered:
-    image: nodered/node-red:latest
-    environment:
-      - TZ=Europe/Paris
-    ports:
-      - "1880:1880"
-    volumes:
-      - node-red-data:/data
 
   nginx:
     image: nginx:latest
@@ -29,32 +20,3 @@ services:
       - app
     ports:
       - "80:80"
-  
-  ollama:
-    image: ollama/ollama:latest
-    environment:
-      - OLLAMA_ORIGINS="*"
-      - OLLAMA_HOST="0.0.0.0:11434"
-    ports:
-      - 11434:11434
-    healthcheck:
-      test: ollama list || exit 1
-      interval: 10s
-      timeout: 30s
-      retries: 5
-      start_period: 10s
-    volumes:
-      - ollama_data:/root/.ollama
-      - ./ollama/model:/root/modelfile
-  
-  ollama-models-pull:
-    image: curlimages/curl:8.6.0
-    command: >-
-      http://ollama:11434/api/pull -d '{"name": "gemma:2b"}'
-    depends_on:
-      ollama:
-        condition: service_healthy
-
-volumes:
-  node-red-data:
-  ollama_data:

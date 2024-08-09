@@ -1,9 +1,0 @@
-unstructured
-unstructured[all-docs]
-langchain
-langchain-community
-pdf2image
-pdfminer.six
-opencv-python
-chromadb==0.3.29
-langchain-text-splitters

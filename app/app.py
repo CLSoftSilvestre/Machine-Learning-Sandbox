@@ -48,12 +48,10 @@ from DataStudio import DataStudio, DataOperation
 import uuid
 import copy
 
-from urllib.request import urlopen
 from urllib.error import *
 
 import pygwalker as pyg
-from types import SimpleNamespace
-import time
+
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -66,10 +64,8 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.0"
+appversion = "1.4.2"
 model_version = 7 # Model includes automation diagram
-nodeRedRunning = False
-ollamaRunning = False
 
 @app.context_processor
 def inject_app_version():
@@ -147,13 +143,11 @@ def index():
 @app.route("/configurator/", methods=['GET', 'POST'])
 def configurator():
     if(request.method == 'POST'):
-
-        useNodeRed = bool(request.form.get('useNodeRed'))
-        nodeRedPath = request.form['nodeRedEndpoint']
-        useOllama = bool(request.form.get('useOllama'))
-        ollamaPath = request.form['ollamaEndpoint']
-        ollamaModel = request.form['ollamaModel']
         usePyGWalker = bool(request.form.get('usePyGWalker'))
+        useAutomation = bool(request.form.get('useAutomation'))
+        useSiemens = bool(request.form.get('useSiemens'))
+        useMqtt = bool(request.form.get('useMqtt'))
+        useOpcUa = bool(request.form.get('useOpcUa'))
 
         configuration = Configuration()
 
@@ -173,9 +167,11 @@ def configurator():
             configuration.AddAppUser(admUser)
         
         configuration.SetBase(useAuth)
-        configuration.SetNodeRed(useNodeRed, nodeRedPath)
-        configuration.SetOllama(useOllama, ollamaModel, ollamaPath)
         configuration.SetPyGWalker(usePyGWalker)
+        configuration.SetAutomation(useAutomation)
+        configuration.SetSiemensConnector(useSiemens)
+        configuration.SetMqttConnector(useMqtt)
+        configuration.SetOpcUaConnector(useOpcUa)
 
         cfMan = Configurator()
         configName = "base.conf"
@@ -316,7 +312,7 @@ def automation(uuid):
                             "Status" : "success"
                         }
                         return jsonify(status), 200
-                    except:
+                    except Exception as err:
                         status = {
                             "Command" : "start_flow",
                             "Status" : "fail"
@@ -352,15 +348,6 @@ def automation(uuid):
                         return "success", 200 
                     except:
                         return "Error deleting flow", 200 
-                # Get node data
-                elif resultJson['COMMAND'] == "get_data":
-                    for thisnode in model.flow.Nodes:
-                        if thisnode.nodeClass == "s7variable":
-                            print(thisnode.outputValue, file=sys.stderr)
-
-                        if thisnode.nodeClass == "chart":
-                            #print("Node id " + str(thisnode.id) + " Node type: " + str(thisnode.nodeClass) + " Value: " + str(thisnode.outputValue), file=sys.stderr)
-                            return jsonify(thisnode.outputValue), 200
                 # Get node status
                 elif resultJson['COMMAND'] == "get_node_status":
                     nodeStatus = []
@@ -376,12 +363,32 @@ def automation(uuid):
                         nodeStatus.append(nodeData)
 
                     return jsonify(nodeStatus), 200
-
-
-@app.route("/flows/", methods=['GET'])
-def flows():
-    conf = confList[0]
-    return render_template('flows.html', nodeRed = nodeRedRunning, config = conf)
+                # Set node status
+                elif resultJson['COMMAND'] == "set_node_status":
+                    nodeId = resultJson['NODEID']
+                    try:
+                        for thisnode in model.flow.Nodes:
+                            if str(thisnode.id) == str(nodeId) and (thisnode.nodeClass == "toggle" or thisnode.nodeClass == "slider"):
+                                #print("This node id " + str(thisnode.id) + ", Node Id: " + str(nodeId), file=sys.stderr)
+                                print("This node id " + str(thisnode.id) + ", Status: " + str(int(resultJson['STATUS'])), file=sys.stderr)
+                                thisnode.outputValue = int(resultJson['STATUS'])
+                                status = {
+                                    "Command" : "set_node_status",
+                                    "Status" : "success",
+                                }
+                                return jsonify(status), 200
+                            
+                        status = {
+                                    "Command" : "set_node_status",
+                                    "Status" : "Node not found",
+                                }
+                        return jsonify(status), 200
+                    except Exception as err:
+                        status = {
+                            "Command" : "set_node_status",
+                            "Status" : str(err),
+                        }
+                        return jsonify(status), 412
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):
@@ -608,11 +615,8 @@ def datastudio():
     if (session.get('autenticated') != True):
         return redirect('/notauthorized')
     
-    # Check if user configured the OLLAMA connection
-    #config = Configuration()
     config = confList[0]
 
-    
     # acording to the command will perform mod on the data before push again to the page.
 
     if(request.method == 'POST'):

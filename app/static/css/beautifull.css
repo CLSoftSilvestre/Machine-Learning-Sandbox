@@ -23,10 +23,12 @@
     border-bottom: 1px solid var(--border-color);
     padding-left: 20px;
   }
+
   header h2 {
     margin: 0px;
     line-height: 66px;
   }
+
   header a {
     color: black;
   }
@@ -51,6 +53,7 @@
     cursor: move;
     user-select: none;
   }
+
   .menu {
     position: absolute;
     height: 40px;
@@ -58,6 +61,7 @@
     background: white;
     width: 100%;
   }
+
   .menu ul {
     padding: 0px;
     margin: 0px;
@@ -92,6 +96,16 @@
     position: absolute;
     bottom: 20px;
     right: 10px;
+    color: white;
+    font-size: 20px;
+    z-index: 5;
+  }
+
+  .show-hide-group {
+    float: right;
+    position: absolute;
+    bottom: 20px;
+    right: 125px;
     color: white;
     font-size: 20px;
     z-index: 5;
@@ -156,6 +170,7 @@
     cursor: pointer;
     z-index: 5;
   }
+
   .swal-wide{
       width:80% !important;
   }
@@ -194,10 +209,12 @@
     border-right: 1px solid var(--border-color);
     z-index: 5;
   }
+
   .bar-zoom svg {
     cursor: pointer;
     padding-left: 10px;
   }
+
   .bar-zoom svg:nth-child(1) {
     padding-left: 0px;
   }
@@ -241,8 +258,6 @@
       width: calc(100vw - 51px);
     }
   }
-  
-  
   
   /* Editing Drawflow */
   
@@ -308,23 +323,26 @@
   }
   
   .drawflow-node .title-box {
-    height: 45px;
-    line-height: 50px;
+    height: 30px;
+    line-height: 30px;
     background: var(--background-box-title);
     border-bottom: 1px solid #e9e9e9;
-    border-radius: 4px 4px 0px 0px;
+    border-radius: 2px 2px 0px 0px;
     padding-left: 10px;
     padding-right: 10px;
   }
+
   .drawflow .title-box svg {
     position: initial;
   }
+
   .drawflow-node .box {
     padding: 10px 10px 10px 10px;
     font-size: 14px;
     color: #555555;
   
   }
+
   .drawflow-node .box p {
     margin-top: 5px;
     margin-bottom: 5px;
@@ -355,6 +373,29 @@
   .drawflow-node.chart {
     padding-bottom: 5px !important;
 
+  }
+
+  .drawflow-node.label {
+    background: rgba(255, 255, 255, 0.678) !important;
+    padding-bottom: 5px !important;
+  }
+
+  .drawflow-node.label div.box {
+    padding-left: 5px!important;
+    padding-right: 5px!important;
+    padding-top: 5px!important;
+    padding-bottom: 0px!important;
+  }
+
+  .drawflow-node.label input {
+    font-size:medium;
+    font-weight: bold;
+    color:#005C44;
+    text-align: center;
+  }
+
+  .drawflow-node.label .node-status{
+    visibility:hidden;
   }
   
   .drawflow-node.comment {
@@ -390,9 +431,11 @@
     text-align: center;
     color: white;
   }
+
   .drawflow-node.personalized .input {
     background: yellow;
   }
+
   .drawflow-node.personalized .output {
     background: green;
   }
@@ -483,4 +526,303 @@
       0px 0px 4px 2px #000,
       0px 0px 4px 2px #777;
   }
+
+  /* https://codepen.io/pluton/pen/DWwBpr */
+  /* TOGGLE Style */
+
+  .drawflow-node.toggle {
+    padding: 2px !important;
+  }
+
+  .drawflow-node.toggle div.box{
+    padding-left: 5px!important;
+    padding-right: 5px!important;
+    padding-top: 5px!important;
+    padding-bottom: 5px!important;
+
+    background: radial-gradient(#000 16%, transparent 17%),
+    radial-gradient(#444 16%, transparent 17%) 0px 1px,
+    radial-gradient(#000 16%, transparent 17%) 8px 8px,
+    radial-gradient(#444 16%, transparent 17%) 8px 9px;
+    background-color:#282828;
+    background-size: 16px 16px; 
+    
+    box-shadow:
+      inset 0 0 5px -1px #fff,
+      inset 0 0 7px 1px #000,
+      inset 0 0 5px 0 #666,
+      inset 0 0 5px 0 #666
+      ;
+  }
+
+  .drawflow-node.toggle .legend{ 
+    color:rgba(255, 255, 255, 0.7);
+    font-size:12px;
+    margin-bottom:14px;
+    height:15px;
+    border-color:#2e667700;
+    border-style:solid;
+    border-width:1px 1px 0 1px;
+    box-shadow:1px 1px 0 rgba(255,255,255,0.2) inset;
+    text-shadow:0 1px rgba(255,255,255,.3);
+  }
+
+  .drawflow-node.toggle .legend span{
+    text-transform:uppercase;
+    position:relative;
+    top:-5px;
+    padding:0 10px;
+    background:#2e667700;
+    display:inline-block;
+  }
+
+  .drawflow-node.toggle .checkboxGroup {
+    padding-top:8px;
+    padding-left: 10px;
+    display:inline-block;
+    vertical-align:middle;
+    width:100px;
+    border:none;
+  }
+
+  .drawflow-node.toggle .checkboxControl {
+    border:2px solid #3b3b3b; /*was #102838 */
+    border-radius:7px;
+    display:inline-block;
+    width: 100px; /* era 100 */
+    height:40px; /* era 50 */
+    padding-top:1px; /* era 1 */
+    position:relative;
+    vertical-align:middle;
+    margin:0 60px 10px 0;
+    color:#9b9b9b; /* was #297597 */
+    box-shadow: 0 0 5px rgba(255,255,255,.4), 
+          0 2px 1px -1px rgba(255,255,255,.7) inset, 
+          8px 0 5px -5px #535353 inset, /* was #02425C */
+          -8px 0 5px -5px #535353 inset; /* was #02425C */
+	  -moz-user-select:none;
+    -webkit-user-select:none; 
+	  background:#e6e6e6; /* was #80DCE9 */
+  }
+
+  .drawflow-node.toggle .checkboxControl input{ 
+    position:absolute; visibility:hidden;
+  }
+
+  .drawflow-node.toggle .checkboxControl > div{
+    background:-webkit-linear-gradient(left, #e4e4e4 0%,#c4c4c4 53%,#8f8f8f 56%,#474747 99%,#ffffff 100%);
+		background:linear-gradient(to right, #e4e4e4 0%,#c4c4c4 53%,#8f8f8f 56%,#474747 99%,#ffffff 100%);
+		box-shadow:-2px 0 1px 0 #c4c4c4 inset;
+    /*
+    background:-webkit-linear-gradient(left, #8FD9E4 0%,#A0F2FE 53%,#69DCF1 56%,#33AFCE 99%,#CEF5FF 100%);
+		background:linear-gradient(to right, #8FD9E4 0%,#A0F2FE 53%,#69DCF1 56%,#33AFCE 99%,#CEF5FF 100%);
+		box-shadow:-2px 0 1px 0 #A6F2FE inset;
+    */
+		border-radius:5px;
+    line-height:35px;
+    font-weight:bold;
+    cursor:pointer;
+    position:relative;
+    z-index:1;
+    text-shadow:0 1px rgba(255,255,255,0.5);
+		
+		transform-origin:0 0; -webkit-transform-origin:0 0; 
+		transform:scaleX(0.93); -webkit-transform:scaleX(0.93);
+		transition:.1s; -webkit-transition:0.1s;
+  }
+
+  .drawflow-node.toggle .checkboxControl div:first-letter{
+    padding-left: 10px;
+    letter-spacing:60px; /* era 55 */
+  }
+
+  .drawflow-node.toggle .checkboxControl :checked ~ div{ 
+		transform-origin:100% 0; -webkit-transform-origin:100% 0;
+		box-shadow:2px 0 1px 0 #c4c4c4 inset;
+		background:-webkit-linear-gradient(left, #ffffff 0%,#474747 1%,#8f8f8f 47%,#c4c4c4 50%,#e4e4e4 100%);
+		background:linear-gradient(to right, #ffffff 0%,#474747 1%,#8f8f8f 47%,#c4c4c4 50%,#e4e4e4 100%);
+    /*
+    background:-webkit-linear-gradient(left, #CEF5FF 0%,#33AFCE 1%,#69DCF1 47%,#A0F2FE 50%,#8FD9E4 100%);
+		background:linear-gradient(to right, #CEF5FF 0%,#33AFCE 1%,#69DCF1 47%,#A0F2FE 50%,#8FD9E4 100%);
+    */
+	}
+
+  .drawflow-node.toggle .checkboxControl > b{ 
+    position:absolute;
+    bottom:0;
+    right:0;
+    width:50%;
+    height:100%;
+    border-radius:8px;
+    -webkit-transform:skewY(5deg);
+    transform:skewY(5deg);
+    box-shadow: 0 6px 8px -5px #000;
+  }
+
+  .drawflow-node.toggle .checkboxControl :checked ~ b{
+    right:auto;
+    left:0;
+    -webkit-transform:skewY(-5deg);
+    transform:skewY(-5deg);
+  }
+
+  .drawflow-node.toggle .checkboxControl .indicator{
+    position:absolute;
+    top:5px;
+    right:-20px;
+    width:8px;
+    height:25px;
+    box-shadow:0 0 8px #000 inset;
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:15px;
+    transition:0.2s;
+    -webkit-transition:0.2s; 
+  }
+
+  .drawflow-node.toggle .checkboxControl .indicator:before{
+    content:'';
+    display:inline-block;
+    margin-top:8px;
+    width:2px;
+    height:8px;
+    border-radius:10px;
+    transition:0.5s;
+    -webkit-transition:0.5s;
+  }
+
+  .drawflow-node.toggle .checkboxControl :checked ~ .indicator:before{
+    box-shadow:0 0 7px 6px #BAFC58;
+    width:6px;
+    background:#F0F9E3;
+    transition:0.1s;
+    -webkit-transition:0.1s;
+  }
+
+  .main-path.hide {
+    visibility: hidden;
+  }
+
+  .inputs.hide {
+    visibility: hidden;
+  }
+
+  .outputs.hide {
+    visibility: hidden;
+  }
+
+  /* Slider CSS */
+  .drawflow-node.slider {
+    padding: 2px !important;
+  }
+
+  .drawflow-node.slider div.box{
+    padding-left: 5px!important;
+    padding-right: 5px!important;
+    padding-top: 5px!important;
+    padding-bottom: 5px!important;
+
+    background: radial-gradient(#000 16%, transparent 17%),
+    radial-gradient(#444 16%, transparent 17%) 0px 1px,
+    radial-gradient(#000 16%, transparent 17%) 8px 8px,
+    radial-gradient(#444 16%, transparent 17%) 8px 9px;
+    background-color:#282828;
+    background-size: 16px 16px; 
+    
+    box-shadow:
+      inset 0 0 5px -1px #fff,
+      inset 0 0 7px 1px #000,
+      inset 0 0 5px 0 #666,
+      inset 0 0 5px 0 #666
+      ;
+  }
+
+  .drawflow-node.slider .display {
+    position: relative;
+    left:0; right:0; margin:auto;
+    height:40px; width:130px;
+    margin-top: 5px;
+    padding-bottom: 1px;
+    background:rgba(45,45,45,1);
+    box-shadow:
+      inset 1px 1px 7px 0px #050505,
+      0px 0px 4px 2px #000,
+      0px 0px 4px 2px #777;
+  }
+
+  .drawflow-node.slider .display input {
+    background:none;
+    border:none;
+    outline:none;
+    position:absolute;
+    top:3px; left:0;
+    font-family: 'LCD', sans-serif;
+    font-size:20pt;
+    text-align: right;
+    right:0; bottom:0;
+    padding:0px 5px;
+    color: #a8c64e;
+    text-shadow: 3px 2px 0px rgba(0,0,0,.3);
+    width:130px;
+    background:rgba(56,62,37,1);
+    box-shadow:
+      inset 1px 1px 6px 0px #050505,
+      0px 0px 4px 2px #000,
+      0px 0px 4px 2px #777;
+  }
+
+  .drawflow-node.slider .range {
+    width: 200px;
+    height: 10px;
+    -webkit-appearance: none;
+    background: rgba(56,62,37,1);
+    outline: none;
+    border-radius: 5px;
+    border-color: #050505;
+    margin-top: 12px;
+    overflow: hidden;
+    box-shadow:
+      inset 1px 1px 6px 0px #050505,
+      0px 0px 4px 2px #000,
+      0px 0px 4px 2px #777;
+  }
+
+  .drawflow-node.slider .range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 1px;
+    height: 1px;
+    border-radius: 25%;
+    background: #a8c64e;
+    cursor: pointer;
+    border: 1px solid rgba(56,62,37,1);
+    box-shadow: -407px 0 0 400px #a8c64e;
+  }
+
+  .drawflow-node.slider .box .btnRangeMinus{
+    position: absolute;
+    top:50px; left:10px;
+    width: 30px;
+    height: 30px;
+    background-color: #3b3b3b;
+    color: #a8c64e;
+    text-shadow: rgba(56,62,37,1);
+    font-weight: bold;
+    font-size: larger;
+  }
+
+  .drawflow-node.slider .box .btnRangePlus{
+    position: absolute;
+    top:50px; right:10px;
+    width: 30px;
+    height: 30px;
+    background-color: #3b3b3b;
+    color: #a8c64e;
+    text-shadow: rgba(56,62,37,1);
+    font-weight: bold;
+    font-size: larger;
+  }
+
+  
+
+
+
   
