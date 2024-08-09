@@ -257,6 +257,108 @@ class PredictionModel:
 
                     self.flow.AddNode(node)
                 
+                elif elementClass == "equal":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "notequal":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "greater":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "greaterequal":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+
+                elif elementClass == "lower":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+
+                elif elementClass == "lowerequal":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
                 elif elementClass == "division":
                     connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
                     connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
@@ -316,6 +418,21 @@ class PredictionModel:
                     nodeId = connector[0]["node"]
                     nodeInp = connector[0]["input"]
                     con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "notification":
+                    message = data["drawflow"]["Home"]["data"][str(i)]["data"]["message"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    params = {
+                        "MESSAGE": message,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.BOOLEAN)
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
 

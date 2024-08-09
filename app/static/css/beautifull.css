@@ -712,7 +712,7 @@
 
   /* Slider CSS */
   .drawflow-node.slider {
-    padding: 5px !important;
+    padding: 2px !important;
   }
 
   .drawflow-node.slider div.box{

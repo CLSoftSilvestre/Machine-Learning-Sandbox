@@ -150,7 +150,7 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="headingOperations">
             <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseOperations" aria-expanded="true" aria-controls="collapseOperations">
-              <h5><i class="fa-solid fa-calculator"></i> Data operation nodes</h5>
+              <h5><i class="fa-solid fa-calculator"></i> Math operation nodes</h5>
             </button>
           </h2>
           <div id="collapseOperations" class="accordion-collapse collapse show" aria-labelledby="headingOperations" data-bs-parent="#accordionParameters">
@@ -172,7 +172,47 @@
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_division">
                   <i class="fa-solid fa-calculator"></i><span> Division</span>
                 </div>
-   
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditional nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingConditional">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseConditional" aria-expanded="true" aria-controls="collapseConditional">
+              <h5><i class="fa-solid fa-not-equal"></i> Conditional nodes</h5>
+            </button>
+          </h2>
+          <div id="collapseConditional" class="accordion-collapse collapse show" aria-labelledby="headingConditional" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_equal">
+                  <i class="fa-solid fa-equals"></i><span> Equal</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_not_equal">
+                  <i class="fa-solid fa-not-equal"></i><span> Not equal</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_greater">
+                  <i class="fa-solid fa-chevron-right"></i><span> Greater than</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_greater_equal">
+                  <i class="fa-solid fa-greater-than-equal"></i><span> Greater or equal</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_lower">
+                  <i class="fa-solid fa-chevron-left"></i><span> Lower than</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_lower_equal">
+                  <i class="fa-solid fa-less-than-equal"></i><span> Lower or equal</span>
+                </div>
+                
               </div>
             </div>
           </div>
@@ -207,6 +247,10 @@
 
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_chart">
                   <i class="fa-solid fa-chart-line"></i><span> Line Chart</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_notification">
+                  <i class="fa-solid fa-bell"></i><span> Notification message</span>
                 </div>
 
               </div>
@@ -821,6 +865,18 @@
           `;
           editor.addNode('display', 1, 0, pos_x, pos_y, 'display', {}, displaytemplate );
           break;
+        case 'out_notification':
+          var notificationtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-bell"></i> Notification message</div>
+            <div class="box">
+              <p>Message</p>
+              <input type="text" df-message>
+            </div>
+          </div>
+          `;
+          editor.addNode('notification', 1, 0, pos_x, pos_y, 'notification', { "message": ''}, notificationtemplate );
+          break;
         case 'oper_addition':
           var additiontemplate = `
           <div>
@@ -860,6 +916,66 @@
           </div>
           `;
           editor.addNode('division', 2, 1, pos_x, pos_y, 'division', {}, divisiontemplate );
+          break;
+        case 'cond_equal':
+          var equaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-equals "></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-equals"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('equal', 2, 1, pos_x, pos_y, 'equal', {}, equaltemplate );
+          break;
+        case 'cond_not_equal':
+          var notequaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-not-equal "></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-not-equal"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('notequal', 2, 1, pos_x, pos_y, 'notequal', {}, notequaltemplate );
+          break;
+        case 'cond_greater':
+          var greatertemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-chevron-right"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-chevron-right"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('greater', 2, 1, pos_x, pos_y, 'greater', {}, greatertemplate );
+          break;
+        case 'cond_greater_equal':
+          var greaterequaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-greater-than-equal"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-greater-than-equal"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('greaterequal', 2, 1, pos_x, pos_y, 'greaterequal', {}, greaterequaltemplate );
+          break;
+        case 'cond_lower':
+          var lowertemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-chevron-left"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-chevron-left"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('lower', 2, 1, pos_x, pos_y, 'lower', {}, lowertemplate );
+          break;
+        case 'cond_lower_equal':
+          var lowerequaltemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-less-than-equal"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-less-than-equal"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('lowerequal', 2, 1, pos_x, pos_y, 'lowerequal', {}, lowerequaltemplate );
           break;
         case 'telegram':
           var telegrambot = `
@@ -1314,6 +1430,20 @@
           }   
           myChart.update();
       }
+
+      if (nodeData.nodeClass == "notification"){
+        message = nodeData.value
+
+        if (message != null){
+          document.getElementById("warning-text").innerText = message;
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+        }
+      }
+
     }
 
     function toggleConnectors(){

@@ -168,7 +168,7 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                 
-            # Second loop operations
+            # Second loop operations and conditionals
             for node in self.Nodes:
                 if node.nodeClass == "addition":
                     node.clearError()
@@ -252,6 +252,132 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
 
+                elif node.nodeClass == "equal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 == value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "notequal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 != value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "greater":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 > value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "greaterequal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 >= value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "lower":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 < value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "lowerequal":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1 <= value2):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
             # Third loop model
             for node in self.Nodes:
                 if node.nodeClass == "model":
@@ -322,6 +448,21 @@ class Flow():
                             node.outputValue = "NULL"
                         else:
                             node.outputValue = value
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+                if node.nodeClass == "notification":
+                    node.clearError()
+                    try:
+                        message = node.params["MESSAGE"]
+                        prevNodeId = node.inputConnectors[0].nodeId
+                        prevNode = self.GetNodeById(prevNodeId)
+                        value = prevNode.outputValue
+                        if value < 1:
+                            node.outputValue = None
+                        else:
+                            node.outputValue = message
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
