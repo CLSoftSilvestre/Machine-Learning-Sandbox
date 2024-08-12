@@ -87,7 +87,7 @@ class PredictionModel:
         for i in range(100):
             try:  
                 elementClass = data["drawflow"]["Home"]["data"][str(i)]["class"]
-                #print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
+                print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
                 #print("--------------------------------------", file=sys.stderr)
                 #print("Element class: " + str(elementClass), file=sys.stderr)
                 if elementClass == "s7connector":
@@ -375,6 +375,25 @@ class PredictionModel:
                     node.SetInputConnector(con2)
 
                     self.flow.AddNode(node)
+                
+                elif elementClass == "scale":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    minValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["minvalue"]
+                    maxValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["maxvalue"]
+                    
+                    params = {
+                        "MINVALUE": float(minValue),
+                        "MAXVALUE": float(maxValue),
+                    }
+
+                    node = Node(i, elementClass, params)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+
+                    self.flow.AddNode(node)
 
                 elif elementClass == "model":
 
@@ -434,6 +453,18 @@ class PredictionModel:
                     nodeInp = connector[0]["input"]
                     con = InputConnector(nodeId, nodeInp, ValueType.BOOLEAN)
                     node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "log":
+                    connectors = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    # Need to check the total input connector and add them to node instance.
+                    conCount = len(connectors)
+                    node = Node(i, elementClass, None)
+
+                    for pos in range(0,conCount):
+                        node.SetInputConnector(InputConnector(connectors[pos]["node"], connectors[pos]["input"], ValueType.NUMERIC))
+                    
                     self.flow.AddNode(node)
 
             except Exception as err:

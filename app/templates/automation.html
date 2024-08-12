@@ -103,11 +103,19 @@
                 <!-- Toggle value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="toggle_value">
                   <i class="fa-solid fa-toggle-on"></i><span> Toggle switch</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Toggle node" data-bs-content="This node can be used during simulation to change the output value from 0-1-0. Can be used in combination with conditional nodes.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
                 </div>
 
                 <!-- Slider value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="slider_value">
                   <i class="fa-solid fa-sliders"></i><span> Slider</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Slider node" data-bs-content="This node allows the data changing during simulation for 0 to 100. Can be used in combination with Scale node to better perform simulations.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
                 </div>
 
                 <!-- Static value Nodes -->
@@ -118,6 +126,10 @@
                 <!-- Random value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="random_value">
                   <i class="fa-solid fa-dice"></i><span> Random value</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Random node" data-bs-content="This node creates a random integer number between the min and max pre-defined during the simulation.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
                 </div>
 
               </div>
@@ -158,19 +170,27 @@
               <div class="form-group row">
 
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_addition">
-                  <i class="fa-solid fa-calculator"></i><span> Addition</span>
+                  <i class="fa-solid fa-plus"></i><span> Addition</span>
                 </div>
 
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_subtraction">
-                  <i class="fa-solid fa-calculator"></i><span> Subtraction</span>
+                  <i class="fa-solid fa-minus"></i><span> Subtraction</span>
                 </div>
 
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_multiplication">
-                  <i class="fa-solid fa-calculator"></i><span> Multiplication</span>
+                  <i class="fa-solid fa-xmark"></i><span> Multiplication</span>
                 </div>
 
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_division">
-                  <i class="fa-solid fa-calculator"></i><span> Division</span>
+                  <i class="fa-solid fa-divide"></i><span> Division</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="oper_scale">
+                  <i class="fa-solid fa-percent"></i><span> Scale</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Scale node" data-bs-content="This node calculates the output value from the min output value and max output value pre-defined based on the input percentage. Slider node can be used as input value.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
                 </div>
 
               </div>
@@ -229,18 +249,6 @@
             <div class="accordion-body">
               <div class="form-group row">
 
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_csv">
-                  <i class="fa-solid fa-file-csv"></i><span> CSV file</span>
-                </div-->
-
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_sql">
-                  <i class="fa-solid fa-database"></i><span> SQL server</span>
-                </div-->
-
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_email">
-                  <i class="fa-solid fa-at"></i><span> Email</span>
-                </div-->
-
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_display">
                   <i class="fa-solid fa-display"></i><span> Display value</span>
                 </div>
@@ -251,6 +259,18 @@
 
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_notification">
                   <i class="fa-solid fa-bell"></i><span> Notification message</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Notification node" data-bs-content="Outputs the message defined if the input is higher or equal to 1.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_log">
+                  <i class="fa-solid fa-file-signature"></i><span> Logfile</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Log node" data-bs-content="Save simulation data from the connected nodes into CSV file than can be downloaded. The download can be performed after stopping the simulation.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
                 </div>
 
               </div>
@@ -259,44 +279,6 @@
         </div>
 
       </div>
-
-      <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="facebook">
-        <i class="fab fa-facebook"></i><span> Facebook</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="slack">
-        <i class="fab fa-slack"></i><span> Slack receive message</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="github">
-        <i class="fab fa-github"></i><span> Github Star</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="telegram">
-        <i class="fab fa-telegram"></i><span> Telegram send message</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="aws">
-        <i class="fab fa-aws"></i><span> AWS</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="log">
-        <i class="fas fa-file-signature"></i><span> File Log</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="google">
-        <i class="fab fa-google-drive"></i><span> Google Drive save</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="email">
-        <i class="fas fa-at"></i><span> Email send</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="template">
-        <i class="fas fa-code"></i><span> Template</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="multiple">
-        <i class="fas fa-code-branch"></i><span> Multiple inputs/outputs</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="personalized">
-        <i class="fas fa-fill"></i><span> Personalized</span>
-      </div>
-      <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="dbclick">
-        <i class="fas fa-mouse"></i><span> DBClick!</span>
-      </div-->
-
 
     </div>
     <div class="col-right">
@@ -398,6 +380,12 @@
       nodeInputClass = editor.getNodeFromId(input_id);
       nodeOutputClass = editor.getNodeFromId(output_id);
       //console.log(nodeInputClass.class);
+
+      // Log node allows multiple input connections
+      if (nodeInputClass.class == "log"){
+        modifiedFlow("modified");
+        return True
+      }
 
       // Check if node input already has other connection (Only one connection per input)
       //console.log(nodeInputClass.inputs.input_["input_" + input_id].connections);
@@ -917,6 +905,21 @@
           `;
           editor.addNode('division', 2, 1, pos_x, pos_y, 'division', {}, divisiontemplate );
           break;
+        case 'oper_scale':
+          var scaletemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-calculator "></i> Scale operation</div>
+            <div class="box">
+              <p class="text-center"><b>Input 1</b> - Value 0-100 <i class="fa-solid fa-percent"></i></span></p><br>
+              <p>Min output value</p>
+              <input type="number" df-minvalue>
+              <p>Max output value</p>
+              <input type="number" df-maxvalue>
+            </div>
+          </div>
+          `;
+          editor.addNode('scale', 1, 1, pos_x, pos_y, 'scale', {"minvalue": '', "maxvalue": ''}, scaletemplate );
+          break;
         case 'cond_equal':
           var equaltemplate = `
           <div>
@@ -977,105 +980,19 @@
           `;
           editor.addNode('lowerequal', 2, 1, pos_x, pos_y, 'lowerequal', {}, lowerequaltemplate );
           break;
-        case 'telegram':
-          var telegrambot = `
-          <div>
-            <div class="title-box"><i class="fab fa-telegram-plane"></i> Telegram bot</div>
-            <div class="box">
-              <p>Send to telegram</p>
-              <p>select channel</p>
-              <select df-channel>
-                <option value="channel_1">Channel 1</option>
-                <option value="channel_2">Channel 2</option>
-                <option value="channel_3">Channel 3</option>
-                <option value="channel_4">Channel 4</option>
-              </select>
-            </div>
-          </div>
-          `;
-          editor.addNode('telegram', 1, 0, pos_x, pos_y, 'telegram', { "channel": 'channel_3'}, telegrambot );
-          break;
-        case 'aws':
-          var aws = `
-          <div>
-            <div class="title-box"><i class="fab fa-aws"></i> Aws Save </div>
-            <div class="box">
-              <p>Save in aws</p>
-              <input type="text" df-db-dbname placeholder="DB name"><br><br>
-              <input type="text" df-db-key placeholder="DB key">
-              <p>Output Log</p>
-            </div>
-          </div>
-          `;
-          editor.addNode('aws', 1, 1, pos_x, pos_y, 'aws', { "db": { "dbname": '', "key": '' }}, aws );
-          break;
-        case 'log':
+        case 'out_log':
           var log = `
           <div>
             <div class="title-box"><i class="fas fa-file-signature"></i> Save log file </div>
+            <div class="box">
+              <button class="btn btn-primary download" onClick="downloadLog(event)"><i class="fa-solid fa-download"></i> Download</button>
+            </div>
           </div>
           `;
           editor.addNode('log', 1, 0, pos_x, pos_y, 'log', {}, log );
           break;
-        case 'google':
-          var google = `
-          <div>
-            <div class="title-box"><i class="fab fa-google-drive"></i> Google Drive save </div>
-          </div>
-          `;
-          editor.addNode('google', 1, 0, pos_x, pos_y, 'google', {}, google );
-          break;
-        case 'email':
-          var email = `
-          <div>
-            <div class="title-box"><i class="fas fa-at"></i> Send Email </div>
-          </div>
-          `;
-          editor.addNode('email', 1, 0, pos_x, pos_y, 'email', {}, email );
-          break;
-        case 'template':
-          var template = `
-          <div>
-            <div class="title-box"><i class="fas fa-code"></i> Template</div>
-            <div class="box">
-              Ger Vars
-              <textarea df-template></textarea>
-              Output template with vars
-            </div>
-          </div>
-          `;
-          editor.addNode('template', 1, 1, pos_x, pos_y, 'template', { "template": 'Write your template'}, template );
-          break;
-        case 'multiple':
-          var multiple = `
-          <div>
-            <div class="box">
-              Multiple!
-            </div>
-          </div>
-          `;
-          editor.addNode('multiple', 3, 4, pos_x, pos_y, 'multiple', {}, multiple );
-          break;
-        case 'dbclick':
-          var dbclick = `
-          <div>
-          <div class="title-box"><i class="fas fa-mouse"></i> Db Click</div>
-            <div class="box dbclickbox" ondblclick="showpopup(event)">
-              Db Click here
-              <div class="modal" style="display:none">
-                <div class="modal-content">
-                  <span class="close" onclick="closemodal(event)">&times;</span>
-                  Change your variable {name} !
-                  <input type="text" df-name>
-                </div>
-
-              </div>
-            </div>
-          </div>
-          `;
-          editor.addNode('dbclick', 1, 1, pos_x, pos_y, 'dbclick', { name: ''}, dbclick );
-          break;
         default:
+          break;
       }
     }
 
@@ -1713,6 +1630,61 @@
 
       }
 
+    }
+
+    function downloadLog(event){
+      parent = event.target.parentNode;
+      grandParent = parent.parentNode;
+      grandParent2 = grandParent.parentNode;
+      grandParent3 = grandParent2.parentNode;
+      nodeId = grandParent3.id.split("node-")[1];
+
+      console.log(nodeId);
+
+      var data = {
+            "COMMAND": "download_data",
+            "NODEID": nodeId,
+          }
+      
+      const apiUrl = '/automation/{{Model.uuid}}';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.blob();
+        })
+        .then(data => {
+            console.log(data)
+            //window.location.reload();
+            a.href = window.URL.createObjectURL(data)
+
+            var saveBlob = (function () {
+                var a = document.createElement("a");
+                document.body.appendChild(a);
+                a.style = "display: none";
+                return function (blob, fileName) {
+                    var url = window.URL.createObjectURL(blob);
+                    a.href = url;
+                    a.download = fileName;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                };
+            }());
+
+            saveBlob(data, 'simulation_data.csv');
+
+          });
+      
     }
 
   </script>
