@@ -306,6 +306,8 @@ def automation(uuid):
                 # Flow commands
                 if resultJson['COMMAND'] == "start_flow":
                     try:
+                        # recreate the flow before starting.
+                        
                         model.flow.Start()
                         status = {
                             "Command" : "start_flow",
