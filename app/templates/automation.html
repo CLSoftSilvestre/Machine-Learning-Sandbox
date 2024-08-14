@@ -293,7 +293,7 @@
         <div class="btn-group btn-group-sm commands-group" role="group" aria-label="Action commands">
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Start flow" onclick="startFlow()" id="btnStartFlow"><i class="fa-solid fa-play"></i></a>
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Stop flow" onclick="stopFlow()" id="btnStopFlow"><i class="fa-solid fa-stop"></i></a>
-          <a href="#" type="button" class="btn btn-outline-success disabled" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
           <a href="#" type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="Delete flow" onclick="deleteFlow()" id="btnDeleteFlow"><i class="fa-solid fa-trash-can"></i></a>
         </div>
 
@@ -309,15 +309,6 @@
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Increase zoom" onclick="editor.zoom_in()" id="btnZoomPlus"><i class="fa fa-search-plus"></i></a>
         </div>
 
-        <!--div class="btn-lock">
-          <i id="lock" class="fas fa-lock-open"></i>
-          <i id="unlock" class="fas fa-lock" style="display:none;"></i>
-        </div-->
-        <!--div class="bar-zoom">
-          <i class="fas fa-search-minus" onclick="editor.zoom_out()"></i>
-          <i class="fas fa-search" onclick="editor.zoom_reset()"></i>
-          <i class="fas fa-search-plus" onclick="editor.zoom_in()"></i>
-        </div-->
         <div class="flow-status">
           {% if Run == True %}
           <p id="flow-status-text"><i class="fa-solid fa-circle-play"></i> Flow is running</p>
@@ -781,7 +772,7 @@
             <div class="title-box"><i class="fa-solid fa-sliders"></i> Slider</div>
             <div class="box">
               <div class='display backlight'>
-                <input id='value' type='text' maxlength='12' class='content' value='-' disabled></input>
+                <input id='value' type='text' maxlength='12' class='content' value='-' disabled df-selvalue></input>
               </div>
               <input class='range' type='range' step='1' min='0' max='100' value='0' onClick=setSliderValue(event)></input>
               <button class="btnRangeMinus" onClick="decreaseSlider(event)">-</button>
@@ -789,7 +780,7 @@
             </div>
           </div>
           `;
-          editor.addNode('slider', 0, 1, pos_x, pos_y, 'slider', {}, slidertemplate );
+          editor.addNode('slider', 0, 1, pos_x, pos_y, 'slider', {"selvalue": ''}, slidertemplate );
           break;
         case 'static_value':
           var statictemplate = `

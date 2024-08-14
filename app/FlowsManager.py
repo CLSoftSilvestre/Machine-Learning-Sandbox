@@ -593,7 +593,3 @@ class Node():
         self.error = True
         self.errorText = errText
         print("Error in node " + str(self.id) + ", class: " + str(self.nodeClass) + ", message: " + str(errText), file=sys.stderr)
-
-
-    
-
