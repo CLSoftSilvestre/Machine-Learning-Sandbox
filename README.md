@@ -1,5 +1,5 @@
 # MLS - Machine learning sandbox
-Flask Web application to train and use machine learning models with integrated API.
+Flask Web application to train and use machine learning models with integrated API and testing / simulation environment. MLS can connect directly to data on the field using several industrial protocols like Siemens S7 connection, MQTT, OPC-UA...
 ***
 ## Available ML models
 The platform can train several types of models including classification and regressions.
@@ -16,6 +16,10 @@ Sdandard scaler and feature reduction can also be applied in the pipeline by sel
 ### Classification models
 - Random forest
 - K Nearest Neighbors
+
+### Anomaly detection models (alfa)
+- Local Outlier Factor (LOF)
+- Isolation forest
 
 
 ## Printscreens of the app
@@ -42,6 +46,10 @@ Here the user can set the deatils of the model and select the model algorithm.
 ### Check the model performance
 After training the model, it will be saved in the folder ./app/models/. The user can check the performance of the model accesing the model details in the main screen of the application. It will be visible the chart with the Real vs Predicted values (limited to 100 tests) created during the training and will be shown the R^2^ and MSE scores.
 ![alt text](./screenshots/details.jpeg?raw=true)
+
+### Model automated simulation flow
+Once created the models, the simulation environment can access in the details page of the model. Users can use this enviroment to simulate several working conditions and output the values to CSV file to be analysed. (This feature is only available for regression models)
+![alt text](./screenshots/automation_flows.jpeg?raw=true)
 
 ### Using API
 The integrated API prodived methods to list the available models, get the required input fields and retrieve the prediction.

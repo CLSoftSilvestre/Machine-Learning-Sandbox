@@ -565,3 +565,8 @@ table.dataframe tr {
 table.dataframe th {
   background-color: var(--Green-buddy-100) !important;
 }
+
+.navbar-toggler {
+  color:#00751E !important;
+  background-color: var(--Green-buddy-600) !important;
+}

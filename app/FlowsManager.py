@@ -8,6 +8,8 @@ import time
 from threading import Thread
 import random
 import pandas as pd
+import io
+import csv
 
 
 class NodeType(Enum):
@@ -46,7 +48,6 @@ class Flow():
         self.stop = True
         self.service = None
 
-    
     def AddNode(self, node):
         self.Nodes.append(node)
         return node
@@ -121,6 +122,21 @@ class Flow():
                     node.outputValue = None
                     node.setError(str(err))
 
+        # Setup the logging file
+        for node in self.Nodes:
+            if node.nodeClass == "log":
+                node.innerStorageArray = io.StringIO()
+                csvdata = []
+                csvdata.append("Timestamp")
+                for i in range(0, len(node.inputConnectors)):
+                    varName = "Connected_Node_" + str(i)
+                    csvdata.append(varName)
+
+                writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONNUMERIC)
+                writer.writerow(csvdata)
+
+                #print(node.innerStorageArray.getvalue(), file=sys.stderr)
+                
         # Start the Loop of the Flow
         self.Restart()
     
@@ -245,6 +261,30 @@ class Flow():
                         # Perform operation
                         node.outputValue = value1 / value2
                         #print("Addition performed: " + str(value1) + " / " + str(value2) + " = " + str(node.outputValue))
+                    except ZeroDivisionError:
+                        node.outputValue = "div/0"
+                        node.setError("Division by zero")
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "scale":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+
+                        # Get the node parameters
+                        minValue = node.params["MINVALUE"]
+                        maxValue = node.params["MAXVALUE"]
+                        
+                        # Perform operation
+                        node.outputValue = minValue + (maxValue - minValue) * (value1 / 100)
+
                     except ZeroDivisionError:
                         node.outputValue = "div/0"
                         node.setError("Division by zero")
@@ -466,7 +506,29 @@ class Flow():
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
-            
+
+                if node.nodeClass == "log":
+                    node.clearError()
+                    try:
+                        print("Logging data.", file=sys.stderr)
+                        #node.innerStorageArray = io.StringIO()
+                        csvdata = []
+                        csvdata.append(datetime.now())
+                        for i in range(0, len(node.inputConnectors)):
+                            prevNodeId = node.inputConnectors[i].nodeId
+                            prevNode = self.GetNodeById(prevNodeId)
+                            value = prevNode.outputValue
+                            csvdata.append(value)
+
+                        writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONNUMERIC)
+                        writer.writerow(csvdata)
+
+                        #print(node.innerStorageArray.getvalue(), file=sys.stderr)
+
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
             time.sleep(10)
         return False
     
@@ -531,7 +593,3 @@ class Node():
         self.error = True
         self.errorText = errText
         print("Error in node " + str(self.id) + ", class: " + str(self.nodeClass) + ", message: " + str(errText), file=sys.stderr)
-
-
-    
-

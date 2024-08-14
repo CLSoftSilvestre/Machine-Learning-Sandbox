@@ -306,6 +306,8 @@ def automation(uuid):
                 # Flow commands
                 if resultJson['COMMAND'] == "start_flow":
                     try:
+                        # recreate the flow before starting.
+                        
                         model.flow.Start()
                         status = {
                             "Command" : "start_flow",
@@ -313,6 +315,7 @@ def automation(uuid):
                         }
                         return jsonify(status), 200
                     except Exception as err:
+                        print("Error stating flow: " + str(err),file=sys.stderr)
                         status = {
                             "Command" : "start_flow",
                             "Status" : "fail"
@@ -389,6 +392,32 @@ def automation(uuid):
                             "Status" : str(err),
                         }
                         return jsonify(status), 412
+                elif resultJson['COMMAND'] == "download_data":
+                    nodeId = resultJson['NODEID']
+                    try:
+                        for thisnode in model.flow.Nodes:
+                            if str(thisnode.id) == str(nodeId) and (thisnode.nodeClass == "log"):
+                                mem = io.BytesIO()
+                                mem.write(thisnode.innerStorageArray.getvalue().encode())
+                                mem.seek(0)
+
+                                return send_file(mem, as_attachment=True, download_name="export_simulation_data.csv", mimetype='text/csv')
+
+                        print("Error downloading data. Model not found!",file=sys.stderr)  
+                        status = {
+                                    "Command" : "download_data",
+                                    "Status" : "Node not found",
+                                }
+                        
+                        return jsonify(status), 412
+                    except Exception as err:
+                        print("Error downloading data: " + str(err),file=sys.stderr)
+                        status = {
+                            "Command" : "download_data",
+                            "Status" : str(err),
+                        }
+                        return jsonify(status), 412
+
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):
