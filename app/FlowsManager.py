@@ -3,6 +3,7 @@ from datetime import datetime
 from enum import Enum
 from S7Connector import S7Connector, S7Variable
 from mqttConnector import MqttConnector, MqttTopic
+from bleConnector import BLECharacteristics, BLEConnector
 import sys
 import time
 from threading import Thread
@@ -10,6 +11,7 @@ import random
 import pandas as pd
 import io
 import csv
+import asyncio
 
 
 class NodeType(Enum):
@@ -66,6 +68,9 @@ class Flow():
         self.s7variables = []
         self.mqttbrokers = []
         self.mqtttopics = []
+        self.bleconnectors = []
+        self.blecharacteristics = []
+
         # Create list of variables before setting the Simatic connector
         for node in self.Nodes:
             if node.nodeClass == "s7variable":
@@ -121,6 +126,33 @@ class Flow():
                 except Exception as err:
                     node.outputValue = None
                     node.setError(str(err))
+        
+        # Setup the BLE Characteristics
+        for node in self.Nodes:
+            if node.nodeClass == "blecharacteristic":
+                try:
+                    node.rawObject = []
+                    blechar = BLECharacteristics(node.params["UUID"], node.inputConnectors[0].nodeId)
+                    node.rawObject.append(blechar)
+                    self.blecharacteristics.append(blechar)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Setup the BLE connectors
+        for node in self.Nodes:
+            if node.nodeClass == "bleconnector":
+                try:
+                    node.rawObject = []
+                    blecon = BLEConnector(node.params["NAME"], node.id)
+                    for charact in self.blecharacteristics:
+                        if str(charact.deviceId) == str(node.id):
+                            blecon.characteristics.append(charact)
+                    self.bleconnectors.append(blecon)
+                    node.rawObject.append(blecon)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
 
         # Setup the logging file
         for node in self.Nodes:
@@ -155,15 +187,31 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+
+                elif node.nodeClass == "bleconnector":
+                    node.clearError()
+                    try:
+                        asyncio.run(node.rawObject[0].readDevice())
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+                elif node.nodeClass == "blecharacteristic":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(node.rawObject[0].value)
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
                 
-                if node.nodeClass == "mqtttopic":
+                elif node.nodeClass == "mqtttopic":
                     node.clearError()
                     try:
                         node.outputValue = float(node.rawObject[0].payload)
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
-
+                
                 elif node.nodeClass == "static":
                     try:
                         staticValue = node.params["STATICVALUE"]

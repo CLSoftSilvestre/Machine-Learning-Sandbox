@@ -18,3 +18,5 @@ urlopen
 pygwalker
 python-snap7
 paho-mqtt
+asyncio
+bleak

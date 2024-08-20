@@ -100,6 +100,14 @@
                 </div>
                 {% endif %}
 
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_connector">
+                  <i class="fa-brands fa-bluetooth"></i><span> Bluetooth Low Energy</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_characteristic">
+                  <i class="fa-brands fa-bluetooth"></i><span> Ble characteristic</span>
+                </div>
+
                 <!-- Toggle value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="toggle_value">
                   <i class="fa-solid fa-toggle-on"></i><span> Toggle switch</span>
@@ -747,6 +755,31 @@
           </div>
           `;
           editor.addNode('s7variable', 1, 1, pos_x, pos_y, 's7variable', { "db": '', "start": '',"size": ''}, s7variable );
+          break;
+        case 'ble_connector':
+          var bleconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/ble.png" style="max-width:60px;"> BLE device</div>
+            <div class="box">
+              <p>Device name</p>
+              <input type="text" df-name><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('bleconnector', 0, 1, pos_x, pos_y, 'bleconnector', { "name": ''}, bleconnector );
+          break;
+        case 'ble_characteristic':
+          var blecharacteristic = `
+          <div>
+            <div class="title-box"><img src="../static/img/ble.png" style="max-width:60px;"> BLE characteristic</div>
+            <div class="box">
+              <p>Characteristic UUID</p>
+              <input type="text" df-uuid><br>
+              <a href=https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf?v=1724154522401>More info here...</a>
+            </div>
+          </div>
+          `;
+          editor.addNode('blecharacteristic', 1, 1, pos_x, pos_y, 'blecharacteristic', { "uuid": ''}, blecharacteristic );
           break;
         case 'toggle_value':
           var toggletemplate = `

@@ -164,6 +164,34 @@ class PredictionModel:
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
 
+                elif elementClass == "bleconnector":
+                    #get data from ble connector
+                    name = data["drawflow"]["Home"]["data"][str(i)]["data"]["name"]
+
+                    params = {
+                        "NAME": name,
+                    }
+
+                    # Create the Node and add the connections
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "blecharacteristic":
+                    #get data from ble characteristic
+                    uuid = data["drawflow"]["Home"]["data"][str(i)]["data"]["uuid"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    params = {
+                        "UUID": uuid,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.MQTTCONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+
                 elif elementClass == "static":
                     staticValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["staticvalue"]
 
