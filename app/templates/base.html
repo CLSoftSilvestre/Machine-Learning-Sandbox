@@ -149,6 +149,13 @@
                           <input id="useOpcUa" class="form-check-input" type="checkbox" name="useOpcUa" {% if app_config.useOpcUaConnector %} checked {% endif %}>
                           <label for="useOpcUa" class="form-check-label">Use OPC UA connector</label>
                         </div>
+
+                        <hr>
+            
+                        <div class="form-check form-switch">
+                          <input id="useBLE" class="form-check-input" type="checkbox" name="useBLE" {% if app_config.useBLEConnector %} checked {% endif %}>
+                          <label for="useBLE" class="form-check-label">Use Bluetooth Low Energy connector</label>
+                        </div>
   
                     </div>
   

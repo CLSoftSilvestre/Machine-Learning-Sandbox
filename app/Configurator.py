@@ -88,6 +88,9 @@ class Configuration():
     
     def SetOpcUaConnector(self, use):
         self.useOpcUaConnector = use
+
+    def SetBLEConnector(self, use):
+        self.useBLEConnector = use
     
     def AddAppUser(self, user : AppUser = 0):
         self.users.append(user)

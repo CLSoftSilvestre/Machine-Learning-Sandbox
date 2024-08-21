@@ -64,7 +64,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.2"
+appversion = "1.4.3"
 model_version = 7 # Model includes automation diagram
 
 @app.context_processor
@@ -148,6 +148,7 @@ def configurator():
         useSiemens = bool(request.form.get('useSiemens'))
         useMqtt = bool(request.form.get('useMqtt'))
         useOpcUa = bool(request.form.get('useOpcUa'))
+        useBLE = bool(request.form.get('useBLE'))
 
         configuration = Configuration()
 
@@ -172,6 +173,7 @@ def configurator():
         configuration.SetSiemensConnector(useSiemens)
         configuration.SetMqttConnector(useMqtt)
         configuration.SetOpcUaConnector(useOpcUa)
+        configuration.SetBLEConnector(useBLE)
 
         cfMan = Configurator()
         configName = "base.conf"

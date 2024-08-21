@@ -100,6 +100,7 @@
                 </div>
                 {% endif %}
 
+                {% if app_config.useBLEConnector == True %}
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_connector">
                   <i class="fa-brands fa-bluetooth"></i><span> Bluetooth Low Energy</span>
                 </div>
@@ -107,7 +108,7 @@
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_characteristic">
                   <i class="fa-brands fa-bluetooth"></i><span> Ble characteristic</span>
                 </div>
-
+                {% endif %}
                 <!-- Toggle value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="toggle_value">
                   <i class="fa-solid fa-toggle-on"></i><span> Toggle switch</span>
