@@ -164,7 +164,7 @@ class Flow():
                     varName = "Connected_Node_" + str(i)
                     csvdata.append(varName)
 
-                writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONNUMERIC)
+                writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONE, delimiter=";")
                 writer.writerow(csvdata)
 
                 #print(node.innerStorageArray.getvalue(), file=sys.stderr)
@@ -465,6 +465,48 @@ class Flow():
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
+                
+                elif node.nodeClass == "and":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1>=1) and (value2>=1):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "or":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1>=1) or (value2>=1):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
 
             # Third loop model
             for node in self.Nodes:
@@ -568,7 +610,7 @@ class Flow():
                             value = prevNode.outputValue
                             csvdata.append(value)
 
-                        writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONNUMERIC)
+                        writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONE, delimiter=";")
                         writer.writerow(csvdata)
 
                         #print(node.innerStorageArray.getvalue(), file=sys.stderr)

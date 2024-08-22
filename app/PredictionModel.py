@@ -383,6 +383,40 @@ class PredictionModel:
 
                     self.flow.AddNode(node)
                 
+                elif elementClass == "and":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "or":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
                 elif elementClass == "division":
                     connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
                     connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]

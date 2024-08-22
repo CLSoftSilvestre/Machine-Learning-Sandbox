@@ -92,6 +92,12 @@
                                         <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>
                                         <a href="{{ url_for('batch', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Batch calculation" id="tour-index-batch-predict"><i class="fa fa-chart-line"></i></a>
                                         <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a>
+                                        {% if model.modelType != "detection" %}
+                                        <a href="{{ url_for('automation', uuid=model.uuid)}}" type="button" class="btn btn-warning" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                        {% else %}
+                                        <a href="#" type="button" class="btn btn-warning disabled" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                        {% endif %}
+
                                         {% if role.value <= 3 %}
                                           <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
                                           <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>

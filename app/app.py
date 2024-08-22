@@ -275,10 +275,6 @@ def automation(uuid):
                 model.SetAutomationDiagram(request.data)
                 # Save model with new data
                 try:
-                    # Auto Update from version 6 to 7 by applying the Automation
-                    if model.modelVersion == 6:
-                        model.modelVersion = 7
-
                     # Save the model
                     mMan = ModelManager()
                     modelFileName = model.name + ".model"
@@ -419,7 +415,6 @@ def automation(uuid):
                             "Status" : str(err),
                         }
                         return jsonify(status), 412
-
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):

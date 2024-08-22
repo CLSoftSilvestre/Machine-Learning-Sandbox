@@ -70,6 +70,12 @@ if ( (x== "" || x == "false")){
             position: 'left'
         },
         {
+            element: document.getElementById('tour-index-automation'),
+            title: "Model automation",
+            intro: 'Access here to the no code testing platform to simulate scenarios and test the model with several data connectors and conditions.',
+            position: 'left'
+        },
+        {
             element: document.getElementById('tour-index-download'),
             title: "Download model",
             intro: 'Here you can download the trained model and use it in python applications. Source code required is included!',

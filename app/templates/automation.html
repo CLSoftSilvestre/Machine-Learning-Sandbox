@@ -241,6 +241,14 @@
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_lower_equal">
                   <i class="fa-solid fa-less-than-equal"></i><span> Lower or equal</span>
                 </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_and">
+                  <i class="fa-solid fa-circle-plus"></i><span> And</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_or">
+                  <i class="fa-solid fa-grip-lines-vertical"></i><span> Or</span>
+                </div>
                 
               </div>
             </div>
@@ -454,6 +462,34 @@
         })
         toastList.forEach(toast => toast.show()) 
       }
+
+      if(nodeInputClass.class == "blecharacteristic" && nodeOutputClass.class != "bleconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! CLE characteristic input can only be connected to output of BLE connector.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "bleconnector" && nodeInputClass.class != "blecharacteristic"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! CLE connectors can only be connected to BLE characteristic.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+
 
       modifiedFlow("modified");
 
@@ -1004,6 +1040,26 @@
           </div>
           `;
           editor.addNode('lowerequal', 2, 1, pos_x, pos_y, 'lowerequal', {}, lowerequaltemplate );
+          break;
+        case 'cond_and':
+          var andtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-circle-plus"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-circle-plus"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('and', 2, 1, pos_x, pos_y, 'and', {}, andtemplate );
+          break;
+        case 'cond_or':
+          var ortemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-grip-lines-vertical"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-grip-lines-vertical"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('or', 2, 1, pos_x, pos_y, 'or', {}, ortemplate );
           break;
         case 'out_log':
           var log = `
