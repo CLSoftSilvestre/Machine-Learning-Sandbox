@@ -1379,6 +1379,19 @@
     }
 
     function updateStatusNode(nodeData){
+
+      if (nodeData.nodeClass == "flow"){
+        // If it's running but receives stopped, reload the page
+        //console.log(nodeData.value);
+        if (document.getElementById("btnStartFlow").classList.contains("disabled")){
+          if (nodeData.value == false){
+            // Reload page...
+            window.location.reload();
+          }
+        }
+        return
+      }
+
       var id = "status-" + nodeData.nodeId
       if (nodeData.error){
         document.getElementById(id).innerText = "⚠️";
@@ -1400,7 +1413,27 @@
             valueField[1].value = nodeData.value
           }
         }
+      }
 
+      if (nodeData.nodeClass == "toggle"){
+        var elements = document.getElementsByClassName('drawflow-node');
+        for (var i = 0; i < elements.length; i++) {
+          let rawId = elements[i].id
+          let nodeId = rawId.split("node-")[1]
+
+          if (nodeId == nodeData.nodeId){
+            valueField = elements[i].querySelectorAll("input")
+            valueField[0].value = nodeData.value
+
+            if (nodeData.value == 0){
+              // Remove selected
+              valueField[0].checked = false;
+            } else {
+              // Add selected
+              valueField[0].checked = true;
+            } 
+          }
+        }
       }
 
       if (nodeData.nodeClass == "display"){

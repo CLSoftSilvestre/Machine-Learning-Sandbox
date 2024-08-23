@@ -352,6 +352,24 @@ def automation(uuid):
                 # Get node status
                 elif resultJson['COMMAND'] == "get_node_status":
                     nodeStatus = []
+                    # Node 0 will be the status of the flow
+                    # Check if flow is running
+                    running = False
+                    try:
+                        running = model.flow.getStatus()
+                    except:
+                        running = False
+
+                    nodeData = {
+                            'nodeId': 0,
+                            'nodeClass': "flow",
+                            'value': running, #0 Stopped; 1 Running
+                            'error': False,
+                            'errorText': "No error",
+                        }
+                    
+                    nodeStatus.append(nodeData)
+
                     for thisnode in model.flow.Nodes:
                         nodeData = {
                             'nodeId': thisnode.id,
