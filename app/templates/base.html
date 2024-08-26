@@ -365,9 +365,10 @@
               let b = getCookie("tourTrainComplete");
               let c = getCookie("tourDataStudioPart2Complete");
               let d = getCookie("tourDataStudioPart2Complete");
+              let f = getCookie("tourAutomationComplete");
 
               //if (a == "true" && b == "true" && c == "true") {
-              if (a == "true" && b == "true" && c == "true" && d == "true") {
+              if (a == "true" && b == "true" && c == "true" && d == "true" && f == "true") {
                   document.getElementById("showTutorials").checked = false;
               }
 
@@ -379,6 +380,7 @@
                   setCookie("tourTrainComplete", !switchStatus, 90);
                   setCookie("tourDataStudioPart1Complete", !switchStatus, 90);
                   setCookie("tourDataStudioPart2Complete", !switchStatus, 90);
+                  setCookie("tourAutomationComplete", !switchStatus, 90);
                 }
                 else {
                   switchStatus = $(this).is(':checked');
@@ -386,6 +388,7 @@
                   setCookie("tourTrainComplete", !switchStatus, 90);
                   setCookie("tourDataStudioPart1Complete", !switchStatus, 90);
                   setCookie("tourDataStudioPart2Complete", !switchStatus, 90);
+                  setCookie("tourAutomationComplete", !switchStatus, 90);
                 }
               });
 

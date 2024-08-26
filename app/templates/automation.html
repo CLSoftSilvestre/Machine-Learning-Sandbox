@@ -26,7 +26,7 @@
   </div>
   
   <div class="wrapper">
-    <div class="col">
+    <div class="col" id="tour-automation-nodes">
 
       <div class="accordion acordion-flush" id="accordionParameters">
 
@@ -298,7 +298,7 @@
       </div>
 
     </div>
-    <div class="col-right">
+    <div class="col-right" id="tour-automation-canvas">
       <div class="menu">
         <ul>
           <li onclick="editor.changeModule('Home'); changeModule(event);" class="selected">Automation flow</li>
@@ -1802,4 +1802,6 @@
     }
 
   </script>
+  <script src="../static/js/intro.min.js"></script>
+  <script src="../static/js/tour-automation.js"></script>
 {% endblock %}
