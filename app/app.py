@@ -64,7 +64,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.3"
+appversion = "1.4.4"
 model_version = 7 # Model includes automation diagram
 
 @app.context_processor

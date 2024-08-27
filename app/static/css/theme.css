@@ -570,3 +570,17 @@ table.dataframe th {
   color:#00751E !important;
   background-color: var(--Green-buddy-600) !important;
 }
+
+.dropdown-menu {
+  background-color: var(--Green-buddy-300);
+}
+
+.dropdown-menu li a {
+  color: var(--Green-buddy-600) !important;
+  background-color: var(--Green-buddy-300);
+}
+
+.dropdown-menu li a:hover {
+  color:#fff !important;
+  background-color: var(--Green-buddy-500)
+}
