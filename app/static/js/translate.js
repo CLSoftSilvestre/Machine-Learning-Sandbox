@@ -18,6 +18,7 @@ class Translate{
         {key:"tr_oldpassword", pt:"Palavra passe antiga", en:"Old password", fr:"Ancien mot de passe", default:"Old password"},
         {key:"tr_newpassword", pt:"Nova palavra passe", en:"New password", fr:"Nouveau mot de passe", default:"New password"},
         {key:"tr_repeatnewpassword", pt:"Repetir nova palavra passe", en:"Repeat new password", fr:"Répéter le nouveau mot de passe", default:"Repeat new password"},
+
             //Configurations
         {key:"tr_app_configuration", pt:"Configuração da aplicação", en:"Application configuration", fr:"Configuration des applications", default:"Application configuration"},
         {key:"tr_use_pygwalker", pt:"Utilizar a framework de análise de dados avançada PyGWalker", en:"Use PyGWalker advanced data visualization framework", fr:"Utiliser le framework avancé de visualisation de données PyGWalker", default:"Use PyGWalker advanced data visualization framework"},
@@ -28,7 +29,6 @@ class Translate{
         {key:"tr_use_opcua", pt:"Utilizar conector OPC UA", en:"Use OPC UA connector", fr:"Utiliser le connecteur OPC UA", default:"Use OPC UA connector"},
         {key:"tr_use_ble", pt:"Utilizar conector de Bluetooth Low Energy", en:"Use Bluetooth Low Energy connector", fr:"Utiliser le connecteur Bluetooth Low Energy", default:"Use Bluetooth Low Energy connector"},
         {key:"tr_ble_info", pt:" O conector BLE poderá não funcionar em contentores Docker.", en:" BLE connector may not work on Docker containers.", fr:" Le connecteur BLE peut ne pas fonctionner sur les conteneurs Docker.", default:" BLE connector may not work on Docker containers."},
-
 
         // Sandbox page
         {key:"tr_available_models", pt:"Todos os modelos disponiveis", en:"All available models", fr:"Tous les modèles disponibles", default:"All available models"},
@@ -88,7 +88,6 @@ class Translate{
 
         {key:"tr_boxplot_outliers", pt:"caixa de bigodes e valores anormais", en:"boxplot and outliers", fr:"boîte à moustaches et valeurs aberrantes", default:"boxplot and outliers"},
 
-
         {key:"tr_pos", pt:"Pos", en:"Pos", fr:"Pos", default:"Pos"},
         {key:"tr_state", pt:"Estado", en:"State", fr:"État", default:"State"},
         {key:"tr_operation_type", pt:"Tipo de operação", en:"Operation type", fr:"Type d'opération", default:"Operation type"},
@@ -103,6 +102,27 @@ class Translate{
         {key:"tr_oper_remoutliers", pt:"Removidos dados anormais de coluna", en:"Removed column outliers", fr:"Valeurs aberrantes de colonnes supprimées", default:"Removed column outliers"},
         {key:"tr_oper_script", pt:"Script de python aplicado", en:"Python script applied", fr:"Script Python appliqué", default:"Python script applied"},
 
+        {key:"tr_msg_remove_operation", pt:"Deseja realmente eliminar a operação", en:"Are you sure you want to remove the operation", fr:"Etes-vous sûr de vouloir supprimer l'opération", default:"Are you sure you want to remove the operation"},
+        {key:"tr_msg_irreversible_action", pt:"Esta acção é irreversivel, contudo poderá voltar a aplicar na aba operações nos dados.", en:"This action is irreversible. However you can re-apply the data operation again.", fr:"Cette action est irréversible. Cependant, vous pouvez réappliquer l'opération de données.", default:"This action is irreversible. However you can re-apply the data operation again."},
+        {key:"tr_oper_uuid", pt:" UUID operação:", en:" Operation UUID:", fr:" UUID d’opération :", default:" Operation UUID:"},
+        {key:"tr_oper_type", pt:" Tipo de operação:", en:" Operation type:", fr:" Type d'opération:", default:" Operation type:"},
+        {key:"tr_oper_params", pt:" Parâmetros da operação:", en:" Operation Parameters:", fr:" Paramètres d’opération:", default:" Operation Parameters:"},
+
+        {key:"tr_edit_oper_pos", pt:"Editar a operação na posição", en:"Edit operation position", fr:"Modifier la position d'opération", default:"Edit operation position"},
+        {key:"tr_editing_oper", pt:"Editando a operação", en:"Editing operation", fr:"Opération d'édition", default:"Editing operation"},
+        {key:"tr_old_params", pt:"Parâmetros antigos", en:"Old parameters", fr:"Anciens paramètres", default:"Old parameters"},
+        {key:"tr_dataset_preview", pt:" Pré-visualização do conjunto de dados (primeiros 10 registos)", en:" Dataset preview (only first 10 records)", fr:" Aperçu de l'ensemble de données (uniquement les 10 premiers enregistrements)", default:" Dataset preview (only first 10 records)"},
+        {key:"tr_var_correlation_matrix", pt:"Matrix de correlação das variáveis", en:"Variables correlation matrix", fr:"Matrice de corrélation des variables", default:"Variables correlation matrix"},
+
+        // Python code Modal
+        {key:"tr_apply_python_script_oper", pt:"Aplicar operação de dados em código Python", en:"Apply a Python script data operation", fr:"Appliquer une opération de données de script Python", default:"Apply a Python script data operation"},
+        {key:"tr_script_code", pt:"Script de código:", en:"Script code:", fr:"Code du script:", default:"Script code:"},
+        {key:"tr_available_var_func", pt:"Variáveis e funções disponíveis", en:"Available variables and functions", fr:"Variables et fonctions disponibles", default:"Available variables and functions"},
+        {key:"tr_data_variables", pt:"Variáveis de dados", en:"Data variables", fr:"Variables de données", default:"Data variables"},
+        {key:"tr_custom_functions", pt:"Funções específicas", en:"Custom functions", fr:"Fonctions personnalisées", default:"Custom functions"},
+        {key:"tr_usage_examples", pt:"Alguns exemplos de utilização:", en:"Some usage examples:", fr:"Quelques exemples d'utilisation :", default:"Some usage examples:"},
+        {key:"tr_msg_code_not_validated", pt:"O código não é validado antes da execução. Comportamentos estranhos podem acontecer devido a erros ortográficos. Use com moderação.", en:"The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully.", fr:"Le code n'est pas validé avant d'être exécuté. Des comportements étranges peuvent survenir en raison d'une faute d'orthographe. Python est sensible à la casse. Veuillez l'utiliser avec précaution.", default:"The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully."},
+
 
         // States
         {key:"tr_error", pt:"Erro!", en:"Error!", fr:"Erreur!", default:"Error!"},
@@ -114,6 +134,7 @@ class Translate{
         {key:"tr_close", pt:"Fechar", en:"Close", fr:"Fermer", default:"Close"},
         {key:"tr_dismiss", pt:"Fechar", en:"Dismiss", fr:"Fermer", default:"Dismiss"},
         {key:"tr_save", pt:"Guardar", en:"Save", fr:"Sauvegarder", default:"Save"},
+        {key:"tr_update", pt:" Atualizar", en:" Update", fr:" Mise à jour", default:"Update"},
 
         // Data types
         {key:"tr_datetime", pt:"Data e Hora", en:"Datetime", fr:"Dateheure", default:"Datetime"},
