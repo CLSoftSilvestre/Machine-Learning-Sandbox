@@ -967,7 +967,7 @@
                                         <!-- Code textarea -->
                                         <label for="code" class="col-sm-5 col-form-label"><h6><span id="tr_script_code">Script code:</span></h6></label>
 
-                                        <div class="col-sm-12">
+                                        <div class="col-sm-12" ondrop="drop(event)" ondragover="allowDrop(event)">
                                             <textarea id="code" name="code"></textarea>
                                         </div>
 
@@ -982,7 +982,7 @@
                                     <div id="accordion">
                                         <div class="card">
                                             <div class="card-header">
-                                            <a class="btn" data-bs-toggle="collapse" href="#collapseOne">
+                                            <a class="btn" data-bs-toggle="collapse" href="#collapseOne" draggable="false">
                                                 <span id="tr_data_variables">Data variables</span>
                                             </a>
                                             </div>
@@ -990,12 +990,12 @@
                                             <div class="card-body">
                                                 <ul class="list-group">
                                                     {% for title in titles %}
-                                                    <li class="list-group-item">
+                                                    <li class="list-group-item" draggable="true" ondragstart="drag(event)">
                                                         <row class="d-flex justify-content-between align-items-center">
                                                             <h6>{{title}}</h6>
                                                             <span class="badge bg-success rounded-pill">{{datatypes[loop.index0]}}</span>
                                                         </row>
-                                                        <row><code>context.processedData['{{title}}']</code></row>
+                                                        <row><code>col['{{title}}']</code></row>
                                                     </li>
                                                     {% endfor %}
                                                 </ul>
@@ -1012,45 +1012,45 @@
                                             <div class="card-body">
                                                 <ul class="list-group">
                                                     <li class="list-group-item">
-                                                        <h6>Add column to dataset</h6>
+                                                        <h6><span id="tr_func_add_column">Add column to dataset</span></h6>
                                                         <code>context.AddColumn(baseColumn, name)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Aggregate per week</h6>
+                                                        <h6><span id="tr_func_agg_week">Aggregate per week</span></h6>
                                                         <code>context.AggWeek(dateColumn, mode='sum')</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Aggregate per month</h6>
+                                                        <h6><span id="tr_func_agg_month">Aggregate per month</span></h6>
                                                         <code>context.AggMonth(dateColumn, mode='sum')</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Expand categories to columns</h6>
+                                                        <h6><span id="tr_func_expand_cat">Expand categories to columns</span></h6>
                                                         <code>context.ExpandCategories(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with number</h6>
+                                                        <h6><span id="tr_func_rep_nan_value">Replace NaN with number</span></h6>
                                                         <code>context.ReplaceNaN(column , value)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with average</h6>
+                                                        <h6><span id="tr_func_rep_nan_avg">Replace NaN with average</span></h6>
                                                         <code>context.ReplaceNaN_Average(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with median</h6>
+                                                        <h6><span id="tr_func_rep_nan_med">Replace NaN with median</span></h6>
                                                         <code>context.ReplaceNaN_Median(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with mode</h6>
+                                                        <h6><span id="tr_func_rep_nan_mode">Replace NaN with mode</span></h6>
                                                         <code>context.ReplaceNaN_Mode(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Remove duplicated entries</h6>
+                                                        <h6><span id="tr_func_rem_duplicated">Remove duplicated entries</span></h6>
                                                         <code>context.RemoveDuplicates()</code>
                                                     </li>
-                                                    <li class="list-group-item">
+                                                    <!--li class="list-group-item">
                                                         <h6>Set column name</h6>
                                                         <code>context.SetColumnName(oldName, newName)</code>
-                                                    </li>
+                                                    </li-->
                                                 </ul>
                                             </div>
                                             </div>
@@ -1068,45 +1068,44 @@
                                     <ol class="list-group list-group-numbered">
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Copy a specific column</div>
-                                                To create a new column based on other just perform the procedure <code>context.AddColumn('BasedColumnName','NewColumnName')</code>
+                                                <div class="fw-bold"><span id="tr_ex_copy_col">Copy a specific column</span></div>
+                                                <span id="tr_ex_copy_col_desc">To create a new column based on other just perform the procedure</span> <code> context.AddColumn('BasedColumnName','NewColumnName')</code>
                                             </div>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Create new column with calculated values</div>
-                                                To add a new calculated column use the following syntax <code>context.processedData['new_column_name'] = context.processedData['column_a'] + context.processedData['column_b']</code>
+                                                <div class="fw-bold"><span id="tr_ex_copy_col_calc">Create new column with calculated values</span></div>
+                                                <span id="tr_ex_copy_col_calc_desc">To add a new calculated column use the following syntax</span><code> context.processedData['new_column_name'] = context.processedData['column_a'] + context.processedData['column_b']</code>
                                             </div>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Create week number from date</div>
-                                                <span>Ensure first that the date column is set with datetime format. </span>
-                                                To add a new calculated column with the week number from date use the following syntax <code>context.processedData['week_num'] = context.processedData['date'].dt.week</code>
+                                                <div class="fw-bold"><span id="tr_ex_week_from_date">Create week number from date</span></div>
+                                                <span id="tr_ex_week_from_date_desc">Ensure first that the date column is set with datetime format. To add a new calculated column with the week number from date use the following syntax</span><code> context.processedData['week_num'] = context.processedData['date'].dt.week</code>
                                             </div>
                                         </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <!--li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold">Replace NaN by zero</div>
                                                 The clear nulls removes the rows containing NaN values. However you can use this code to replace NaN by a fixed value on specific columns <code>context.processedData['column'] = context.processedData['column'].fillna(0, inplace=True)</code>
                                             </div>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        </li-->
+                                        <!--li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold">Units conversion from kW to MW</div>
                                                 The values can be recalculated for instance to change the units of measurement. To change from kW to MW just apply the following code <code>context.processedData['data_in_kw'] = context.processedData['data_in_kw'] / 1000</code>
                                             </div>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        </li-->
+                                        <!--li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold">Agregate the dataset from daily to weekly level</div>
                                                 The dataset can be agrregated at the weekly level with mode options (mode='sum') for summing or (mode='mean') for averaging the values of the columns. To aggregate apply the following code <code>context.AggWeek(date_column, mode)</code>
                                             </div>
-                                        </li>
+                                        </li-->
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Encode categorical features</div>
-                                                This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code <code>context.LabelEncoder(column)</code>
+                                                <div class="fw-bold"><span id="tr_ex_encode_features">Encode categorical features</span></div>
+                                                <span id="tr_ex_encode_features_desc">This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code</span><code> context.LabelEncoder(column)</code>
                                             </div>
                                         </li>
                                     </ol>
@@ -1774,8 +1773,8 @@
 
     <div class="chat-popup" id="myForm">
         <div class="form-container" id="consolePrompt">
-        <h3><i class="fa-solid fa-window-maximize"></i> Console</h3>
-        <h6>Data studio terminal output</h6>
+        <h3><i class="fa-solid fa-window-maximize"></i> <span id="tr_console">Console</span></h3>
+        <h6><span id="tr_terminal_output">Data studio terminal output</span></h6>
 
         <textarea data-provide="markdown" placeholder="Data studio output will appear here..." name="msg" readonly id="consoleOutput">
             {%- for line in console -%}
@@ -1783,7 +1782,7 @@
             {%- endfor %}        
         </textarea>
 
-        <button type="button" class="btn btn-success cancel" onclick="closeForm()">Close</button>
+        <button type="button" class="btn btn-success cancel" onclick="closeForm()"><span id="tr_close">Close</span></button>
     </div>
     </div>
 </div>
@@ -1798,10 +1797,12 @@
 
 <!-- Editor code -->
 <script>
+    
+    let pythonEditor = null;
 
     $(document).ready(function(){
 
-        const editor = CodeMirror.fromTextArea(document.getElementById("code"), { 
+        pythonEditor = CodeMirror.fromTextArea(document.getElementById("code"), { 
         mode: { 
             name: "python", 
             version: 3, 
@@ -1813,8 +1814,8 @@
         matchBrackets: true
         });
 
-        editor.setValue('# Use the right menu to easily copy paste the variables and functions.\r\n')
-        editor.refresh();
+        pythonEditor.setValue('# Use the right menu to easily copy paste the variables and functions.\r\n')
+        pythonEditor.refresh();
 
         var scriptModal = document.getElementById("script");
         var textArea = document.getElementById("code");
@@ -1822,8 +1823,31 @@
         scriptModal.addEventListener('shown.bs.modal', function() {
             textArea.focus()
         });
-
     });
+
+    var dropCode = "";
+
+    // Drag and Drop feature for variables and functions
+    function drag(ev){
+        //console.log(ev);
+        if (ev.type === "dragstart") {
+            code = ev.srcElement.querySelectorAll('code');
+            dropCode = code[0].innerText;
+        }
+    }
+
+    function drop(ev){
+        //console.log(ev);
+        if (ev.type === "drop") {
+            pythonEditor.replaceRange(dropCode, CodeMirror.Pos(pythonEditor.lastLine()));
+            pythonEditor.refresh();
+        }
+    }
+
+    function allowDrop(ev){
+        ev.preventDefault();
+    }
+
 
 </script>
 

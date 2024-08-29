@@ -123,6 +123,55 @@ class Translate{
         {key:"tr_usage_examples", pt:"Alguns exemplos de utilização:", en:"Some usage examples:", fr:"Quelques exemples d'utilisation :", default:"Some usage examples:"},
         {key:"tr_msg_code_not_validated", pt:"O código não é validado antes da execução. Comportamentos estranhos podem acontecer devido a erros ortográficos. Use com moderação.", en:"The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully.", fr:"Le code n'est pas validé avant d'être exécuté. Des comportements étranges peuvent survenir en raison d'une faute d'orthographe. Python est sensible à la casse. Veuillez l'utiliser avec précaution.", default:"The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully."},
 
+        {key:"tr_func_add_column", pt:"Adicionar coluna ao dataset", en:"Add column to dataset", fr:"Ajouter une colonne à l'ensemble de données", default:"Add column to dataset"},
+        {key:"tr_func_agg_week", pt:"Agregar dados por semana", en:"Aggregate per week", fr:"Total par semaine", default:"Aggregate per week"},
+        {key:"tr_func_agg_month", pt:"Agregar dados por mês", en:"Aggregate per month", fr:"Total par mois", default:"Aggregate per month"},
+        {key:"tr_func_expand_cat", pt:"Expandir categorias para colunas", en:"Expand categories to columns", fr:"Étendre les catégories aux colonnes", default:"Expand categories to columns"},
+
+        {key:"tr_func_rep_nan_value", pt:"Substituir valores não numéricos por valor", en:"Replace NaN with number", fr:"Remplacez pas une donnée numérique par une valeur", default:"Replace NaN with number"},
+        {key:"tr_func_rep_nan_avg", pt:"Substituir valores não numéricos por valor médio", en:"Replace NaN with average", fr:"Remplacez pas une donnée numérique par une valeur moyenne", default:"Replace NaN with average"},
+        {key:"tr_func_rep_nan_med", pt:"Substituir valores não numéricos por valor da médiana", en:"Replace NaN with median", fr:"Remplacez pas une donnée numérique par une valeur médian", default:"Replace NaN with median"},
+        {key:"tr_func_rep_nan_mode", pt:"Substituir valores não numéricos por valor da moda", en:"Replace NaN with mode", fr:"Remplacez pas une donnée numérique par une valeur mode", default:"Replace NaN with mode"},
+        {key:"tr_func_rem_duplicated", pt:"Remover linhas com valores repetidos", en:"Remove duplicated entries", fr:"Supprimer les entrées en double", default:"Remove duplicated entries"},
+
+        {key:"tr_ex_copy_col", pt:"Criar cópia de coluna", en:"Copy a specific column", fr:"Copier une colonne spécifique", default:"Copy a specific column"},
+        {key:"tr_ex_copy_col_desc", pt:"Para criar uma coluna baseada em outra utilize a seguinte função", en:"To create a new column based on other just perform the procedure", fr:"Pour créer une nouvelle colonne basée sur une autre, effectuez simplement la procédure", default:"To create a new column based on other just perform the procedure"},
+        {key:"tr_ex_copy_col_calc", pt:"Criar uma coluna com valores calculados", en:"Create new column with calculated values", fr:"Créer une nouvelle colonne avec des valeurs calculées", default:"Create new column with calculated values"},
+        {key:"tr_ex_copy_col_calc_desc", pt:"Para criar uma coluna com valores calculados utilize a seguinte sintaxe", en:"To add a new calculated column use the following syntax", fr:"Pour ajouter une nouvelle colonne calculée, utilisez la syntaxe suivante", default:"To add a new calculated column use the following syntax"},
+        {key:"tr_ex_week_from_date", pt:"Criar uma coluna com numero da semana a partir de data", en:"Create week number from date", fr:"Créer un numéro de semaine à partir de la date", default:"Create week number from date"},
+        {key:"tr_ex_week_from_date_desc", pt:"Primeiro confirme que a coluna de data está formatada com o tipo Data e Hora. Para criar a coluna com o número da semana utilize a seguinte função", en:"Ensure first that the date column is set with datetime format. To add a new calculated column with the week number from date use the following syntax", fr:"Assurez-vous d’abord que la colonne de date est définie au format datetime. Pour ajouter une nouvelle colonne calculée avec le numéro de semaine à partir de la date, utilisez la syntaxe suivante", default:"Ensure first that the date column is set with datetime format. To add a new calculated column with the week number from date use the following syntax"},
+        {key:"tr_ex_encode_features", pt:"Codificar dados categoricos", en:"Encode categorical features", fr:"Encoder les caractéristiques catégorielles", default:"Encode categorical features"},
+        {key:"tr_ex_encode_features_desc", pt:"Esta função codifica recursos categóricos. Por exemplo, transforma ['baixo', 'médio', 'alto', 'médio', 'baixo'] em [0, 1, 2, 1, 0]. Para transformar os dados aplique o seguinte código", en:"This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code", fr:"Cette fonction code les caractéristiques catégorielles. Par exemple, il transforme ['bas', 'moyen', 'haut', 'moyen', 'bas'] en [0, 1, 2, 1, 0]. Pour transformer les données, appliquez le code suivant", default:"This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code"},
+        
+        {key:"tr_console", pt:"Consola", en:"Console", fr:"Console", default:"Console"},
+        {key:"tr_terminal_output", pt:"Saída do terminal do estúdio de dados", en:"Data studio terminal output", fr:"Sortie du terminal de studio de données", default:"Data studio terminal output"},
+
+        // Train page
+        {key:"tr_train_new_model", pt:"Treinar novo modelo", en:"Train new model", fr:"Former un nouveau modèle", default:"Train new model"},
+        {key:"tr_back_data_studio", pt:"Regressar ao Estúdio de Dados", en:"Back to Data Studio", fr:"Retour à Studio de Données", default:"Back to Data Studio"},
+        {key:"tr_data_properties", pt:"Propriedades dos dados", en:"Data properties", fr:"Propriétés des données", default:"Data properties"},
+        {key:"tr_variable_selector", pt:"Selecção de variável", en:"Variable selector", fr:"Sélecteur de variables", default:"Variable selector"},
+        {key:"tr_model_selector", pt:"Selecção de modelo", en:"Model selector", fr:"Sélecteur de modèle", default:"Model selector"},
+        {key:"tr_current_unit", pt:"Unidade atual", en:"Current unit", fr:"Unité actuelle", default:"Current unit"},
+        {key:"tr_new_unit", pt:"Nova unidade", en:"New unit", fr:"Nouvelle unité", default:"New unit"},
+        {key:"tr_set_y", pt:"Definir como coluna Y (dependente)", en:"Set as Y column (dependent)", fr:"Définir comme colonne Y (dépendant)", default:"Set as Y column (dependent)"},
+        {key:"tr_reg_models", pt:"Modelos de regressão", en:"Regression models", fr:"Modèles de régression", default:"Regression models"},
+        {key:"tr_reg_models_desc", pt:"Selecione um destes modelos quando o valor a prever é continuo.", en:"Select one of those models when the value to predict is as continuous value.", fr:"Sélectionnez l'un de ces modèles lorsque la valeur à prédire est une valeur continue.", default:"Select one of those models when the value to predict is as continuous value."},
+
+        {key:"tr_lin_reg", pt:"Regressão linear", en:"Linear regression", fr:"Régression linéaire", default:"Linear regression"},
+        {key:"tr_lin_reg_desc", pt:"Um modelo de regressão linear é um algoritmo de aprendizado supervisionado simples e amplamente utilizado para resolver tarefas de regressão. Funciona encontrando a relação linear entre os recursos de entrada e a variável de destino.", en:"A Linear Regression model is a simple and widely used supervised learning algorithm for solving regression tasks. It works by finding the linear relationship between the input features and the target variable.", fr:"Un modèle de régression linéaire est un algorithme d'apprentissage supervisé simple et largement utilisé pour résoudre des tâches de régression. Cela fonctionne en trouvant la relation linéaire entre les caractéristiques d'entrée et la variable cible.", default:"A Linear Regression model is a simple and widely used supervised learning algorithm for solving regression tasks. It works by finding the linear relationship between the input features and the target variable."},
+
+        {key:"tr_knn_reg", pt:"Regressão kNN", en:"kNN regression", fr:"Régression kNN", default:"kNN regression"},
+        {key:"tr_knn_reg_desc", pt:"Um modelo de regressão K-Nearest Neighbors (KNN) é um algoritmo de aprendizagem supervisionado usado para tarefas de regressão. Ele funciona usando os K pontos de dados mais próximos para fazer previsões sobre a variável alvo.", en:"A K-Nearest Neighbors (KNN) regression model is a supervised learning algorithm used for regression tasks. It works by using the K closest data points to make predictions about the target variable.", fr:"Un modèle de régression K-Nearest Neighbours (KNN) est un algorithme d'apprentissage supervisé utilisé pour les tâches de régression. Il fonctionne en utilisant les K points de données les plus proches pour faire des prédictions sur la variable cible.", default:"A K-Nearest Neighbors (KNN) regression model is a supervised learning algorithm used for regression tasks. It works by using the K closest data points to make predictions about the target variable."},
+
+
+        {key:"tr_class_models", pt:"Modelos de classificação", en:"Classification models", fr:"Modèles de classification", default:"Classification models"},
+        {key:"tr_class_models_desc", pt:"Selecione um destes modelos quando o valor a prever é uma categoria.", en:"Select one of those models when the value to predict is as categorical value.", fr:"Sélectionnez l'un de ces modèles lorsque la valeur à prédire est une valeur catégorielle.", default:"Select one of those models when the value to predict is as categorical value."},
+
+
+        {key:"tr_anom_models", pt:"Modelos de detecção de anomalias", en:"Anomaly detection models", fr:"Modèles de détection d'anomalies", default:"Anomaly detection models"},
+        {key:"tr_anom_models_desc", pt:"Selecione um destes modelos quando o valor a prever é uma categoria.", en:"Select one of those models when is needed to detect anomaly in the data. Anomaly detection don't require variable Y selection.", fr:"Sélectionnez l'un de ces modèles lorsque cela est nécessaire pour détecter une anomalie dans les données. La détection des anomalies ne nécessite pas de sélection de variable Y", default:"Select one of those models when is needed to detect anomaly in the data. Annomaly detection don't require variable Y selection."},
+
 
         // States
         {key:"tr_error", pt:"Erro!", en:"Error!", fr:"Erreur!", default:"Error!"},
@@ -135,6 +184,8 @@ class Translate{
         {key:"tr_dismiss", pt:"Fechar", en:"Dismiss", fr:"Fermer", default:"Dismiss"},
         {key:"tr_save", pt:"Guardar", en:"Save", fr:"Sauvegarder", default:"Save"},
         {key:"tr_update", pt:" Atualizar", en:" Update", fr:" Mise à jour", default:"Update"},
+        {key:"tr_update_units", pt:" Atualizar unidades", en:" Update units", fr:" Mettre à jour les unités", default:"Update units"},
+        {key:"tr_use_this_model", pt:"Utilizar este modelo", en:"Use this model", fr:"Utilisez ce modèle", default:"Use this model"},
 
         // Data types
         {key:"tr_datetime", pt:"Data e Hora", en:"Datetime", fr:"Dateheure", default:"Datetime"},
