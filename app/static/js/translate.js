@@ -64,7 +64,7 @@ class Translate{
         {key:"tr_use_for_ml", pt:" Utilizar dados para treino de algoritmo ML", en:" Use dataset for ML model training", fr:" Utiliser l' données pour la formation du modèle ML", default:" Use dataset for ML model training"},
         {key:"tr_data_statistics", pt:"Dados estatísticos", en:"Data statistics", fr:"Statistiques de données", default:"Data statistics"},
         {key:"tr_data_manipulator", pt:"Operações nos dados", en:"Data manipulator", fr:"Manipulation des données", default:"Data manipulator"},
-        {key:"tr_boxplot_boards", pt:"Caixas de bigodes", en:"Boxplot boards", fr:"Tableaux de boîtes à moustaches", default:"Boxplot boards"},
+        {key:"tr_boxplot_boards", pt:"Caixas de bigodes", en:"Boxplots board", fr:"Tableaux de boîtes à moustaches", default:"Boxplots board"},
         {key:"tr_data_operations", pt:"Histórico de operações", en:"Data operations", fr:"Opérations sur les données", default:"Data operations"},
         {key:"tr_variable", pt:"Variável", en:"Variable", fr:"Variable", default:"Variable"},
         {key:"tr_current_data_type", pt:"Tipo de dados atual", en:"Current data type", fr:"Type de données actuel", default:"Current data type"},
