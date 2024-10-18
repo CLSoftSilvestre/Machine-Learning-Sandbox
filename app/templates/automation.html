@@ -415,17 +415,19 @@
       //console.log(nodeInputClass.inputs.input_["input_" + input_id].connections);
       //const x = eval(`document.forms.form_name.elements.${strFormControl}.value`);
       //console.log(nodeInputClass);
-      
-      if (nodeInputClass.inputs[input_class].connections.length > 1){
-        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+      if (nodeInputClass.class != "influxdb") {
+        if (nodeInputClass.inputs[input_class].connections.length > 1){
+          editor.removeSingleConnection(output_id, input_id, output_class, input_class)
 
-        document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-        var toastList = toastElList.map(function(toastEl) {
-          return new bootstrap.Toast(toastEl)
-        })
-        toastList.forEach(toast => toast.show()) 
+          document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+        }
       }
+      
 
       if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
         // Delete the connection
@@ -505,7 +507,32 @@
         toastList.forEach(toast => toast.show()) 
       }
 
+      // InfluxDB rules
+      if(nodeOutputClass.class == "influxpoint" && nodeInputClass.class != "influxdb"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
 
+        document.getElementById("warning-text").innerText = "Connection not compatible! Influx points can only be connected to InfluxDB nodes";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "influxdb" && nodeOutputClass.class != "influxpoint"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! InfluxDB connectors can be only connected to Influx points";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
 
       modifiedFlow("modified");
 
@@ -640,6 +667,19 @@
         modelLst = editor.getNodesFromName("chart");
         if (modelLst.length > 0){
           document.getElementById("warning-text").innerText = "Only one instance of Line Chart node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "out_influxdb"){
+        modelLst = editor.getNodesFromName("influxdb");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of InfluxDB connector node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
