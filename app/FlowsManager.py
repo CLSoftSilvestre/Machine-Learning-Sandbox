@@ -4,6 +4,7 @@ from enum import Enum
 from S7Connector import S7Connector, S7Variable
 from mqttConnector import MqttConnector, MqttTopic
 from bleConnector import BLECharacteristics, BLEConnector
+from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
 import sys
 import time
 from threading import Thread
@@ -47,6 +48,8 @@ class Flow():
         self.s7variables = []
         self.mqttbrokers = []
         self.mqtttopics = []
+        self.influxDB = []
+        self.influxPoints = []
         self.stop = True
         self.service = None
 
@@ -70,6 +73,8 @@ class Flow():
         self.mqtttopics = []
         self.bleconnectors = []
         self.blecharacteristics = []
+        self.influxDB = []
+        self.influxPoints = []
 
         # Create list of variables before setting the Simatic connector
         for node in self.Nodes:
@@ -150,6 +155,32 @@ class Flow():
                             blecon.characteristics.append(charact)
                     self.bleconnectors.append(blecon)
                     node.rawObject.append(blecon)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Setup the InfluxDB Points
+        for node in self.Nodes:
+            if node.nodeClass == "influxpoint":
+                try:
+                    node.rawObject = []
+                    point = InfluxDBPoint(node.params["POINT"],node.params["TAG"], node.params["FIELD"])
+                    node.rawObject.append(point)
+                    self.influxPoints.append(point)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Setup the InfluxDB Connector
+        for node in self.Nodes:
+            if node.nodeClass == "influxdb":
+                try:
+                    node.rawObject = []
+                    influxdb = InfluxDBConnector(node.params["BUCKET"],node.params["ORGANIZATION"],node.params["TOKEN"],node.params["URL"])
+                    for point in self.influxPoints:
+                        influxdb.AddPoint(point)
+                    self.influxDB.append(influxdb)
+                    node.rawObject.append(influxdb)
                 except Exception as err:
                     node.outputValue = None
                     node.setError(str(err))
@@ -615,6 +646,33 @@ class Flow():
 
                         #print(node.innerStorageArray.getvalue(), file=sys.stderr)
 
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+            # Fifth loop Update the InfluxPoint and then publish data to database
+            for node in self.Nodes:
+                if node.nodeClass == "influxpoint":
+                    node.clearError()
+                    try:
+                        prevNodeId = node.inputConnectors[0].nodeId
+                        prevNode = self.GetNodeById(prevNodeId)
+                        value = prevNode.outputValue
+                        if value == None:
+                            node.outputValue = "NULL"
+                            #node.rawObject[0].SetValue("NULL")
+                        else:
+                            node.outputValue = value
+                            node.rawObject[0].SetValue(value)
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+            for node in self.nodes:
+                if node.nodeClass == "influxdb":
+                    node.clearError()
+                    try:
+                        node.rawObject[0].WritePoints()
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))

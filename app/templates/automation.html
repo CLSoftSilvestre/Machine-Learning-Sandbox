@@ -290,6 +290,22 @@
                   </span>
                 </div>
 
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_influxpoint">
+                  <i class="fa-solid fa-location-pin"></i><span> InfluxDB point</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="InfluxDB point node" data-bs-content="Define the datapoint to be stored in InfluxDB.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_influxdb">
+                  <i class="fa-solid fa-database"></i><span> InfluxDB</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="InfluxDB node" data-bs-content="Save data to InfluxDB Timeseries Database">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
               </div>
             </div>
           </div>
@@ -925,6 +941,40 @@
           </div>
           `;
           editor.addNode('notification', 1, 0, pos_x, pos_y, 'notification', { "message": ''}, notificationtemplate );
+          break;
+        case 'out_influxdb':
+          var influxdbtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/influxdb.png" style="max-width:20px;"> InfluxDB</div>
+            <div class="box">
+              <p>Bucket</p>
+              <input type="text" df-bucket><br>
+              <p>Organization</p>
+              <input type="text" df-organization><br>
+              <p>Token</p>
+              <input type="text" df-token><br>
+              <p>URL</p>
+              <input type="text" df-url><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('influxdb', 1, 0, pos_x, pos_y, 'influxdb', { "bucket": '',"organization": '',"token": '',"url": ''}, influxdbtemplate );
+          break;
+        case 'out_influxpoint':
+          var influxpointtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/influxdb.png" style="max-width:20px;"> InfluxDB point</div>
+            <div class="box">
+              <p>Point</p>
+              <input type="text" df-point><br>
+              <p>Tag</p>
+              <input type="text" df-tag><br>
+              <p>Field</p>
+              <input type="text" df-field><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('influxpoint', 1, 1, pos_x, pos_y, 'influxpoint', { "point": '',"tag": '',"field": ''}, influxpointtemplate );
           break;
         case 'oper_addition':
           var additiontemplate = `

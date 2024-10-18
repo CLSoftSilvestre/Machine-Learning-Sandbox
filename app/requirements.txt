@@ -20,3 +20,4 @@ python-snap7
 paho-mqtt
 asyncio
 bleak
+influxdb-client

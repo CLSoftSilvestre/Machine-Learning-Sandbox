@@ -191,6 +191,41 @@ class PredictionModel:
                     con = InputConnector(nodeId, nodeInp, ValueType.MQTTCONNECTION)
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
+                
+                elif elementClass == "influxdb":
+                    bucket = data["drawflow"]["Home"]["data"][str(i)]["data"]["bucket"]
+                    organization = data["drawflow"]["Home"]["data"][str(i)]["data"]["organization"]
+                    token = data["drawflow"]["Home"]["data"][str(i)]["data"]["token"]
+                    url = data["drawflow"]["Home"]["data"][str(i)]["data"]["url"]
+
+                    params = {
+                        "BUCKET": bucket,
+                        "ORGANIZATION": organization,
+                        "TOKEN": token,
+                        "URL": url,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+
+                elif elementClass == "influxpoint":
+                    point = data["drawflow"]["Home"]["data"][str(i)]["data"]["point"]
+                    tag = data["drawflow"]["Home"]["data"][str(i)]["data"]["tag"]
+                    field = data["drawflow"]["Home"]["data"][str(i)]["data"]["filed"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    params = {
+                        "POINT": point,
+                        "TAG": tag,
+                        "FIELD": field,
+                    }
+                    
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.MQTTCONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
 
                 elif elementClass == "static":
                     staticValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["staticvalue"]

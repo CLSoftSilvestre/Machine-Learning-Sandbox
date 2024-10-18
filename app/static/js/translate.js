@@ -34,6 +34,7 @@ class Translate{
         {key:"tr_available_models", pt:"Todos os modelos disponiveis", en:"All available models", fr:"Tous les modèles disponibles", default:"All available models"},
         {key:"tr_sp_data_studio", pt:" Estúdio de dados", en:" Data studio", fr:" Studio de données", default:" Data studio"},
         {key:"tr_sp_import_model", pt:" Importar modelo existente", en:" Import existing model", fr:" Importer un modèle existant", default:" Import existing model"},
+        {key:"tr_sp_datacollector", pt:" Colector de dados", en:" Data collector", fr:" Collecteur de données", default:" Data collector"},
         {key:"tr_sp_refresh", pt:" Recarregar", en:" Refresh", fr:" Rafraîchir", default:" Refresh"},
         {key:"tr_sp_model_list", pt:" Lista de modelos", en:" Models list", fr:" Liste des modèles", default:" Models list"},
 
