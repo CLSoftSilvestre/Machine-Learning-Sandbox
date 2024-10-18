@@ -20,7 +20,7 @@ class InfluxDBConnector:
         self.client = influxdb_client.InfluxDBClient(
             url = self.url,
             token = self.token,
-            org=self.organization
+            org = self.organization
         )
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
@@ -30,4 +30,4 @@ class InfluxDBConnector:
     def WritePoints(self):     
         for point in self.points:
             p = influxdb_client.Point(point.point).tag("tag",point.tag).field(point.field, point.value)
-            self.write_api(bucket=self.bucket, org=self.org, record=p)
+            self.write_api.write(bucket=self.bucket, org=self.organization, record=p)

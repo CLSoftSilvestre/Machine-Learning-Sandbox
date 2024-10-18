@@ -668,7 +668,7 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
 
-            for node in self.nodes:
+            for node in self.Nodes:
                 if node.nodeClass == "influxdb":
                     node.clearError()
                     try:

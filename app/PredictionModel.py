@@ -211,7 +211,7 @@ class PredictionModel:
                 elif elementClass == "influxpoint":
                     point = data["drawflow"]["Home"]["data"][str(i)]["data"]["point"]
                     tag = data["drawflow"]["Home"]["data"][str(i)]["data"]["tag"]
-                    field = data["drawflow"]["Home"]["data"][str(i)]["data"]["filed"]
+                    field = data["drawflow"]["Home"]["data"][str(i)]["data"]["field"]
                     connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
 
                     params = {
