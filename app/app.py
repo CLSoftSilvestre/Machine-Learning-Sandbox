@@ -52,6 +52,8 @@ from urllib.error import *
 
 import pygwalker as pyg
 
+from DataCollectorService import DataCollectorService
+
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
@@ -64,8 +66,11 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.4"
+appversion = "1.4.5"
 model_version = 7 # Model includes automation diagram
+
+# DataCollectorService
+dcService = DataCollectorService()
 
 @app.context_processor
 def inject_app_version():
@@ -149,6 +154,7 @@ def configurator():
         useMqtt = bool(request.form.get('useMqtt'))
         useOpcUa = bool(request.form.get('useOpcUa'))
         useBLE = bool(request.form.get('useBLE'))
+        useAutostart = bool(request.form.get('useAutostart'))
 
         configuration = Configuration()
 
@@ -174,6 +180,7 @@ def configurator():
         configuration.SetMqttConnector(useMqtt)
         configuration.SetOpcUaConnector(useOpcUa)
         configuration.SetBLEConnector(useBLE)
+        configuration.SetDCSAutostart(useAutostart)
 
         cfMan = Configurator()
         configName = "base.conf"
@@ -264,7 +271,7 @@ def automation(uuid):
                         run=False
                 return render_template('automation.html', models=modelsList, flowData=diagram, Model=model, Run=run)
 
-        return render_template('automation.html', models=modelsList, flowData="", uuid=uuid, Run=False)
+        return render_template('automation.html', models=modelsList, flowData=None, uuid=uuid, Run=False)
     
     if(request.method == 'POST'):
         resultJson = json.loads(request.data)
@@ -433,6 +440,109 @@ def automation(uuid):
                             "Status" : str(err),
                         }
                         return jsonify(status), 412
+
+@app.route("/datacollector/", methods=['GET', 'POST', 'PUT'])
+def datacollector():
+    if(request.method == 'GET'):
+        if hasattr(confList[0], 'dcsConfiguration'):
+            diagram = None
+            run = False
+            try:
+                diagram = confList[0].dcsConfiguration
+                run = dcService.flow.service.is_alive()
+            except:
+                run=False
+            return render_template('datacollector.html', flowData=diagram, Run=run)
+        else:
+            return render_template('datacollector.html', flowData=None, Run=False)
+    
+    if(request.method == 'POST'):
+        resultJson = json.loads(request.data)
+        confList[0].SetDataCollectorServiceConfiguration(resultJson, True)
+        # Save configuration with DCS configuration data
+        configName = "base.conf"
+        filepath = os.path.join(app.root_path, 'config', configName)
+        cfg.SaveConfiguration(confList[0], filepath)
+        dcService.SetDiagram(request.data)
+
+        return render_template('datacollector.html', flowData=str(resultJson), Run=False)
+
+    if(request.method == 'PUT'):
+        resultJson = json.loads(request.data)
+
+        if resultJson['COMMAND'] == "start_flow":
+            try:
+                dcService.StartService()
+                status = {
+                    "Command" : "start_flow",
+                    "Status" : "success"
+                }
+                return jsonify(status), 200
+            except Exception as err:
+                print("Error stating service: " + str(err),file=sys.stderr)
+                status = {
+                    "Command" : "start_flow",
+                    "Status" : "fail"
+                }
+                return jsonify(status), 412
+
+        elif resultJson['COMMAND'] == "stop_flow":
+            try:
+                dcService.StopService()
+                status = {
+                    "Command" : "stop_flow",
+                    "Status" : "success"
+                }
+                return jsonify(status), 200
+            except:
+                status = {
+                    "Command" : "stop_flow",
+                    "Status" : "fail"
+                }
+                return jsonify(status), 412 
+
+        elif resultJson['COMMAND'] == "delete_flow":
+            try:
+                confList[0].dcsConfiguration = None
+                dcService.flow = Flow()
+                dcService.flow.SetJsonLayout(json.loads(""))
+                return "success", 200
+            except:
+                return "Error deleting flow", 200
+        elif resultJson['COMMAND'] == "get_node_status":
+            nodeStatus = []
+            # Node 0 will be the status of the flow
+            # Check if flow is running
+            running = False
+            try:
+                running = dcService.flow.getStatus()
+            except:
+                running = False
+
+            nodeData = {
+                    'nodeId': 0,
+                    'nodeClass': "flow",
+                    'value': running, #0 Stopped; 1 Running
+                    'error': False,
+                    'errorText': "No error",
+                }
+                
+            nodeStatus.append(nodeData)
+
+            for thisnode in dcService.flow.Nodes:
+                nodeData = {
+                    'nodeId': thisnode.id,
+                    'nodeClass': thisnode.nodeClass,
+                    'value': thisnode.outputValue,
+                    'error': thisnode.error,
+                    'errorText': thisnode.errorText,
+                }
+
+                nodeStatus.append(nodeData)
+
+            return jsonify(nodeStatus), 200
+
+    return render_template('datacollector.html', flowData=None, Run=False)
 
 @app.route("/details/<uuid>", methods=['GET'])
 def details(uuid):
@@ -1742,6 +1852,15 @@ def UpdateConfigurationList():
     global confList
     configPath = os.path.join(app.root_path, 'config', "*.conf")
     confList = cfg.GetConfigFilesList(configPath)
+
+    #Autostart Data collector if enabled
+    try:
+        if len(confList)>0:
+            if (confList[0].dcsAutostart == True) and (confList[0].dcsConfiguration is not None):
+                dcService.SetDiagram(json.dumps(confList[0].dcsConfiguration))
+                dcService.StartService()
+    except Exception as err:
+        print("Error starting Data Collector service. " + str(err), file=sys.stderr)
 
 @app.route("/login/", methods=['POST'])
 def Login():

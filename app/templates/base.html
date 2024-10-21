@@ -186,7 +186,14 @@
                           <label for="useBLE" class="form-check-label"><span id="tr_use_ble">Use Bluetooth Low Energy connector</span></label>
                         </div>
                         <p><i class="fas fa-circle-info"></i><span id="tr_ble_info"> BLE connector only works in Windows or MacOS operating systems. It may not work on Docker containers.</span></p>
-  
+                        
+                        <hr>
+            
+                        <div class="form-check form-switch">
+                          <input id="useAutostart" class="form-check-input" type="checkbox" name="useAutostart" {% if app_config.dcsAutostart %} checked {% endif %}>
+                          <label for="useAutostart" class="form-check-label"><span id="tr_use_autostart">Use Data collector autostart</span></label>
+                        </div>
+
                     </div>
   
                     <div class="modal-footer">
@@ -322,9 +329,9 @@
                   <div class="container my-auto">
                     <div class="copyright text-center my-auto" id=copyright>
     
-                      <a href="https://www.groupe-bel.com/en/" style="padding:10px" target="_blank" rel="noopener">
+                      <!--a href="https://www.groupe-bel.com/en/" style="padding:10px" target="_blank" rel="noopener">
                         <img src="../static/img/digitops.png" alt="digitopslogo" height="90">
-                      </a>
+                      </a-->
                       
                     </div>
                   </div>

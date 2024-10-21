@@ -70,6 +70,8 @@ class Configuration():
         self.datatime = datetime.now()
         self.uuid = str(uuid.uuid4())
         self.users = []
+        self.dcsConfiguration = None
+        self.dcsAutostart = False
 
     def SetBase(self, useLogin):
         self.useLogin = useLogin
@@ -95,6 +97,9 @@ class Configuration():
     def AddAppUser(self, user : AppUser = 0):
         self.users.append(user)
     
+    def SetDCSAutostart(self, use):
+        self.dcsAutostart = use
+    
     def UserLogin(self, username, password):
         for user in self.users:
             if user.name == username and user.password == bcrypt.hashpw(password.encode('ASCII'), user.password):
@@ -102,3 +107,6 @@ class Configuration():
             else:
                 return None
 
+    def SetDataCollectorServiceConfiguration(self, dcsConfiguration, autostart):
+        # Save the configuration in JSON format.
+        self.dcsConfiguration = dcsConfiguration

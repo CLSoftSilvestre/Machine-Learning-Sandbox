@@ -11,7 +11,7 @@
           {% if role.value <= 3 %}
             <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i><span id="tr_sp_data_studio"> Data studio</span></a>
             <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i><span id="tr_sp_import_model"> Import existing model</span></a>
-            <a class="btn btn-success" type="button" href="#" id="tour-index-datacollector"><i class="fas fa-plug"></i><span id="tr_sp_datacollector"> Data collector</span></a>
+            <a class="btn btn-success" type="button" href="{{ url_for('datacollector')}}" id="tour-index-datacollector"><i class="fas fa-plug"></i><span id="tr_sp_datacollector"> Data collector</span></a>
             <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i><span id="tr_sp_refresh"> Refresh</span></a>
           {% else %}
             <a class="btn btn-success disabled" type="button" href="#" id="tour-index-datastudio"><i class="fas fa-database"></i><span id="tr_sp_data_studio"> Data studio</span></a>
