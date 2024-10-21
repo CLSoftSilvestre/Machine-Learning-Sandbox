@@ -845,7 +845,7 @@
     }
 
     function stopFlow(){
-      document.getElementById("btnStopFlow").classList.add("disabled")
+      //document.getElementById("btnStopFlow").classList.add("disabled")
       document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-pause"></i> Service is stopping';
 
       var data = {
@@ -871,19 +871,9 @@
         })
         .then(data => {
           console.log(data)
-          window.location.reload();
-          //if (data == "success"){
-            // Means flow stoped...
-            //window.location.reload();
-            //document.getElementById("btnStartFlow").classList.remove("disabled")
-            //document.getElementById("btnStopFlow").classList.add("disabled")
-            //document.getElementById("btnSaveFlow").classList.remove("disabled")
-            //document.getElementById("btnDeleteFlow").classList.remove("disabled")
-            //document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-stop"></i> Flow is stopped';
-          //}  
+          window.location.reload(); 
         });
         
-
     }
 
     function deleteFlow(){

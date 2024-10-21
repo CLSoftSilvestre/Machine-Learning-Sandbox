@@ -100,6 +100,9 @@ class Configuration():
     def SetDCSAutostart(self, use):
         self.dcsAutostart = use
     
+    def SetDataCollector(self, dc):
+        self.dataCollector = dc
+    
     def UserLogin(self, username, password):
         for user in self.users:
             if user.name == username and user.password == bcrypt.hashpw(password.encode('ASCII'), user.password):

@@ -171,5 +171,6 @@ class DataCollectorService:
     def StopService(self):
         if self.flow is not None:
             if self.flow.getStatus:
+                print("Stopping DC service", file=sys.stderr)
                 self.flow.Stop()
     
