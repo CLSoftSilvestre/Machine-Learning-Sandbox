@@ -1,0 +1,1030 @@
+{% extends 'base.html' %}
+
+{% block title %} Data Collector {% endblock %}
+
+{% block content %}
+  <script src="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow/dist/drawflow.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js" integrity="sha256-KzZiKy0DWYsnwMF+X1DvQngQ2/FxF7MF3Ff72XcpuPs=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jerosoler/Drawflow@0.0.48/dist/drawflow.min.css">
+  <link rel="stylesheet" type="text/css" href="../static/css/beautifull.css" />
+  <link rel="stylesheet" type="text/css" href="../static/css/drawflowtheme.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" integrity="sha256-h20CPZ0QyXlBuAw7A+KluUYx/3pK+c7lYEpqLTlxjYQ=" crossorigin="anonymous" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="text/javascript" src="../static/js/polyfit.js"></script>
+
+  <div class="toast-container bottom-0 end-0" id="toastPlacement">
+    <div class="toast align-items-center text-white bg-warning border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <b>Warning</b> <p id="warning-text">Show here the warning text description!</p>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="wrapper">
+    <div class="col" id="tour-automation-nodes">
+
+      <div class="accordion acordion-flush" id="accordionParameters">
+
+        {% if app_config.useSiemensConnector == True %}
+        <!-- Siemens connectivity -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingSiemens">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseSiemens" aria-expanded="true" aria-controls="collapseSiemens">
+              <!--h5><i class="fa-solid fa-plug"></i><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> Siemens nodes</h5-->
+              </i><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;">
+            </button>
+          </h2>
+          <div id="collapseSiemens" class="accordion-collapse collapse show" aria-labelledby="headingSiemens" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_connector">
+                  <i class="fa-solid fa-plug"></i><span> Siemens S7 connector</span>
+                </div>
+          
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="s7_variable">
+                  <i class="fa-solid fa-hashtag"></i><span> Siemens S7 variable</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- MQTT nodes -->
+        {% if app_config.useMqttConnector == True %}
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingMQTT">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseMQTT" aria-expanded="true" aria-controls="collapseMQTT">
+            </i><img src="../static/img/mqtt.png" style="max-width:80px;">
+            </button>
+          </h2>
+          <div id="collapseMQTT" class="accordion-collapse collapse show" aria-labelledby="headingMQTT" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
+                  <i class="fa-solid fa-plug"></i><span> MQTT broker connector</span>
+                </div>
+          
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_topic">
+                  <i class="fa-solid fa-hashtag"></i><span> MQTT topic subscription</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if app_config.useOpcUaConnector == True %}
+        <!-- OPCUA nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOPC">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseOPC" aria-expanded="true" aria-controls="collapseOPC">
+            </i><img src="../static/img/opcua.png" style="max-width:80px;">
+            </button>
+          </h2>
+          <div id="collapseOPC" class="accordion-collapse collapse show" aria-labelledby="headingOPC" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_connector">
+                  <i class="fa-solid fa-plug"></i><span> OPC UA connector</span>
+                </div>
+          
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="opcua_variable">
+                  <i class="fa-solid fa-hashtag"></i><span> OPC UA variable</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if app_config.useBLEConnector == True %}
+        <!-- Bluetooth nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingBT">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseBT" aria-expanded="true" aria-controls="collapseBT">
+            </i><img src="../static/img/ble.png" style="max-width:80px;">
+            </button>
+          </h2>
+          <div id="collapseBT" class="accordion-collapse collapse show" aria-labelledby="headingBT" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_connector">
+                  <i class="fa-brands fa-bluetooth"></i><span> Bluetooth Low Energy</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_characteristic">
+                  <i class="fa-brands fa-bluetooth"></i><span> Ble characteristic</span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Outbound nodes -->
+        <div class="accordion-item">
+          <h2 class="accordion-header" id="headingOutbound">
+            <button class="accordion-button" type="button"  data-bs-toggle="collapse" data-bs-target="#collapseOutbound" aria-expanded="true" aria-controls="collapseOutbound">
+              <!--h5><i class="fa-solid fa-file-export"></i> Database nodes</h5-->
+              </i><img src="../static/img/InfluxDB_Logo.png" style="max-width:80px;">
+            </button>
+          </h2>
+          <div id="collapseOutbound" class="accordion-collapse collapse show" aria-labelledby="headingOutbound" data-bs-parent="#accordionParameters">
+            <div class="accordion-body">
+              <div class="form-group row">
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_influxpoint">
+                  <i class="fa-solid fa-location-pin"></i><span> InfluxDB point</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="InfluxDB point node" data-bs-content="Define the datapoint to be stored in InfluxDB.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_influxdb">
+                  <i class="fa-solid fa-database"></i><span> InfluxDB</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="InfluxDB node" data-bs-content="Save data to InfluxDB Timeseries Database">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="col-right" id="tour-automation-canvas">
+      <div class="menu">
+        <ul>
+          <li onclick="editor.changeModule('Home'); changeModule(event);" class="selected">Data collector service</li>
+        </ul>
+      </div>
+      <div id="drawflow" ondrop="drop(event)" ondragover="allowDrop(event)">
+
+        <div class="btn-group btn-group-sm commands-group" role="group" aria-label="Action commands">
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Start flow" onclick="startFlow()" id="btnStartFlow"><i class="fa-solid fa-play"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Stop flow" onclick="stopFlow()" id="btnStopFlow"><i class="fa-solid fa-stop"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Deploy flow" onclick="saveDiagram()" id="btnSaveFlow"><i class="fa-solid fa-floppy-disk"></i></a>
+          <a href="#" type="button" class="btn btn-outline-danger" data-toggle="tooltip" title="Delete flow" onclick="deleteFlow()" id="btnDeleteFlow"><i class="fa-solid fa-trash-can"></i></a>
+        </div>
+
+        <div class="btn-group btn-group-sm show-hide-group" role="group" aria-label="Show hide commands">
+          <a href="#" type="button" class="btn btn-outline-success disabled" data-toggle="tooltip" title="Locked flow" id="btnLockedFlow"><i id="lock-btn-icon" class="fa-solid fa-unlock"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Show/Hide connections" onclick="toggleConnectors()" id="btnHideConnectors"><i class="fa-solid fa-route"></i></a>
+        </div>
+
+
+        <div class="btn-group btn-group-sm zoom-group" role="group" aria-label="Zoom commands">
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Decrease zoom" onclick="editor.zoom_out()" id="btnZoomMinus"><i class="fa fa-search-minus"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Reset zoom" onclick="editor.zoom_reset()" id="btnZoomReset"><i class="fa-solid fa-search"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Increase zoom" onclick="editor.zoom_in()" id="btnZoomPlus"><i class="fa fa-search-plus"></i></a>
+        </div>
+
+        <div class="flow-status">
+          {% if Run == True %}
+          <p id="flow-status-text"><i class="fa-solid fa-circle-play"></i> Service is running</p>
+          {% else %}
+          <p id="flow-status-text"><i class="fa-solid fa-circle-stop"></i> Service is stopped</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var id = document.getElementById("drawflow");
+    const editor = new Drawflow(id);
+    editor.reroute = true;
+
+    editor.start();
+    const False = Boolean(false);
+    const True = Boolean(true);
+    {% if flowData is not none %}
+    const flowData = {{flowData|safe}};
+    //console.log(flowData);
+    editor.import(flowData);
+    {% endif %}
+    
+    // Events!
+    editor.on('nodeCreated', function(id) {
+      modifiedFlow("modified");
+      console.log("Node created " + id);
+    })
+
+    editor.on('nodeRemoved', function(id) {
+      modifiedFlow("modified");
+      console.log("Node removed " + id);
+    })
+
+    editor.on('nodeSelected', function(id) {
+      console.log("Node selected " + id);
+    })
+
+    editor.on('moduleCreated', function(name) {
+      console.log("Module Created " + name);
+    })
+
+    editor.on('moduleChanged', function(name) {
+      console.log("Module Changed " + name);
+    })
+
+    editor.on('connectionCreated', function(connection) {
+      //console.log('Connection created');
+      //console.log(connection);
+
+      // Validate the connection otherwise delete it...
+      input_class = connection.input_class;
+      input_id = connection.input_id;
+      output_class = connection.output_class;
+      output_id = connection.output_id;
+
+      // Check if is Siemens Variable (Only can connect to Siemens Connector)
+      nodeInputClass = editor.getNodeFromId(input_id);
+      nodeOutputClass = editor.getNodeFromId(output_id);
+      //console.log(nodeInputClass.class);
+
+      // Check if node input already has other connection (Only one connection per input)
+      //console.log(nodeInputClass.inputs.input_["input_" + input_id].connections);
+      //const x = eval(`document.forms.form_name.elements.${strFormControl}.value`);
+      //console.log(nodeInputClass);
+      if (nodeInputClass.class != "influxdb") {
+        if (nodeInputClass.inputs[input_class].connections.length > 1){
+          editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+          document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+        }
+      }
+      
+
+      if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Siemens Variables input can only be connected to output of Siemens Connectors.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "s7connector" && nodeInputClass.class != "s7variable"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Siemens Connectors can only be connected to input of Siemens Variables.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "mqtttopic" && nodeOutputClass.class != "mqttconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! MQTT topic subscription input can only be connected to output of MQTT broker connections.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "mqttconnector" && nodeInputClass.class != "mqtttopic"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! MQTT Broker Connectors can only be connected to input of MQTT topic subscription.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "blecharacteristic" && nodeOutputClass.class != "bleconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! CLE characteristic input can only be connected to output of BLE connector.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "bleconnector" && nodeInputClass.class != "blecharacteristic"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! CLE connectors can only be connected to BLE characteristic.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      // InfluxDB rules
+      if(nodeOutputClass.class == "influxpoint" && nodeInputClass.class != "influxdb"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Influx points can only be connected to InfluxDB nodes";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "influxdb" && nodeOutputClass.class != "influxpoint"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! InfluxDB connectors can be only connected to Influx points";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      modifiedFlow("modified");
+
+    })
+
+    editor.on('connectionRemoved', function(connection) {
+      modifiedFlow("modified");
+      console.log('Connection removed');
+      console.log(connection);
+    })
+
+    editor.on('mouseMove', function(position) {
+      //console.log('Position mouse x:' + position.x + ' y:'+ position.y);
+    })
+
+    editor.on('nodeMoved', function(id) {
+      modifiedFlow("modified");
+      console.log("Node moved " + id);
+    })
+
+    editor.on('zoom', function(zoom) {
+      console.log('Zoom level ' + zoom);
+    })
+
+    editor.on('translate', function(position) {
+      console.log('Translate x:' + position.x + ' y:'+ position.y);
+    })
+
+    editor.on('addReroute', function(id) {
+      modifiedFlow("modified");
+      console.log("Reroute added " + id);
+    })
+
+    editor.on('removeReroute', function(id) {
+      modifiedFlow("modified");
+      console.log("Reroute removed " + id);
+    })
+
+    /* DRAG EVENT */
+
+    /* Mouse and Touch Actions */
+
+    var elements = document.getElementsByClassName('drag-drawflow');
+    for (var i = 0; i < elements.length; i++) {
+      elements[i].addEventListener('touchend', drop, false);
+      elements[i].addEventListener('touchmove', positionMobile, false);
+      elements[i].addEventListener('touchstart', drag, false );
+    }
+
+    var mobile_item_selec = '';
+    var mobile_last_move = null;
+
+   function positionMobile(ev) {
+     mobile_last_move = ev;
+   }
+
+   function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      if (ev.type === "touchstart") {
+        mobile_item_selec = ev.target.closest(".drag-drawflow").getAttribute('data-node');
+      } else {
+      ev.dataTransfer.setData("node", ev.target.getAttribute('data-node'));
+      }
+    }
+
+    function drop(ev) {
+      if (ev.type === "touchend") {
+        var parentdrawflow = document.elementFromPoint( mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY).closest("#drawflow");
+        if(parentdrawflow != null) {
+          addNodeToDrawFlow(mobile_item_selec, mobile_last_move.touches[0].clientX, mobile_last_move.touches[0].clientY);
+        }
+        mobile_item_selec = '';
+      } else {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("node");
+        addNodeToDrawFlow(data, ev.clientX, ev.clientY);
+      }
+
+    }
+
+    function addNodeToDrawFlow(name, pos_x, pos_y) {
+      if(editor.editor_mode === 'fixed') {
+        return false;
+      }
+      pos_x = pos_x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)) - (editor.precanvas.getBoundingClientRect().x * ( editor.precanvas.clientWidth / (editor.precanvas.clientWidth * editor.zoom)));
+      pos_y = pos_y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)) - (editor.precanvas.getBoundingClientRect().y * ( editor.precanvas.clientHeight / (editor.precanvas.clientHeight * editor.zoom)));
+
+      // Check for unique nodes (Model, Siemens Connector)
+      if(name == "model"){
+        modelLst = editor.getNodesFromName("model");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of model node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "s7_connector"){
+        modelLst = editor.getNodesFromName("s7connector");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of Siemens S7 connector node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "mqtt_connector"){
+        modelLst = editor.getNodesFromName("mqttconnector");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of MQTT connector node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "out_chart"){
+        modelLst = editor.getNodesFromName("chart");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of Line Chart node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "out_influxdb"){
+        modelLst = editor.getNodesFromName("influxdb");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of InfluxDB connector node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      switch (name) {
+        case 'mqtt_connector':
+          var mqttconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Connector </div>
+            <div class="box">
+              <p>Broker parameters</p>
+              <input type="text" df-mqtt-server placeholder="http://localhost/"><br><br>
+              <input type="number" df-mqtt-port placeholder="1883" value=1883><br><br>
+              <input type="text" df-mqtt-username placeholder="user"><br><br>
+              <input type="password" df-mqtt-password placeholder="password"><br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('mqttconnector', 0, 1, pos_x, pos_y, 'mqttconnector', { "mqtt": { "server": '', "port": '', "username": '', "password": '' }}, mqttconnector );
+          break;
+        case 'mqtt_topic':
+          var mqtttopic = `
+          <div>
+            <div class="title-box"><img src="../static/img/mqtt.png" style="max-width:80px;">Subscription </div>
+            <div class="box">
+              <p>MQTT Topic</p>
+              <input type="text" df-topic><br>
+              <p>QoS</p>
+              <select df-qos>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+            </select><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": '', "qos": ''}, mqtttopic );
+          break;
+        case 'opcua_connector':
+          var opcuaconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/opcua.png" style="max-width:80px;">Connector </div>
+            <div class="box">
+              <p>OPC UA server parameters</p>
+              <input type="text" df-opcua-endpoint placeholder="opc.tcp://localhost"><br><br>
+              <input type="number" df-opcua-port placeholder="4840" value=4840><br>
+              <p>Security policy</p>
+              <select df-opcua-policy>
+                <option value="none">None</option>
+              </select> <br><br>
+              <input type="text" df-opcua-username placeholder="user"><br><br>
+              <input type="password" df-opcua-password placeholder="password"><br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('opcuaconnector', 0, 1, pos_x, pos_y, 'opcuaconnector', { "opcua": { "endpoint": '', "port": '', "policy": '', "username": '', "password": '' }}, opcuaconnector );
+          break;
+        case 'opcua_variable':
+          var opcuavariable = `
+          <div>
+            <div class="title-box"><img src="../static/img/opcua.png" style="max-width:80px;">Variable </div>
+            <div class="box">
+              <p>OPC UA Address</p>
+            <input type="text" df-variable placeholder="ns=2;s=MyVariable"><br><br>
+            <select df-opcua-type>
+                <option value="Int8">Int8</option>
+                <option value="Int16">Int16</option>
+                <option value="Int32">Int32</option>
+                <option value="Int64">Int64</option>
+                <option value="UInt8">UInt8</option>
+                <option value="UInt16">UInt16</option>
+                <option value="UInt32">UInt32</option>
+                <option value="UInt64">UInt64</option>
+                <option value="Byte">Byte</option>
+                <option value="SByte">SByte</option>
+                <option value="Float">Float</option>
+                <option value="Double">Double</option>
+                <option value="Boolean">Boolean</option>
+            </select> <br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('opcuavariable', 1, 1, pos_x, pos_y, 'opcuavariable', { "variable": ''}, opcuavariable );
+          break;
+        case 's7_connector':
+          var s7connector = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> S7 Connector </div>
+            <div class="box">
+              <p>Simatic PLC parameters</p>
+              <p>PLC IP address</p>
+              <input type="text" df-s7-ip placeholder="192.168.0.1"><br>
+              <p>PLC Family</p>
+              <select df-s7-family>
+                <option value="logo">Logo!</option>
+                <option value="300">S7-300</option>
+                <option value="400">S7-400</option>
+                <option value="1200">S7-1200</option>
+                <option value="1500">S7-1500</option>
+              </select> <br>
+              <p>Rack</p>
+              <input type="number" df-s7-rack placeholder="rack number" value=1><br>
+              <p>Slot</p>
+              <input type="number" df-s7-slot placeholder="slot number" value=2><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('s7connector', 0, 1, pos_x, pos_y, 's7connector', { "s7": { "ip": '', "rack": '', "slot": '', "family": ''}}, s7connector );
+          break;
+        case 's7_variable':
+          var s7variable = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> S7 Variable </div>
+            <div class="box">
+              <p>S7 variable settings</p>
+              <p>DB number</p>
+              <input type="number" df-db placeholder="DB number"><br>
+              <p>Start offset</p>
+              <input type="number" df-start placeholder="Start offset"><br>
+              <p>Size in bytes</p>
+              <input type="number" df-size placeholder="Size"><br>
+
+            </div>
+          </div>
+          `;
+          editor.addNode('s7variable', 1, 1, pos_x, pos_y, 's7variable', { "db": '', "start": '',"size": ''}, s7variable );
+          break;
+        case 'ble_connector':
+          var bleconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/ble.png" style="max-width:60px;"> BLE device</div>
+            <div class="box">
+              <p>Device name</p>
+              <input type="text" df-name><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('bleconnector', 0, 1, pos_x, pos_y, 'bleconnector', { "name": ''}, bleconnector );
+          break;
+        case 'ble_characteristic':
+          var blecharacteristic = `
+          <div>
+            <div class="title-box"><img src="../static/img/ble.png" style="max-width:60px;"> BLE characteristic</div>
+            <div class="box">
+              <p>Characteristic UUID</p>
+              <input type="text" df-uuid><br>
+              <a href=https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf?v=1724154522401>More info here...</a>
+            </div>
+          </div>
+          `;
+          editor.addNode('blecharacteristic', 1, 1, pos_x, pos_y, 'blecharacteristic', { "uuid": ''}, blecharacteristic );
+          break;
+        case 'out_influxdb':
+          var influxdbtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/influxdb.png" style="max-width:20px;"> InfluxDB</div>
+            <div class="box">
+              <p>Bucket</p>
+              <input type="text" df-bucket><br>
+              <p>Organization</p>
+              <input type="text" df-organization><br>
+              <p>Token</p>
+              <input type="text" df-token><br>
+              <p>URL</p>
+              <input type="text" df-url><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('influxdb', 1, 0, pos_x, pos_y, 'influxdb', { "bucket": '',"organization": '',"token": '',"url": ''}, influxdbtemplate );
+          break;
+        case 'out_influxpoint':
+          var influxpointtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/influxdb.png" style="max-width:20px;"> InfluxDB point</div>
+            <div class="box">
+              <p>Point</p>
+              <input type="text" df-point><br>
+              <p>Tag</p>
+              <input type="text" df-tag><br>
+              <p>Field</p>
+              <input type="text" df-field><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('influxpoint', 1, 1, pos_x, pos_y, 'influxpoint', { "point": '',"tag": '',"field": ''}, influxpointtemplate );
+          break;
+        default:
+          break;
+      }
+    }
+
+  var transform = '';
+
+    function changeMode(option) {
+
+    //console.log(lock.id);
+      if(option == 'lock') {
+        lock.style.display = 'none';
+        unlock.style.display = 'block';
+      } else {
+        lock.style.display = 'block';
+        unlock.style.display = 'none';
+      }
+
+    }
+
+    function modifiedFlow(option) {
+      if (option == 'modified'){
+        // Deactivate the Play button and activate the Save Button
+        if (!document.getElementById("btnStartFlow").classList.contains("disabled")){
+          document.getElementById("btnStartFlow").classList.add("disabled")
+        }
+        if (document.getElementById("btnSaveFlow").classList.contains("disabled")){
+          document.getElementById("btnSaveFlow").classList.remove("disabled")
+        }
+      }
+    }
+
+    function saveDiagram(){
+      //teste
+      var data = editor.export() 
+      const apiUrl = '/datacollector/';
+
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        });
+    }
+
+    function getNodeStatus()
+    {
+      setTimeout(function() {
+
+        var data2 = {
+          "COMMAND": "get_node_status",
+        }
+
+        const apiUrl = '/datacollector/';
+
+        const requestOptions = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data2),
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            // Update the status of each node
+            for (var i=0; i < data.length; i++){
+              //console.log("Node id: " + data[i].nodeId + ", Node type: " + data[i].nodeClass + ", Value: ", + data[i].value + ", Error: ", + data[i].error + ", Message: " + data[i].errorMessage);
+              updateStatusNode(data[i]);
+            }
+ 
+          });
+          getNodeStatus();
+        }, 5000);
+    }
+
+    function startFlow(){
+      var data = {
+        "COMMAND": "start_flow"
+      }
+
+      const apiUrl = '/datacollector/';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          if (data == "success"){
+            window.location.reload();
+          }  
+        });
+    }
+
+    function stopFlow(){
+      //document.getElementById("btnStopFlow").classList.add("disabled")
+      document.getElementById("flow-status-text").innerHTML = '<i class="fa-solid fa-circle-pause"></i> Service is stopping';
+
+      var data = {
+        "COMMAND": "stop_flow"
+      }
+      
+      const apiUrl = '/datacollector/';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          window.location.reload(); 
+        });
+        
+    }
+
+    function deleteFlow(){
+      //editor.clearModuleSelected()
+
+      var data = {
+        "COMMAND": "delete_flow"
+      }
+      
+      const apiUrl = '/datacollector/';
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      };
+
+      fetch(apiUrl, requestOptions)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+          window.location.reload();
+          return response.json();
+        })
+        .then(data => {
+          console.log(data)
+          if (data == "success"){
+            window.location.reload();
+          }  
+        });
+    }
+
+    function addStatusNode(){
+      var elements = document.getElementsByClassName('drawflow-node');
+      // data-toggle="tooltip" title="Delete flow"
+      for (var i = 0; i < elements.length; i++) {
+        //get node id
+        let rawId = elements[i].id
+        let nodeId = rawId.split("node-")[1]
+        //console.log(nodeId)
+
+        let status = document.createElement("div");
+        status.classList.add("node-status");
+        status.setAttribute("data-toggle", "tooltip");
+        status.setAttribute("title", "Error message");
+        status.id = "status-" + nodeId;
+        status.innerText = "⚠️";
+        elements[i].appendChild(status);
+        
+      }
+    }
+
+    function updateStatusNode(nodeData){
+
+      if (nodeData.nodeClass == "flow"){
+        // If it's running but receives stopped, reload the page
+        //console.log(nodeData.value);
+        if (document.getElementById("btnStartFlow").classList.contains("disabled")){
+          if (nodeData.value == false){
+            // Reload page...
+            window.location.reload();
+          }
+        }
+        return
+      }
+
+      var id = "status-" + nodeData.nodeId
+      if (nodeData.error){
+        document.getElementById(id).innerText = "⚠️";
+        document.getElementById(id).setAttribute("title", nodeData.errorText);
+      } else {
+        document.getElementById(id).innerText = "";
+        document.getElementById(id).setAttribute("title", "");
+      }
+
+    }
+
+    function toggleConnectors(){
+
+      //Show hide connection points
+      var all = document.querySelectorAll(".inputs");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+
+      //Show hide connection points
+      var all = document.querySelectorAll(".outputs");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+
+      // Show / hide connection lines
+      var all = document.querySelectorAll(".main-path");
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].classList.contains('hide')){
+          all[i].classList.remove('hide');
+        } else {
+          all[i].classList.add('hide');
+        }
+      }
+      //event.target.classList.add('selected');
+      //"main-path"
+    }
+
+    {% if Run == True %}
+    addStatusNode();
+    getNodeStatus();
+    editor.editor_mode='fixed' //fixed
+    //changeMode('lock');
+    document.getElementById("btnStartFlow").classList.add("disabled")
+    document.getElementById("btnStopFlow").classList.remove("disabled")
+    document.getElementById("btnSaveFlow").classList.add("disabled")
+    document.getElementById("btnDeleteFlow").classList.add("disabled")
+    // Change icon of lock button
+    document.getElementById("lock-btn-icon").classList.remove("fa-unlock")
+    document.getElementById("lock-btn-icon").classList.add("fa-lock")
+
+    //Add flowing to main-path
+    var all = document.querySelectorAll(".main-path");
+    for (var i = 0; i < all.length; i++) {
+      if (!all[i].classList.contains('flowing')){
+        all[i].classList.add('flowing');
+      }
+    }
+
+    {% else %}
+    //addStatusNode();
+    //getNodeStatus();
+    editor.editor_mode='edit'
+    //changeMode('unlock');
+    document.getElementById("btnStartFlow").classList.remove("disabled")
+    document.getElementById("btnStopFlow").classList.add("disabled")
+    //document.getElementById("btnSaveFlow").classList.remove("disabled")
+    document.getElementById("btnDeleteFlow").classList.remove("disabled")
+    // Change icon of lock button
+    document.getElementById("lock-btn-icon").classList.remove("fa-lock")
+    document.getElementById("lock-btn-icon").classList.add("fa-unlock")
+    {% endif %}
+
+  </script>
+  <script src="../static/js/intro.min.js"></script>
+  <!--script src="../static/js/tour-automation.js"></script-->
+{% endblock %}

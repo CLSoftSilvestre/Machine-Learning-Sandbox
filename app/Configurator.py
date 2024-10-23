@@ -70,6 +70,8 @@ class Configuration():
         self.datatime = datetime.now()
         self.uuid = str(uuid.uuid4())
         self.users = []
+        self.dcsConfiguration = None
+        self.dcsAutostart = False
 
     def SetBase(self, useLogin):
         self.useLogin = useLogin
@@ -88,9 +90,18 @@ class Configuration():
     
     def SetOpcUaConnector(self, use):
         self.useOpcUaConnector = use
+
+    def SetBLEConnector(self, use):
+        self.useBLEConnector = use
     
     def AddAppUser(self, user : AppUser = 0):
         self.users.append(user)
+    
+    def SetDCSAutostart(self, use):
+        self.dcsAutostart = use
+    
+    def SetDataCollector(self, dc):
+        self.dataCollector = dc
     
     def UserLogin(self, username, password):
         for user in self.users:
@@ -99,3 +110,6 @@ class Configuration():
             else:
                 return None
 
+    def SetDataCollectorServiceConfiguration(self, dcsConfiguration, autostart):
+        # Save the configuration in JSON format.
+        self.dcsConfiguration = dcsConfiguration

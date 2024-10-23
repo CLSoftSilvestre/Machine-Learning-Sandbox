@@ -3,6 +3,8 @@ from datetime import datetime
 from enum import Enum
 from S7Connector import S7Connector, S7Variable
 from mqttConnector import MqttConnector, MqttTopic
+from bleConnector import BLECharacteristics, BLEConnector
+from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
 import sys
 import time
 from threading import Thread
@@ -10,6 +12,7 @@ import random
 import pandas as pd
 import io
 import csv
+import asyncio
 
 
 class NodeType(Enum):
@@ -45,6 +48,8 @@ class Flow():
         self.s7variables = []
         self.mqttbrokers = []
         self.mqtttopics = []
+        self.influxDB = []
+        self.influxPoints = []
         self.stop = True
         self.service = None
 
@@ -66,6 +71,11 @@ class Flow():
         self.s7variables = []
         self.mqttbrokers = []
         self.mqtttopics = []
+        self.bleconnectors = []
+        self.blecharacteristics = []
+        self.influxDB = []
+        self.influxPoints = []
+
         # Create list of variables before setting the Simatic connector
         for node in self.Nodes:
             if node.nodeClass == "s7variable":
@@ -121,6 +131,59 @@ class Flow():
                 except Exception as err:
                     node.outputValue = None
                     node.setError(str(err))
+        
+        # Setup the BLE Characteristics
+        for node in self.Nodes:
+            if node.nodeClass == "blecharacteristic":
+                try:
+                    node.rawObject = []
+                    blechar = BLECharacteristics(node.params["UUID"], node.inputConnectors[0].nodeId)
+                    node.rawObject.append(blechar)
+                    self.blecharacteristics.append(blechar)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Setup the BLE connectors
+        for node in self.Nodes:
+            if node.nodeClass == "bleconnector":
+                try:
+                    node.rawObject = []
+                    blecon = BLEConnector(node.params["NAME"], node.id)
+                    for charact in self.blecharacteristics:
+                        if str(charact.deviceId) == str(node.id):
+                            blecon.characteristics.append(charact)
+                    self.bleconnectors.append(blecon)
+                    node.rawObject.append(blecon)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Setup the InfluxDB Points
+        for node in self.Nodes:
+            if node.nodeClass == "influxpoint":
+                try:
+                    node.rawObject = []
+                    point = InfluxDBPoint(node.params["POINT"],node.params["TAG"], node.params["FIELD"])
+                    node.rawObject.append(point)
+                    self.influxPoints.append(point)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Setup the InfluxDB Connector
+        for node in self.Nodes:
+            if node.nodeClass == "influxdb":
+                try:
+                    node.rawObject = []
+                    influxdb = InfluxDBConnector(node.params["BUCKET"],node.params["ORGANIZATION"],node.params["TOKEN"],node.params["URL"])
+                    for point in self.influxPoints:
+                        influxdb.AddPoint(point)
+                    self.influxDB.append(influxdb)
+                    node.rawObject.append(influxdb)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
 
         # Setup the logging file
         for node in self.Nodes:
@@ -132,7 +195,7 @@ class Flow():
                     varName = "Connected_Node_" + str(i)
                     csvdata.append(varName)
 
-                writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONNUMERIC)
+                writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONE, delimiter=";")
                 writer.writerow(csvdata)
 
                 #print(node.innerStorageArray.getvalue(), file=sys.stderr)
@@ -155,15 +218,31 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+
+                elif node.nodeClass == "bleconnector":
+                    node.clearError()
+                    try:
+                        asyncio.run(node.rawObject[0].readDevice())
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+                elif node.nodeClass == "blecharacteristic":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(node.rawObject[0].value)
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
                 
-                if node.nodeClass == "mqtttopic":
+                elif node.nodeClass == "mqtttopic":
                     node.clearError()
                     try:
                         node.outputValue = float(node.rawObject[0].payload)
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
-
+                
                 elif node.nodeClass == "static":
                     try:
                         staticValue = node.params["STATICVALUE"]
@@ -417,6 +496,48 @@ class Flow():
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
+                
+                elif node.nodeClass == "and":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1>=1) and (value2>=1):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "or":
+                    node.clearError()
+                    try:
+                        # Get the input nodes
+                        prevNodeId1 = node.inputConnectors[0].nodeId
+                        prevNodeId2 = node.inputConnectors[1].nodeId
+                        prevNode1 = self.GetNodeById(prevNodeId1)
+                        prevNode2 = self.GetNodeById(prevNodeId2)
+
+                        # Get the value of the input nodes
+                        value1 = float(prevNode1.outputValue)
+                        value2 = float(prevNode2.outputValue)
+                        # Perform operation
+                        if (value1>=1) or (value2>=1):
+                            node.outputValue = 1
+                        else:
+                            node.outputValue = 0
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
 
             # Third loop model
             for node in self.Nodes:
@@ -520,11 +641,38 @@ class Flow():
                             value = prevNode.outputValue
                             csvdata.append(value)
 
-                        writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONNUMERIC)
+                        writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONE, delimiter=";")
                         writer.writerow(csvdata)
 
                         #print(node.innerStorageArray.getvalue(), file=sys.stderr)
 
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+            # Fifth loop Update the InfluxPoint and then publish data to database
+            for node in self.Nodes:
+                if node.nodeClass == "influxpoint":
+                    node.clearError()
+                    try:
+                        prevNodeId = node.inputConnectors[0].nodeId
+                        prevNode = self.GetNodeById(prevNodeId)
+                        value = prevNode.outputValue
+                        if value == None:
+                            node.outputValue = "NULL"
+                            #node.rawObject[0].SetValue("NULL")
+                        else:
+                            node.outputValue = value
+                            node.rawObject[0].SetValue(value)
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
+            for node in self.Nodes:
+                if node.nodeClass == "influxdb":
+                    node.clearError()
+                    try:
+                        node.rawObject[0].WritePoints()
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))

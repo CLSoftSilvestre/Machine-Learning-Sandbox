@@ -164,6 +164,69 @@ class PredictionModel:
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
 
+                elif elementClass == "bleconnector":
+                    #get data from ble connector
+                    name = data["drawflow"]["Home"]["data"][str(i)]["data"]["name"]
+
+                    params = {
+                        "NAME": name,
+                    }
+
+                    # Create the Node and add the connections
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "blecharacteristic":
+                    #get data from ble characteristic
+                    uuid = data["drawflow"]["Home"]["data"][str(i)]["data"]["uuid"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    params = {
+                        "UUID": uuid,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.MQTTCONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "influxdb":
+                    bucket = data["drawflow"]["Home"]["data"][str(i)]["data"]["bucket"]
+                    organization = data["drawflow"]["Home"]["data"][str(i)]["data"]["organization"]
+                    token = data["drawflow"]["Home"]["data"][str(i)]["data"]["token"]
+                    url = data["drawflow"]["Home"]["data"][str(i)]["data"]["url"]
+
+                    params = {
+                        "BUCKET": bucket,
+                        "ORGANIZATION": organization,
+                        "TOKEN": token,
+                        "URL": url,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+
+                elif elementClass == "influxpoint":
+                    point = data["drawflow"]["Home"]["data"][str(i)]["data"]["point"]
+                    tag = data["drawflow"]["Home"]["data"][str(i)]["data"]["tag"]
+                    field = data["drawflow"]["Home"]["data"][str(i)]["data"]["field"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    params = {
+                        "POINT": point,
+                        "TAG": tag,
+                        "FIELD": field,
+                    }
+                    
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.MQTTCONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+
                 elif elementClass == "static":
                     staticValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["staticvalue"]
 
@@ -339,6 +402,40 @@ class PredictionModel:
                     self.flow.AddNode(node)
 
                 elif elementClass == "lowerequal":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "and":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
+                    node = Node(i, elementClass, None)
+                    # Connector operator 1
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    # Connector operator 2
+                    nodeId2 = connector2[0]["node"]
+                    nodeInp2 = connector2[0]["input"]
+                    con2 = InputConnector(nodeId2, nodeInp2, ValueType.NUMERIC)
+                    node.SetInputConnector(con2)
+
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "or":
                     connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
                     connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]
                     node = Node(i, elementClass, None)

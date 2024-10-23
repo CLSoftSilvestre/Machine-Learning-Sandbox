@@ -26,7 +26,7 @@
   </div>
   
   <div class="wrapper">
-    <div class="col">
+    <div class="col" id="tour-automation-nodes">
 
       <div class="accordion acordion-flush" id="accordionParameters">
 
@@ -100,6 +100,15 @@
                 </div>
                 {% endif %}
 
+                {% if app_config.useBLEConnector == True %}
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_connector">
+                  <i class="fa-brands fa-bluetooth"></i><span> Bluetooth Low Energy</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="ble_characteristic">
+                  <i class="fa-brands fa-bluetooth"></i><span> Ble characteristic</span>
+                </div>
+                {% endif %}
                 <!-- Toggle value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="toggle_value">
                   <i class="fa-solid fa-toggle-on"></i><span> Toggle switch</span>
@@ -232,6 +241,14 @@
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_lower_equal">
                   <i class="fa-solid fa-less-than-equal"></i><span> Lower or equal</span>
                 </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_and">
+                  <i class="fa-solid fa-circle-plus"></i><span> And</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="cond_or">
+                  <i class="fa-solid fa-grip-lines-vertical"></i><span> Or</span>
+                </div>
                 
               </div>
             </div>
@@ -273,6 +290,22 @@
                   </span>
                 </div>
 
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_influxpoint">
+                  <i class="fa-solid fa-location-pin"></i><span> InfluxDB point</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="InfluxDB point node" data-bs-content="Define the datapoint to be stored in InfluxDB.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_influxdb">
+                  <i class="fa-solid fa-database"></i><span> InfluxDB</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="InfluxDB node" data-bs-content="Save data to InfluxDB Timeseries Database">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
               </div>
             </div>
           </div>
@@ -281,7 +314,7 @@
       </div>
 
     </div>
-    <div class="col-right">
+    <div class="col-right" id="tour-automation-canvas">
       <div class="menu">
         <ul>
           <li onclick="editor.changeModule('Home'); changeModule(event);" class="selected">Automation flow</li>
@@ -330,7 +363,7 @@
     const True = Boolean(true);
     {% if flowData is not none %}
     const flowData = {{flowData|safe}};
-    console.log(flowData);
+    //console.log(flowData);
     editor.import(flowData);
     {% endif %}
     
@@ -382,17 +415,19 @@
       //console.log(nodeInputClass.inputs.input_["input_" + input_id].connections);
       //const x = eval(`document.forms.form_name.elements.${strFormControl}.value`);
       //console.log(nodeInputClass);
-      
-      if (nodeInputClass.inputs[input_class].connections.length > 1){
-        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+      if (nodeInputClass.class != "influxdb") {
+        if (nodeInputClass.inputs[input_class].connections.length > 1){
+          editor.removeSingleConnection(output_id, input_id, output_class, input_class)
 
-        document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-        var toastList = toastElList.map(function(toastEl) {
-          return new bootstrap.Toast(toastEl)
-        })
-        toastList.forEach(toast => toast.show()) 
+          document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+        }
       }
+      
 
       if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
         // Delete the connection
@@ -439,6 +474,59 @@
         editor.removeSingleConnection(output_id, input_id, output_class, input_class)
 
         document.getElementById("warning-text").innerText = "Connection not compatible! MQTT Broker Connectors can only be connected to input of MQTT topic subscription.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "blecharacteristic" && nodeOutputClass.class != "bleconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! CLE characteristic input can only be connected to output of BLE connector.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "bleconnector" && nodeInputClass.class != "blecharacteristic"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! CLE connectors can only be connected to BLE characteristic.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      // InfluxDB rules
+      if(nodeOutputClass.class == "influxpoint" && nodeInputClass.class != "influxdb"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Influx points can only be connected to InfluxDB nodes";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeInputClass.class == "influxdb" && nodeOutputClass.class != "influxpoint"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! InfluxDB connectors can be only connected to Influx points";
         var toastElList = [].slice.call(document.querySelectorAll('.toast'))
         var toastList = toastElList.map(function(toastEl) {
           return new bootstrap.Toast(toastEl)
@@ -579,6 +667,19 @@
         modelLst = editor.getNodesFromName("chart");
         if (modelLst.length > 0){
           document.getElementById("warning-text").innerText = "Only one instance of Line Chart node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "out_influxdb"){
+        modelLst = editor.getNodesFromName("influxdb");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of InfluxDB connector node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -748,6 +849,31 @@
           `;
           editor.addNode('s7variable', 1, 1, pos_x, pos_y, 's7variable', { "db": '', "start": '',"size": ''}, s7variable );
           break;
+        case 'ble_connector':
+          var bleconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/ble.png" style="max-width:60px;"> BLE device</div>
+            <div class="box">
+              <p>Device name</p>
+              <input type="text" df-name><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('bleconnector', 0, 1, pos_x, pos_y, 'bleconnector', { "name": ''}, bleconnector );
+          break;
+        case 'ble_characteristic':
+          var blecharacteristic = `
+          <div>
+            <div class="title-box"><img src="../static/img/ble.png" style="max-width:60px;"> BLE characteristic</div>
+            <div class="box">
+              <p>Characteristic UUID</p>
+              <input type="text" df-uuid><br>
+              <a href=https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Assigned_Numbers/out/en/Assigned_Numbers.pdf?v=1724154522401>More info here...</a>
+            </div>
+          </div>
+          `;
+          editor.addNode('blecharacteristic', 1, 1, pos_x, pos_y, 'blecharacteristic', { "uuid": ''}, blecharacteristic );
+          break;
         case 'toggle_value':
           var toggletemplate = `
           <div>
@@ -855,6 +981,40 @@
           </div>
           `;
           editor.addNode('notification', 1, 0, pos_x, pos_y, 'notification', { "message": ''}, notificationtemplate );
+          break;
+        case 'out_influxdb':
+          var influxdbtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/influxdb.png" style="max-width:20px;"> InfluxDB</div>
+            <div class="box">
+              <p>Bucket</p>
+              <input type="text" df-bucket><br>
+              <p>Organization</p>
+              <input type="text" df-organization><br>
+              <p>Token</p>
+              <input type="text" df-token><br>
+              <p>URL</p>
+              <input type="text" df-url><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('influxdb', 1, 0, pos_x, pos_y, 'influxdb', { "bucket": '',"organization": '',"token": '',"url": ''}, influxdbtemplate );
+          break;
+        case 'out_influxpoint':
+          var influxpointtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/influxdb.png" style="max-width:20px;"> InfluxDB point</div>
+            <div class="box">
+              <p>Point</p>
+              <input type="text" df-point><br>
+              <p>Tag</p>
+              <input type="text" df-tag><br>
+              <p>Field</p>
+              <input type="text" df-field><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('influxpoint', 1, 1, pos_x, pos_y, 'influxpoint', { "point": '',"tag": '',"field": ''}, influxpointtemplate );
           break;
         case 'oper_addition':
           var additiontemplate = `
@@ -970,6 +1130,26 @@
           </div>
           `;
           editor.addNode('lowerequal', 2, 1, pos_x, pos_y, 'lowerequal', {}, lowerequaltemplate );
+          break;
+        case 'cond_and':
+          var andtemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-circle-plus"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-circle-plus"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('and', 2, 1, pos_x, pos_y, 'and', {}, andtemplate );
+          break;
+        case 'cond_or':
+          var ortemplate = `
+          <div>
+            <div class="title-box"><i class="fa-solid fa-grip-lines-vertical"></i> Conditional</div>
+            <br>
+            <p class="text-center">Input 1 <i class="fa-solid fa-grip-lines-vertical"></i> Input 2</span></p>
+          </div>
+          `;
+          editor.addNode('or', 2, 1, pos_x, pos_y, 'or', {}, ortemplate );
           break;
         case 'out_log':
           var log = `
@@ -1289,6 +1469,19 @@
     }
 
     function updateStatusNode(nodeData){
+
+      if (nodeData.nodeClass == "flow"){
+        // If it's running but receives stopped, reload the page
+        //console.log(nodeData.value);
+        if (document.getElementById("btnStartFlow").classList.contains("disabled")){
+          if (nodeData.value == false){
+            // Reload page...
+            window.location.reload();
+          }
+        }
+        return
+      }
+
       var id = "status-" + nodeData.nodeId
       if (nodeData.error){
         document.getElementById(id).innerText = "⚠️";
@@ -1310,7 +1503,27 @@
             valueField[1].value = nodeData.value
           }
         }
+      }
 
+      if (nodeData.nodeClass == "toggle"){
+        var elements = document.getElementsByClassName('drawflow-node');
+        for (var i = 0; i < elements.length; i++) {
+          let rawId = elements[i].id
+          let nodeId = rawId.split("node-")[1]
+
+          if (nodeId == nodeData.nodeId){
+            valueField = elements[i].querySelectorAll("input")
+            valueField[0].value = nodeData.value
+
+            if (nodeData.value == 0){
+              // Remove selected
+              valueField[0].checked = false;
+            } else {
+              // Add selected
+              valueField[0].checked = true;
+            } 
+          }
+        }
       }
 
       if (nodeData.nodeClass == "display"){
@@ -1679,4 +1892,6 @@
     }
 
   </script>
+  <script src="../static/js/intro.min.js"></script>
+  <script src="../static/js/tour-automation.js"></script>
 {% endblock %}

@@ -19,24 +19,24 @@
 <link href="../static/css/console.css" rel="stylesheet">
 
 <!-- content -->
-<h3 class="m-4">Data Studio</h3>
+<h3 class="m-4" id="tr_data_studio">Data Studio</h3>
 <div class="row">
     <div class="col-12">
         <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
         <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
-                <h3 id="notuploaded">Load dataset</h3>     
+                <h3 id="notuploaded"><span id="tr_load_dataset">Load dataset</span></h3>     
             </div>
             <div class="card-body">             
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
                     <div class="form-group row">
-                        <label for="file" class="col-sm-1 col-form-label">Select file</label>
+                        <label for="file" class="col-sm-1 col-form-label"><span id="tr_select_file">Select file</span></label>
                         <div class="col-sm-5" id="tour-train-import-file">
                             <input type="file" class="form-control text-left" name = "file" id="file" accept=".csv">
                         </div>
 
-                        <label for="sep" class="col-sm-1 col-form-label">Separator</label>
+                        <label for="sep" class="col-sm-1 col-form-label"><span id="tr_separator">Separator</span></label>
                         <div class="col-sm-1" id="tour-train-import-separator">
                             <input type="text" class="form-control text-left" name = "sep" id="sep" value=";">
                         </div>
@@ -49,7 +49,7 @@
                             </select>
                         </div-->
 
-                        <label for="dec" class="col-sm-1 col-form-label">Decimal</label>
+                        <label for="dec" class="col-sm-1 col-form-label"><span id="tr_decimal">Decimal</span></label>
                         <div class="col-sm-1" id="tour-train-import-decimal">
                             <input type="text" class="form-control text-left" name = "dec" id="dec" value=",">
                         </div>
@@ -63,7 +63,7 @@
                         </div-->
 
                         <div class="col-sm-2 text-center">
-                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i> Parse CSV</button>
+                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i><span id="tr_parse_csv"> Parse CSV</span></button>
                         </div>
 
                     </div>
@@ -78,32 +78,32 @@
                 <!-- Functionalities buttons -->
                 <div class="d-flex flex-row gap-3">
 
-                    <a class="btn btn-warning" type="button" href="{{ url_for('cleardataset')}}" id="tour-train-import-delete-dataset"><i class="fas fa-eraser"></i> Delete dataset</a>
+                    <a class="btn btn-warning" type="button" href="{{ url_for('cleardataset')}}" id="tour-train-import-delete-dataset"><i class="fas fa-eraser"></i><span id="tr_delete_dataset"> Delete dataset</span></a>
 
                     <form method="post">
                         <input hidden type="text" name="mod" value="clearnull">
                         <input hidden type="text" name="column" value="all">
                         <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
-                        <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i> Clear nulls</button>
+                        <button type="submit" class="btn btn-primary" id="tour-train-import-clear-nulls"><i class="fas fa-bath"></i><span id="tr_clear_nulls"> Clear nulls</span></button>
                     </form>
 
-                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Script" data-bs-toggle="modal" data-bs-target="#script" id="tour-train-import-script"><i class="fa fa-code"></i> Python code</a>
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Script" data-bs-toggle="modal" data-bs-target="#script" id="tour-train-import-script"><i class="fa fa-code"></i><span id="tr_python_code"> Python code</span></a>
 
-                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Correlation" data-bs-toggle="modal" data-bs-target="#correlation" id="tour-train-correlation"><i class="fa fa-table"></i> Correlation matrix</a>
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Correlation" data-bs-toggle="modal" data-bs-target="#correlation" id="tour-train-correlation"><i class="fa fa-table"></i><span id="tr_correlation_matrix"> Correlation matrix</span></a>
 
-                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Scatter" data-bs-toggle="modal" data-bs-target="#scatterplot" id="tour-train-scatter"><i class="fa fa-chart-line"></i> Scatter plot</a>
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Scatter" data-bs-toggle="modal" data-bs-target="#scatterplot" id="tour-train-scatter"><i class="fa fa-chart-line"></i><span id="tr_scatter_plot"> Scatter plot</span></a>
 
                     
                     {% if config.usePyGWalker %}
-                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Visualization" data-bs-toggle="modal" data-bs-target="#visualization" id="tour-train-visual"><i class="fa fa-binoculars"></i> Data Exploration</a>
+                    <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="Visualization" data-bs-toggle="modal" data-bs-target="#visualization" id="tour-train-visual"><i class="fa fa-binoculars"></i><span id="tr_data_exploration"> Data Exploration</span></a>
                     {% endif %}
 
-                    <a class="btn btn-primary" type="button" href="{{ url_for('downloaddatastudio')}}" id="tour-train-import-export"><i class="fas fa-download"></i> Download this dataset</a>
+                    <a class="btn btn-primary" type="button" href="{{ url_for('downloaddatastudio')}}" id="tour-train-import-export"><i class="fas fa-download"></i><span id="tr_download_this_dataset"> Download this dataset</span></a>
 
                     <form method="post">
                         <input hidden type="text" name="mod" value="usedataset">
                         <!--a class="btn btn-primary" type="submit"><i class="fas fa-bath"></i> Clear nulls</a-->
-                        <button type="submit" class="btn btn-primary" id="tour-train-import-useml"><i class="fas fa-robot"></i> Use dataset for ML model training</button>
+                        <button type="submit" class="btn btn-primary" id="tour-train-import-useml"><i class="fas fa-robot"></i><span id="tr_use_for_ml"> Use dataset for ML model training</span></button>
                     </form>
 
                 </div>
@@ -113,16 +113,16 @@
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
 
                     <li class="nav-item" role="presentation" id="tour-train-import-desc">
-                        <button class="nav-link" id="descri-tab" data-bs-toggle="tab" data-bs-target="#descri" type="button" role="tab" aria-controls="descri" aria-selected="false">Data statistics</button>
+                        <button class="nav-link" id="descri-tab" data-bs-toggle="tab" data-bs-target="#descri" type="button" role="tab" aria-controls="descri" aria-selected="false"><span id="tr_data_statistics">Data statistics</span></button>
                     </li>
                     <li class="nav-item" role="presentation">
-                        <button class="nav-link active" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Data manipulator</button>
+                        <button class="nav-link active" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true"><span id="tr_data_manipulator">Data manipulator</span></button>
                     </li>
                     <li class="nav-item" role="presentation" id="tour-train-import-outliers">
-                        <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false">Boxplots board</button>
+                        <button class="nav-link" id="outliers-tab" data-bs-toggle="tab" data-bs-target="#outliers" type="button" role="tab" aria-controls="resume" aria-selected="false"><span id="tr_boxplot_boards">Boxplots board</span></button>
                     </li>
                     <li class="nav-item" role="presentation" id="tour-train-import-operations">
-                        <button class="nav-link" id="dataoperations-tab" data-bs-toggle="tab" data-bs-target="#dataoperations" type="button" role="tab" aria-controls="dataoperations" aria-selected="false">Data operations</button>
+                        <button class="nav-link" id="dataoperations-tab" data-bs-toggle="tab" data-bs-target="#dataoperations" type="button" role="tab" aria-controls="dataoperations" aria-selected="false"><span id="tr_data_operations">Data operations</span></button>
                     </li>
                 </ul>
                 <div class="tab-content" id="myTabContent">
@@ -141,7 +141,7 @@
                                 <table class="table table-bordered text-center">
                                     <thead>
                                         <tr id='tour-train-import-variables'>
-                                            <th scope="col">Variable</th>
+                                            <th scope="col"><span id="tr_variable">Variable</span></th>
                                             {% for title in titles %}
                                                 <th scope="col">{{title}}</th>
                                             {% endfor %}
@@ -150,7 +150,7 @@
                                     </thead>
                                     <tbody>
                                         <tr id='tour-train-import-datatypes'>
-                                            <td class="align-middle" scope="col">Current data type</td>
+                                            <td class="align-middle" scope="col"><span id="tr_current_data_type">Current data type</span></td>
                                             {% for dtype in datatypes %}
                                                 {% if dtype == "object" %}
                                                     <td class="align-middle"><span class="badge bg-warning">{{dtype}}</span></td>
@@ -162,7 +162,7 @@
                                             <!--td></td-->
                                         </tr>
                                         <tr id='tour-train-import-settype'>
-                                            <td class="align-middle">Set data type</td>
+                                            <td class="align-middle"><span id="tr_set_datatype">Set data type</span></td>
                                             {% for title in titles %}
                                                 <td class="align-middle">
                                                     <a href="#" type="button" class="btn btn-warning" data-toggle="tooltip" title="Set datatype" data-bs-toggle="modal" data-bs-target="#setTypeConfirmation{{title|replace(' ','')}}"><i class="fa fa-gear"></i></a>
@@ -174,7 +174,7 @@
                                                         <div class="modal-content">
                                                             <form method="post">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="setDatatypeConfirmationLabel">Are you sure you want to change the type of data of column <b>{{title}}</b> ?</h5>
+                                                                    <h5 class="modal-title" id="setDatatypeConfirmationLabel"><span id="tr_msg_sure_change_type">Are you sure you want to change the type of data of column</span><b> {{title}}</b> ?</h5>
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
 
@@ -185,13 +185,13 @@
                                                                     <div class="form-horizontal">
                                                                         <div class="form-group row">
                                                                             <!-- Data type -->
-                                                                            <label for="coldatatype" class="col-sm-5 col-form-label">New data type</label>
+                                                                            <label for="coldatatype" class="col-sm-5 col-form-label"><span id="tr_new_data_type">New data type</span></label>
                                                                             <div class="col-sm-7">
                                                                                 <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
                                                                                 <select class="form-control text-left" id="coldatatype" name="coldatatype">
-                                                                                    <option value="datetime">Datetime</option>
-                                                                                    <option value="int">Integer</option>
-                                                                                    <option value="float">Float</option>
+                                                                                    <option value="datetime" id="tr_datetime">Datetime</option>
+                                                                                    <option value="int" id="tr_integer">Integer</option>
+                                                                                    <option value="float" id="tr_float">Float</option>
                                                                                 </select>
                                                                             </div>
                                                                         </div>
@@ -200,12 +200,12 @@
 
                                                                     <div>&MediumSpace;</div>
 
-                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
+                                                                    <p>⚠️ <span id="tr_msg_you_can_revert">You can revert this action by deleting this operation in the Data Operations tab.</span></p>
 
                                                                 </div>
 
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                                                                     <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
                                                                 </div>
                                                             </form>
@@ -216,7 +216,7 @@
                                             <!--td></td-->
                                         </tr>
                                         <tr id='tour-train-import-remove'>
-                                            <td class="align-middle">Remove column</td>
+                                            <td class="align-middle"><span id="tr_remove_column">Remove column</span></td>
                                             {% for title in titles %}
                                                 <td class="align-middle">
                                                     <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Filter column" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{title|replace(' ','')}}"><i class="fa fa-trash"></i></a>
@@ -228,7 +228,7 @@
                                                         <div class="modal-content">
                                                             <form method="post">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="deleteConfirmationLabel">Are you sure you want to remove the column <b>{{title}}</b> ?</h5>
+                                                                    <h5 class="modal-title" id="deleteConfirmationLabel"><span id="tr_msg_sure_delete_column">Are you sure you want to remove the column</span><b> {{title}}</b> ?</h5>
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
 
@@ -236,12 +236,12 @@
                                                                     <input hidden type="text" name="mod" value="remcol">
                                                                     <input hidden type="text" name="column" value="{{title}}">
 
-                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
+                                                                    <p>⚠️ <span id="tr_msg_you_can_revert">You can revert this action by deleting this operation in the Data Operations tab.</span></p>
 
                                                                 </div>
 
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                                                                     <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                                                                 </div>
                                                             </form>
@@ -252,7 +252,7 @@
                                             <!--td></td-->
                                         </tr>
                                         <tr id='tour-train-import-filter'>
-                                            <td class="align-middle">Filter column</td>
+                                            <td class="align-middle"><span id="tr_filter_column">Filter column</span></td>
                                             {% for title in titles %}
                                                 {% if datatypes[loop.index0] == 'int64' or datatypes[loop.index0] == 'int32' or datatypes[loop.index0] == 'float64' or datatypes[loop.index0] == 'uint8' %}
                                                 <td class="align-middle">
@@ -271,7 +271,7 @@
                                                         <div class="modal-content">
                                                             <form method="post">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="filterConfirmationLabel">Filter the column <b>{{title}}</b> data</h5>
+                                                                    <h5 class="modal-title" id="filterConfirmationLabel"><span id="tr_msg_filter_data_column">Filter the data of column</span><b> {{title}}</b></h5>
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
 
@@ -288,7 +288,7 @@
                                                                             </div-->
 
                                                                             <!-- Operator -->
-                                                                            <label for="operatortype" class="col-sm-5 col-form-label">Operator</label>
+                                                                            <label for="operatortype" class="col-sm-5 col-form-label"><span id="tr_operator">Operator</span></label>
                                                                             <div class="col-sm-7">
                                                                                 <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
                                                                                 <select class="form-control text-left" id="operatortype" name="operatortype">
@@ -302,7 +302,7 @@
                                                                             <div>&MediumSpace;</div>
     
                                                                             <!-- Value -->
-                                                                            <label for="filtervalue" class="col-sm-5 col-form-label">Value</label>
+                                                                            <label for="filtervalue" class="col-sm-5 col-form-label"><span id="tr_value">Value</span></label>
                                                                             <div class="col-sm-7">
                                                                                 <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" step="0.01"></input>
                                                                             </div>
@@ -316,7 +316,7 @@
                                                                 </div>
 
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                                                                     <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
                                                                 </div>
                                                             </form>
@@ -327,7 +327,7 @@
                                             <!--td></td-->
                                         </tr>
                                         <tr id='tour-train-rem-ouliers'>
-                                            <td class="align-middle">Remove outliers</td>
+                                            <td class="align-middle"><span id="tr_remove_outliers">Remove outliers</span></td>
                                             {% for title in titles %}
                                                 {% if datatypes[loop.index0] == 'int64' or datatypes[loop.index0] == 'int32' or datatypes[loop.index0] == 'float64' or datatypes[loop.index0] == 'uint8' %}
                                                 <td class="align-middle">
@@ -346,7 +346,7 @@
                                                         <div class="modal-content">
                                                             <form method="post">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="removeOutliersLabel">Remove outliers from column <b>{{title}}</b> data</h5>
+                                                                    <h5 class="modal-title" id="removeOutliersLabel"><span id="tr_msg_remove_outliers">Remove outliers from column</span><b> {{title}}</b></h5>
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
 
@@ -357,17 +357,17 @@
                                                                     <div class="form-horizontal">
                                                                         <div class="form-group row">
 
-                                                                            <div class="col-sm-7">
+                                                                            <div class="col-sm-12">
                                                                                 <div class="form-check form-switch">
                                                                                     <input id="upperOutliers" class="form-check-input" type="checkbox" name="upperOutliers" checked>
-                                                                                    <label for="upperOutliers" class="form-check-label">Remove upper outliers</label>
+                                                                                    <label for="upperOutliers" class="form-check-label"><span id="tr_upper_outlier">Remove upper outliers</span></label>
                                                                                 </div>
                                                                             </div>
                                                                             
-                                                                            <div class="col-sm-7">
+                                                                            <div class="col-sm-12">
                                                                                 <div class="form-check form-switch">
                                                                                     <input id="lowerOutliers" class="form-check-input" type="checkbox" name="lowerOutliers" checked>
-                                                                                    <label for="lowerOutliers" class="form-check-label">Remove lower outliers</label>
+                                                                                    <label for="lowerOutliers" class="form-check-label"><span id="tr_lower_outlier">Remove lower outliers</span></label>
                                                                                 </div>
                                                                             </div>
 
@@ -377,7 +377,7 @@
                                                                 </div>
 
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                                                                     <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
                                                                 </div>
                                                             </form>
@@ -388,7 +388,7 @@
                                             <!--td></td-->
                                         </tr>
                                         <tr id='tour-train-import-setname'>
-                                            <td class="align-middle">Set data name</td>
+                                            <td class="align-middle"><span id="tr_set_data_name">Set data name</span></td>
                                             {% for title in titles %}
                                                 <td class="align-middle">
                                                     <a href="#" type="button" class="btn btn-success" data-toggle="tooltip" title="Set name" data-bs-toggle="modal" data-bs-target="#setName{{title|replace(' ','')}}"><i class="fa fa-pen-to-square"></i></a>
@@ -400,7 +400,7 @@
                                                         <div class="modal-content">
                                                             <form method="post">
                                                                 <div class="modal-header">
-                                                                    <h5 class="modal-title" id="setNameLabel">Are you sure you want to change the name of column <b>{{title}}</b> ?</h5>
+                                                                    <h5 class="modal-title" id="setNameLabel"><span id="tr_msg_change_name">Are you sure you want to change the name of column</span><b> {{title}}</b> ?</h5>
                                                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
 
@@ -411,7 +411,7 @@
                                                                     <div class="form-horizontal">
                                                                         <div class="form-group row">
                                                                             <!-- New name -->
-                                                                            <label for="minimum" class="col-sm-5 col-form-label">Column new name</label>
+                                                                            <label for="minimum" class="col-sm-5 col-form-label"><span id="tr_new_name">Column new name</span></label>
                                                                             <div class="col-sm-7">
                                                                                 <input type="text" class="form-control text-left" id="newname" name="newname" value="{{title}}"></input>
                                                                             </div>
@@ -424,12 +424,12 @@
 
                                                                     <div>&MediumSpace;</div>
 
-                                                                    <p>⚠️ You can revert this action by deleting this operation in the Data Operations tab.</p>
+                                                                    <p>⚠️ <span id="tr_msg_you_can_revert">You can revert this action by deleting this operation in the Data Operations tab.</span></p>
 
                                                                 </div>
 
                                                                 <div class="modal-footer">
-                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                                                                     <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
                                                                 </div>
                                                             </form>
@@ -454,7 +454,7 @@
                                 <div class="col-md-4">
                                     <div class="card">
                                         <div class="card-header">
-                                            <b>{{title}}</b> boxplot and outliers
+                                            <b>{{title}}</b> <span id="tr_boxplot_outliers">boxplot and outliers</span>
                                         </div>
                                         <div class="card-body">
                                             <canvas id="Boxplot{{loop.index0}}"></canvas>
@@ -574,12 +574,12 @@
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
-                                    <th scope="col">Pos</th>
-                                    <th scope="col">State</th>
+                                    <th scope="col"><span id="tr_pos">Pos</span></th>
+                                    <th scope="col"><span id="tr_state">State</span></th>
                                     <th scope="col"></th>
-                                    <th scope="col">Operation type</th>
-                                    <th scope="col">Parameters</th>
-                                    <th scope="col">Actions</th>
+                                    <th scope="col"><span id="tr_operation_type">Operation type</span></th>
+                                    <th scope="col"><span id="tr_parameters">Parameters</span></th>
+                                    <th scope="col"><span id="tr_actions">Actions</span></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -589,15 +589,15 @@
                                         <!-- State of run -->
                                                       
                                         {% if oper.error %}
-                                        <td style="vertical-align: middle;"><a href="#"><span class="badge rounded-pill bg-danger" data-toggle="tooltip" title="{{oper.errorMessage}}">Error</span></a></td>
+                                        <td style="vertical-align: middle;"><a href="#"><span class="badge rounded-pill bg-danger" data-toggle="tooltip" title="{{oper.errorMessage}}" id="tr_error">Error</span></a></td>
                                         {% elif oper.run %}
-                                        <td style="vertical-align: middle;"><a href="#"><span class="badge rounded-pill bg-success">Success</span></a></td>  
+                                        <td style="vertical-align: middle;"><a href="#"><span class="badge rounded-pill bg-success" id="tr_success">Success</span></a></td>
                                         {% endif %}
 
                                         <!-- Operation icon -->
                                         {% if oper.operation == 'setdatatype' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-pen"></i></td>
-                                        <td style="vertical-align: middle;">Set column new data type</td>
+                                        <td style="vertical-align: middle;"><span id="tr_oper_setdatatype">Set column new data type</span></td>
                                         <td style="vertical-align: middle;">{{oper.params}}</td>
                                         <td style="vertical-align: middle;">
                                             <div class="btn-group" role="group" aria-label="Action commands">
@@ -607,7 +607,7 @@
                                         </td>
                                         {% elif oper.operation == 'remcol' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-eraser"></i></td>
-                                        <td style="vertical-align: middle;">Colum removed</td>
+                                        <td style="vertical-align: middle;"><span id="tr_oper_remcol">Column removed</span></td>
                                         <td style="vertical-align: middle;">{{oper.params}}</td>
                                         <td style="vertical-align: middle;">
                                             <div class="btn-group" role="group" aria-label="Action commands">
@@ -617,7 +617,7 @@
                                         </td>
                                         {% elif oper.operation == 'setcolumnname' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-font"></i></td>
-                                        <td style="vertical-align: middle;">Colum name changed</td>
+                                        <td style="vertical-align: middle;"><span id="tr_oper_setcolname">Column name changed</span></td>
                                         <td style="vertical-align: middle;">Column {{oper.params[0]}} renamed to {{oper.params[1]}}</td>
                                         <td style="vertical-align: middle;">
                                             <div class="btn-group" role="group" aria-label="Action commands">
@@ -627,7 +627,7 @@
                                         </td>
                                         {% elif oper.operation == 'clearnull' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
-                                        <td style="vertical-align: middle;">Delete rows with null data</td>
+                                        <td style="vertical-align: middle;"><span id="tr_oper_clearnull">Delete rows with null data</span></td>
                                         <td style="vertical-align: middle;"></td>
                                         <td style="vertical-align: middle;">
                                             <div class="btn-group" role="group" aria-label="Action commands">
@@ -637,7 +637,7 @@
                                         </td>
                                         {% elif oper.operation == 'filtercol' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-filter"></i></td>
-                                        <td style="vertical-align: middle;">Filter rows acording column values</td>
+                                        <td style="vertical-align: middle;"><span id="tr_oper_filtercol">Filter rows acording column values</span></td>
                                         <td style="vertical-align: middle;">{{oper.params[0]}} {{oper.params[1]}} {{oper.params[2]}}</td>
                                         <td style="vertical-align: middle;">
                                             <div class="btn-group" role="group" aria-label="Action commands">
@@ -647,7 +647,7 @@
                                         </td>
                                         {% elif oper.operation == 'remoutliers' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-bug"></i></td>
-                                        <td style="vertical-align: middle;">Remove column outliers</td>
+                                        <td style="vertical-align: middle;"><span id="tr_oper_remoutliers">Removed column outliers</span></td>
                                         <td style="vertical-align: middle;">Column {{oper.params[0]}}, remove upper: {{oper.params[1]}}, remove lower: {{oper.params[2]}}</td>
                                         <td style="vertical-align: middle;">
                                             <div class="btn-group" role="group" aria-label="Action commands">
@@ -657,7 +657,7 @@
                                         </td>
                                         {% elif oper.operation == 'script' %}
                                         <td style="vertical-align: middle;"><i class="fas fa-code"></i></td>
-                                        <td style="vertical-align: middle;">Python script applied</td>
+                                        <td style="vertical-align: middle;"><span id="tr_oper_script">Python script applied</span></td>
                                         <td style="vertical-align: middle;"><code>{{oper.params[0]}}</code></td>
                                         <td style="vertical-align: middle;">
                                             <div class="btn-group" role="group" aria-label="Action commands">
@@ -684,7 +684,7 @@
                                                 <div class="modal-content">
                                                     <form method="post">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="deleteOperationConfirmationLabel">Are you sure you want to remove the operation <b>{{oper.operation}}</b> ?</h5>
+                                                            <h5 class="modal-title" id="deleteOperationConfirmationLabel"><span id="tr_msg_remove_operation">Are you sure you want to remove the operation</span><b> {{oper.operation}}</b> ?</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
 
@@ -693,15 +693,15 @@
                                                             <input hidden type="text" name="uuid" value="{{oper.uuid}}">
                                                             <input hidden type="text" name="pos" value="{{loop.index0}}">
 
-                                                            <p>⚠️ This action is irreversible. However you can re-apply the data operation again.</p>
-                                                            <p> Operation UUID: {{oper.uuid}}</p>
-                                                            <p> Operation Type: {{oper.operation}}</p>
-                                                            <p> Operation Parameters: {{oper.params}}</p>
+                                                            <p>⚠️ <span id="tr_msg_irreversible_action">This action is irreversible. However you can re-apply the data operation again.</span></p>
+                                                            <p><span id="tr_oper_uuid">Operation UUID:</span> {{oper.uuid}}</p>
+                                                            <p><span id="tr_oper_type">Operation Type:</span> {{oper.operation}}</p>
+                                                            <p><span id="tr_oper_params">Operation Parameters:</span> {{oper.params}}</p>
 
                                                         </div>
 
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                                                             <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i></button>
                                                         </div>
                                                     </form>
@@ -716,7 +716,7 @@
                                                 <div class="modal-content">
                                                     <form method="post">
                                                         <div class="modal-header">
-                                                            <h5 class="modal-title" id="editOperationLabel">Edit operation <b> position {{loop.index}}</b> ?</h5>
+                                                            <h5 class="modal-title" id="editOperationLabel"><span id="tr_edit_oper_pos">Edit operation position</span> {{loop.index}} ?</h5>
                                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
 
@@ -724,11 +724,11 @@
                                                             <input hidden type="text" name="mod" value="editoperation">
                                                             <input hidden type="text" name="uuid" value="{{oper.uuid}}">
                                                             
-                                                            <h4>Editing operation {{oper.operation}}</h4>
+                                                            <h4><span id="tr_editing_oper">Editing operation</span> {{oper.operation}}</h4>
                                                             <!-- Check the type of operation and draw the form according to -->
 
                                                             {% if oper.operation == 'setdatatype' %}
-                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <h6><span id="tr_old_params">Old parameters</span> {{oper.params}}</h6>
                                                                 <!-- Add code for set datatype -->
                                                                 <input hidden type="text" name="type" value="setdatatype">
                                                                 <input hidden type="text" name="column" value="{{oper.params[0]}}">
@@ -736,20 +736,20 @@
                                                                 <div class="form-horizontal">
                                                                     <div class="form-group row">
                                                                         <!-- Data type -->
-                                                                        <label for="coldatatype" class="col-sm-5 col-form-label">New data type</label>
+                                                                        <label for="coldatatype" class="col-sm-5 col-form-label"><span id="tr_new_data_type">New data type</span></label>
                                                                         <div class="col-sm-7">
                                                                             <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
                                                                             <select class="form-control text-left" id="coldatatype" name="coldatatype">
-                                                                                <option value="datetime">Datetime</option>
-                                                                                <option value="int">Integer</option>
-                                                                                <option value="float">Float</option>
+                                                                                <option value="datetime" id="tr_datetime">Datetime</option>
+                                                                                <option value="int" id="tr_integer">Integer</option>
+                                                                                <option value="float" id="tr_float">Float</option>
                                                                             </select>
                                                                         </div>
                                                                     </div>
                                                                 </div>
 
                                                             {% elif oper.operation == 'remcol' %}
-                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <h6><span id="tr_old_params">Old parameters</span> {{oper.params}}</h6>
                                                                 <!-- Add code for remove column -->
                                                                 <input hidden type="text" name="type" value="remcol">
                                                                 <div>&MediumSpace;</div>
@@ -769,7 +769,7 @@
                                                                 </div>
 
                                                             {% elif oper.operation == 'setcolumnname' %}
-                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <h6><span id="tr_old_params">Old parameters</span> {{oper.params}}</h6>
                                                                 <!-- Add code for set column name -->
                                                                 <input hidden type="text" name="type" value="setcolumnname">
                                                                 <input hidden type="text" name="column" value="{{oper.params[0]}}">
@@ -777,7 +777,7 @@
                                                                 <div class="form-horizontal">
                                                                     <div class="form-group row">
                                                                         <!-- New name -->
-                                                                        <label for="minimum" class="col-sm-5 col-form-label">Column new name</label>
+                                                                        <label for="minimum" class="col-sm-5 col-form-label"><span id="tr_new_name">Column new name</span></label>
                                                                         <div class="col-sm-7">
                                                                             <input type="text" class="form-control text-left" id="newname" name="newname" value="{{oper.params[1]}}"></input>
                                                                         </div>
@@ -794,7 +794,7 @@
                                                                 <h4>This operation does not support editing. Please delete the operation.</h4>
 
                                                             {% elif oper.operation == 'filtercol' %}
-                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <h6><span id="tr_old_params">Old parameters</span> {{oper.params}}</h6>
                                                                 <!-- Add code for filtering columns -->
                                                                 <input hidden type="text" name="type" value="filtercol">
                                                                 <input hidden type="text" name="column" value="{{oper.params[0]}}">
@@ -808,7 +808,7 @@
                                                                         </div-->
 
                                                                         <!-- Operator -->
-                                                                        <label for="operatortype" class="col-sm-5 col-form-label">Operator</label>
+                                                                        <label for="operatortype" class="col-sm-5 col-form-label"><span id="tr_operator">Operator</span></label>
                                                                         <div class="col-sm-7">
                                                                             <!--input type="number" class="form-control text-left" id="coldataype" name="coldataype"></input-->
                                                                             <select class="form-control text-left" id="operatortype" name="operatortype" value="{{oper.params[1]}}">
@@ -822,7 +822,7 @@
                                                                         <div>&MediumSpace;</div>
 
                                                                         <!-- Value -->
-                                                                        <label for="filtervalue" class="col-sm-5 col-form-label">Value</label>
+                                                                        <label for="filtervalue" class="col-sm-5 col-form-label"><span id="tr_value">Value</span></label>
                                                                         <div class="col-sm-7">
                                                                             <input type="number" class="form-control text-left" id="filtervalue" name="filtervalue" value ={{oper.params[2]}} step="0.01"></input>
                                                                         </div>
@@ -831,7 +831,7 @@
                                                                 </div>
                                                             
                                                             {% elif oper.operation == 'remoutliers' %}
-                                                                <h6>Old parameters {{oper.params}}</h6>
+                                                                <h6><span id="tr_old_params">Old parameters</span> {{oper.params}}</h6>
                                                                 <!-- Add code for filtering columns -->
                                                                 <input hidden type="text" name="type" value="remoutliers">
                                                                 <input hidden type="text" name="column" value="{{oper.params[0]}}">
@@ -839,17 +839,17 @@
                                                                 <div class="form-horizontal">
                                                                     <div class="form-group row">
                                                                         
-                                                                        <div class="col-sm-7">
+                                                                        <div class="col-sm-12">
                                                                             <div class="form-check form-switch">
                                                                                 <input id="upperOutliers" class="form-check-input" type="checkbox" name="upperOutliers" {% if oper.params[1] == True %} checked {% endif %}>
-                                                                                <label for="upperOutliers" class="form-check-label">Remove upper outliers</label>
+                                                                                <label for="upperOutliers" class="form-check-label"><span id="tr_upper_outlier">Remove upper outliers</span></label>
                                                                             </div>
                                                                         </div>
                                                                         
-                                                                        <div class="col-sm-7">
+                                                                        <div class="col-sm-12">
                                                                             <div class="form-check form-switch">
                                                                                 <input id="lowerOutliers" class="form-check-input" type="checkbox" name="lowerOutliers" {% if oper.params[2] == True %} checked {% endif %}>
-                                                                                <label for="lowerOutliers" class="form-check-label">Remove lower outliers</label>
+                                                                                <label for="lowerOutliers" class="form-check-label"><span id="tr_lower_outlier">Remove lower outliers</span></label>
                                                                             </div>
                                                                         </div>
 
@@ -899,7 +899,7 @@
                                                         </div>
 
                                                         <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                                                             <button type="submit" class="btn btn-success"><i class="fas fa-check"></i></button>
                                                         </div>
                                                     </form>
@@ -924,7 +924,7 @@
         {% if uploaded %}
             <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
-                <i class="fa-solid fa-list fa-database"></i> Dataset preview (only first 10 records)
+                <i class="fa-solid fa-list fa-database"></i><span id="tr_dataset_preview"> Dataset preview (only first 10 records)</span>
             </div>
             <div class="card-body">
                 <p class="card-text">
@@ -950,7 +950,7 @@
         <div class="modal-content">
             <form method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="scriptLabel">Apply a Python script data operation</h5>
+                    <h5 class="modal-title" id="scriptLabel"><span id="tr_apply_python_script_oper">Apply a Python script data operation</span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -965,9 +965,9 @@
                                     <div class="form-group row">
                                         
                                         <!-- Code textarea -->
-                                        <label for="code" class="col-sm-5 col-form-label"><h6>Script code:</h6></label>
+                                        <label for="code" class="col-sm-5 col-form-label"><h6><span id="tr_script_code">Script code:</span></h6></label>
 
-                                        <div class="col-sm-12">
+                                        <div class="col-sm-12" ondrop="drop(event)" ondragover="allowDrop(event)">
                                             <textarea id="code" name="code"></textarea>
                                         </div>
 
@@ -978,24 +978,24 @@
                             <div class="col-xl-4">
 
                                 <div class="container mt-3 overflow-scroll"  style="max-height: 325px;">
-                                    <h6>Available variables and functions</h6>
+                                    <h6><span id="tr_available_var_func">Available variables and functions</span></h6>
                                     <div id="accordion">
                                         <div class="card">
                                             <div class="card-header">
-                                            <a class="btn" data-bs-toggle="collapse" href="#collapseOne">
-                                                Data variables
+                                            <a class="btn" data-bs-toggle="collapse" href="#collapseOne" draggable="false">
+                                                <span id="tr_data_variables">Data variables</span>
                                             </a>
                                             </div>
                                             <div id="collapseOne" class="collapse" data-bs-parent="#accordion">
                                             <div class="card-body">
                                                 <ul class="list-group">
                                                     {% for title in titles %}
-                                                    <li class="list-group-item">
+                                                    <li class="list-group-item" draggable="true" ondragstart="drag(event)">
                                                         <row class="d-flex justify-content-between align-items-center">
                                                             <h6>{{title}}</h6>
                                                             <span class="badge bg-success rounded-pill">{{datatypes[loop.index0]}}</span>
                                                         </row>
-                                                        <row><code>context.processedData['{{title}}']</code></row>
+                                                        <row><code>col['{{title}}']</code></row>
                                                     </li>
                                                     {% endfor %}
                                                 </ul>
@@ -1005,52 +1005,52 @@
                                         <div class="card">
                                             <div class="card-header">
                                             <a class="collapsed btn" data-bs-toggle="collapse" href="#collapseTwo">
-                                            Custom Functions
+                                                <span id="tr_custom_functions">Custom Functions</span>
                                             </a>
                                             </div>
                                             <div id="collapseTwo" class="collapse" data-bs-parent="#accordion">
                                             <div class="card-body">
                                                 <ul class="list-group">
                                                     <li class="list-group-item">
-                                                        <h6>Add column to dataset</h6>
+                                                        <h6><span id="tr_func_add_column">Add column to dataset</span></h6>
                                                         <code>context.AddColumn(baseColumn, name)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Aggregate per week</h6>
+                                                        <h6><span id="tr_func_agg_week">Aggregate per week</span></h6>
                                                         <code>context.AggWeek(dateColumn, mode='sum')</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Aggregate per month</h6>
+                                                        <h6><span id="tr_func_agg_month">Aggregate per month</span></h6>
                                                         <code>context.AggMonth(dateColumn, mode='sum')</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Expand categories to columns</h6>
+                                                        <h6><span id="tr_func_expand_cat">Expand categories to columns</span></h6>
                                                         <code>context.ExpandCategories(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with number</h6>
+                                                        <h6><span id="tr_func_rep_nan_value">Replace NaN with number</span></h6>
                                                         <code>context.ReplaceNaN(column , value)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with average</h6>
+                                                        <h6><span id="tr_func_rep_nan_avg">Replace NaN with average</span></h6>
                                                         <code>context.ReplaceNaN_Average(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with median</h6>
+                                                        <h6><span id="tr_func_rep_nan_med">Replace NaN with median</span></h6>
                                                         <code>context.ReplaceNaN_Median(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Replace NaN with mode</h6>
+                                                        <h6><span id="tr_func_rep_nan_mode">Replace NaN with mode</span></h6>
                                                         <code>context.ReplaceNaN_Mode(column)</code>
                                                     </li>
                                                     <li class="list-group-item">
-                                                        <h6>Remove duplicated entries</h6>
+                                                        <h6><span id="tr_func_rem_duplicated">Remove duplicated entries</span></h6>
                                                         <code>context.RemoveDuplicates()</code>
                                                     </li>
-                                                    <li class="list-group-item">
+                                                    <!--li class="list-group-item">
                                                         <h6>Set column name</h6>
                                                         <code>context.SetColumnName(oldName, newName)</code>
-                                                    </li>
+                                                    </li-->
                                                 </ul>
                                             </div>
                                             </div>
@@ -1064,49 +1064,48 @@
                         <div class="row overflow-scroll" style="max-height: 150px;">
                             <div class="col-xl-12 ">
                                 <!-- Help column -->
-                                Some usage examples:
+                                <span id="tr_usage_examples">Some usage examples:</span>
                                     <ol class="list-group list-group-numbered">
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Copy a specific column</div>
-                                                To create a new column based on other just perform the procedure <code>context.AddColumn('BasedColumnName','NewColumnName')</code>
+                                                <div class="fw-bold"><span id="tr_ex_copy_col">Copy a specific column</span></div>
+                                                <span id="tr_ex_copy_col_desc">To create a new column based on other just perform the procedure</span> <code> context.AddColumn('BasedColumnName','NewColumnName')</code>
                                             </div>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Create new column with calculated values</div>
-                                                To add a new calculated column use the following syntax <code>context.processedData['new_column_name'] = context.processedData['column_a'] + context.processedData['column_b']</code>
+                                                <div class="fw-bold"><span id="tr_ex_copy_col_calc">Create new column with calculated values</span></div>
+                                                <span id="tr_ex_copy_col_calc_desc">To add a new calculated column use the following syntax</span><code> context.processedData['new_column_name'] = context.processedData['column_a'] + context.processedData['column_b']</code>
                                             </div>
                                         </li>
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Create week number from date</div>
-                                                <span>Ensure first that the date column is set with datetime format. </span>
-                                                To add a new calculated column with the week number from date use the following syntax <code>context.processedData['week_num'] = context.processedData['date'].dt.week</code>
+                                                <div class="fw-bold"><span id="tr_ex_week_from_date">Create week number from date</span></div>
+                                                <span id="tr_ex_week_from_date_desc">Ensure first that the date column is set with datetime format. To add a new calculated column with the week number from date use the following syntax</span><code> context.processedData['week_num'] = context.processedData['date'].dt.week</code>
                                             </div>
                                         </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <!--li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold">Replace NaN by zero</div>
                                                 The clear nulls removes the rows containing NaN values. However you can use this code to replace NaN by a fixed value on specific columns <code>context.processedData['column'] = context.processedData['column'].fillna(0, inplace=True)</code>
                                             </div>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        </li-->
+                                        <!--li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold">Units conversion from kW to MW</div>
                                                 The values can be recalculated for instance to change the units of measurement. To change from kW to MW just apply the following code <code>context.processedData['data_in_kw'] = context.processedData['data_in_kw'] / 1000</code>
                                             </div>
-                                        </li>
-                                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        </li-->
+                                        <!--li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
                                                 <div class="fw-bold">Agregate the dataset from daily to weekly level</div>
                                                 The dataset can be agrregated at the weekly level with mode options (mode='sum') for summing or (mode='mean') for averaging the values of the columns. To aggregate apply the following code <code>context.AggWeek(date_column, mode)</code>
                                             </div>
-                                        </li>
+                                        </li-->
                                         <li class="list-group-item d-flex justify-content-between align-items-start">
                                             <div class="ms-2 me-auto">
-                                                <div class="fw-bold">Encode categorical features</div>
-                                                This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code <code>context.LabelEncoder(column)</code>
+                                                <div class="fw-bold"><span id="tr_ex_encode_features">Encode categorical features</span></div>
+                                                <span id="tr_ex_encode_features_desc">This function encodes categorical features. For example it transforms ['low', 'mid', 'high', 'mid', 'low'] into [0, 1, 2, 1, 0]. To transform the data apply the following code</span><code> context.LabelEncoder(column)</code>
                                             </div>
                                         </li>
                                     </ol>
@@ -1116,12 +1115,12 @@
                     
                     <div>&MediumSpace;</div>
 
-                    <p>⚠️ The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully.</p>
+                    <p>⚠️ <span id="tr_msg_code_not_validated">The code is not validated before executed. Strange behaviours may occur due to misspelling. Python is case-sensitive. Please use it carefully.</span></p>
 
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><span id="tr_cancel">Cancel</span></button>
                     <button type="submit" class="btn btn-success"><i class="fas fa-play"></i></button>
                 </div>
             </form>
@@ -1136,7 +1135,7 @@
         <div class="modal-content">
             <form method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="correlationLabel">Variables correlation matrix</h5>
+                    <h5 class="modal-title" id="correlationLabel"><span id="tr_var_correlation_matrix">Variables correlation matrix</span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -1256,7 +1255,7 @@
         <div class="modal-content">
             <form method="post">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="scatterLabel">Scatter plot</h5>
+                    <h5 class="modal-title" id="scatterLabel"><span id="tr_scatter_plot">Scatter plot</span></h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -1323,7 +1322,7 @@
 
                             <div class="col-lg-2">
                                 <div class="d-grid gap-2">
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i> Update</button>
+                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="dropdown" onclick="UpdateChart()"><i class="fas fa-refresh"></i><span id="tr_update"> Update</span></button>
                                 </div>
                             </div>
 
@@ -1757,7 +1756,7 @@
 
         <div class="modal-content ">
             <div class="modal-header">
-                <h5 class="modal-title" id="visualizationLabel">Data Exploration - Powered by PyGWalker</h5>
+                <h5 class="modal-title" id="visualizationLabel"><span id="tr_data_exploration">Data Exploration</span> - Powered by PyGWalker</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
@@ -1774,8 +1773,8 @@
 
     <div class="chat-popup" id="myForm">
         <div class="form-container" id="consolePrompt">
-        <h3><i class="fa-solid fa-window-maximize"></i> Console</h3>
-        <h6>Data studio terminal output</h6>
+        <h3><i class="fa-solid fa-window-maximize"></i> <span id="tr_console">Console</span></h3>
+        <h6><span id="tr_terminal_output">Data studio terminal output</span></h6>
 
         <textarea data-provide="markdown" placeholder="Data studio output will appear here..." name="msg" readonly id="consoleOutput">
             {%- for line in console -%}
@@ -1783,7 +1782,7 @@
             {%- endfor %}        
         </textarea>
 
-        <button type="button" class="btn btn-success cancel" onclick="closeForm()">Close</button>
+        <button type="button" class="btn btn-success cancel" onclick="closeForm()"><span id="tr_close">Close</span></button>
     </div>
     </div>
 </div>
@@ -1798,10 +1797,12 @@
 
 <!-- Editor code -->
 <script>
+    
+    let pythonEditor = null;
 
     $(document).ready(function(){
 
-        const editor = CodeMirror.fromTextArea(document.getElementById("code"), { 
+        pythonEditor = CodeMirror.fromTextArea(document.getElementById("code"), { 
         mode: { 
             name: "python", 
             version: 3, 
@@ -1813,8 +1814,8 @@
         matchBrackets: true
         });
 
-        editor.setValue('# Use the right menu to easily copy paste the variables and functions.\r\n')
-        editor.refresh();
+        pythonEditor.setValue('# Use the right menu to easily copy paste the variables and functions.\r\n')
+        pythonEditor.refresh();
 
         var scriptModal = document.getElementById("script");
         var textArea = document.getElementById("code");
@@ -1822,8 +1823,31 @@
         scriptModal.addEventListener('shown.bs.modal', function() {
             textArea.focus()
         });
-
     });
+
+    var dropCode = "";
+
+    // Drag and Drop feature for variables and functions
+    function drag(ev){
+        //console.log(ev);
+        if (ev.type === "dragstart") {
+            code = ev.srcElement.querySelectorAll('code');
+            dropCode = code[0].innerText;
+        }
+    }
+
+    function drop(ev){
+        //console.log(ev);
+        if (ev.type === "drop") {
+            pythonEditor.replaceRange(dropCode, CodeMirror.Pos(pythonEditor.lastLine()));
+            pythonEditor.refresh();
+        }
+    }
+
+    function allowDrop(ev){
+        ev.preventDefault();
+    }
+
 
 </script>
 

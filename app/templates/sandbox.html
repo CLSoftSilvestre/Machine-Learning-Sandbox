@@ -3,19 +3,21 @@
 {% block title %} Sandbox {% endblock %}
 
 {% block content %}
-  <h3 class="m-4">All available models</h3>
+  <h3 class="m-4" id="tr_available_models">All available models</h3>
   <div class="row">
     <div class="col-12">
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-body">
           {% if role.value <= 3 %}
-            <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh</a>
+            <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i><span id="tr_sp_data_studio"> Data studio</span></a>
+            <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i><span id="tr_sp_import_model"> Import existing model</span></a>
+            <a class="btn btn-success" type="button" href="{{ url_for('datacollector')}}" id="tour-index-datacollector"><i class="fas fa-plug"></i><span id="tr_sp_datacollector"> Data collector</span></a>
+            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i><span id="tr_sp_refresh"> Refresh</span></a>
           {% else %}
-            <a class="btn btn-success disabled" type="button" href="#" id="tour-index-datastudio"><i class="fas fa-database"></i> Data studio</a>
-            <a class="btn btn-success disabled" type="button" href="#" id="tour-index-importmodel"><i class="fas fa-file-import"></i> Import existent model</a>
-            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i> Refresh models list</a>
+            <a class="btn btn-success disabled" type="button" href="#" id="tour-index-datastudio"><i class="fas fa-database"></i><span id="tr_sp_data_studio"> Data studio</span></a>
+            <a class="btn btn-success disabled" type="button" href="#" id="tour-index-importmodel"><i class="fas fa-file-import"></i><span id="tr_sp_import_model"> Import existing model</span></a>
+            <a class="btn btn-success disabled" type="button" href="#" id="tour-index-datacollector"><i class="fas fa-plug"></i><span id="tr_sp_datacollector"> Data collector</span></a>
+            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i><span id="tr_sp_refresh"> Refresh</span></a>
           {% endif %}
         </div>        
       </div>     
@@ -26,7 +28,7 @@
           {% if models %}
           <div class="card bg-light ms-4 me-4 mb-4">
               <div class="card-header">
-                  <i class="fa-solid fa-list fa-lg"></i> Models list
+                  <i class="fa-solid fa-list fa-lg"></i> <span id="tr_sp_model_list">Models list</span>
               </div>
               <div class="card-body">
                 <p class="card-text">
@@ -35,13 +37,13 @@
                           <thead>
                             <tr>
                               <th scope="col"></th>
-                              <th scope="col">Model name</th>
-                              <th scope="col">Model description</th>
-                              <th scope="col">Keywords</th>
-                              <th scope="col">Train datetime</th>
-                              <th scope="col">RMSE</th>
-                              <th scope="col">R² / Accuracy</th>
-                              <th scope="col">Actions</th>
+                              <th scope="col" id="tr_model_name">Model name</th>
+                              <th scope="col" id="tr_model_description">Model description</th>
+                              <th scope="col" id="tr_model_keywords">Keywords</th>
+                              <th scope="col" id="tr_model_train_datetime">Train datetime</th>
+                              <th scope="col" id="tr_model_rmse">RMSE</th>
+                              <th scope="col" id="tr_model_r2">R² / Accuracy</th>
+                              <th scope="col" id="tr_model_actions">Actions</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -50,7 +52,7 @@
                                   {% if model.modelVersion == mversion %}
                                     <td style="vertical-align: middle;"></td>
                                   {% else %}
-                                    <td style="vertical-align: middle;" data-toggle="tooltip" title="This model was trained in other software version. Some functionalities may not be available.">⚠️</td>
+                                    <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This model was trained in other software version. Some functionalities may not be available.'>⚠️</td>
                                   {% endif %}
                                   <td style="vertical-align: middle;">{{model.name}}</td>
                                   <td style="vertical-align: middle;">{{model.description}}</td>
@@ -61,7 +63,7 @@
                                     {% endfor %}
                                   </td>
                                   {% else %}
-                                  <td style="vertical-align: middle;"><span class="badge rounded-pill bg-warning">Not defined</span></td>
+                                  <td style="vertical-align: middle;"><span class="badge rounded-pill bg-warning"><span id="tr_not_defined">Not defined</span></span></td>
                                   {% endif %}
                                   <td style="vertical-align: middle;">{{model.datetime.strftime('%d/%m/%Y %H:%M')}}</td>
 
@@ -79,10 +81,10 @@
                                     </div>
                                   </td>
                                   {% else %}
-                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better" id="tour-index-rmse">N/D</td>
+                                  <td style="vertical-align: middle;" data-toggle="tooltip" title="Mean squared error: Lower is better" id="tour-index-rmse"></td>
                                   <td style="vertical-align: middle;" id="tour-index-r2">
                                     <div class="progress">
-                                      <div class="progress-bar bg-secondary" style="width:100%">not defined</div>
+                                      <div class="progress-bar bg-secondary" style="width:100%"><span id="tr_not_defined">Not defined</span></div>
                                     </div> 
                                   </td>
                                   {% endif %}
@@ -92,6 +94,12 @@
                                         <a href="{{ url_for('predict', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Predict using model" id="tour-index-predict"><i class="fa fa-calculator"></i></a>
                                         <a href="{{ url_for('batch', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Batch calculation" id="tour-index-batch-predict"><i class="fa fa-chart-line"></i></a>
                                         <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a>
+                                        {% if model.modelType != "detection" %}
+                                        <a href="{{ url_for('automation', uuid=model.uuid)}}" type="button" class="btn btn-warning" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                        {% else %}
+                                        <a href="#" type="button" class="btn btn-warning disabled" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                        {% endif %}
+
                                         {% if role.value <= 3 %}
                                           <a href="{{ url_for('download', uuid=model.uuid)}}" type="button" class="btn btn-secondary" data-toggle="tooltip" title="Download model file" id="tour-index-download"><i class="fa fa-download"></i></a>
                                           <a href="#" type="button" class="btn btn-danger" data-toggle="tooltip" title="Delete model file" data-bs-toggle="modal" data-bs-target="#deleteConfirmation{{model.uuid}}" id="tour-index-delete"><i class="fa fa-trash"></i></a>
@@ -154,6 +162,8 @@
       </div>
     </div>
   </div>
+
+  
 
   <script src="../static/js/intro.min.js"></script>  
   <script src="../static/js/tour-index.js"></script>

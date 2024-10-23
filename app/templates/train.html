@@ -3,7 +3,7 @@
 {% block title %} Train model {% endblock %}
 
 {% block content %}
-  <h3 class="m-4">Train new model</h3>
+  <h3 class="m-4"><span id="tr_train_new_model">Train new model</span></h3>
   <div class="row">
     <div class="col-12">
         {% if uploaded %}
@@ -13,20 +13,20 @@
                 <!-- Functionalities buttons -->
                 <div class="d-flex flex-row gap-3">
 
-                    <a class="btn btn-warning" type="button" href="{{ url_for('datastudio')}}" id="tour-train-datastudio"><i class="fas fa-database"></i> Back to Data Studio</a>
+                    <a class="btn btn-warning" type="button" href="{{ url_for('datastudio')}}" id="tour-train-datastudio"><i class="fas fa-database"></i> <span id="tr_back_data_studio">Back to Data Studio</span></a>
 
                 </div>                  
             </div>
             <div class="card-body">
                 <ul class="nav nav-tabs" id="myTab" role="tablist">
                     <li class="nav-item" role="presentation" id="tour-train-setunits">
-                        <button class="nav-link active" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true">Data properties</button>
+                        <button class="nav-link active" id="properties-tab" data-bs-toggle="tab" data-bs-target="#properties" type="button" role="tab" aria-controls="types" aria-selected="true"><span id="tr_data_properties">Data properties</span></button>
                     </li>
                     <li class="nav-item" role="presentation" id="tour-train-sety">
-                        <button class="nav-link" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true">Variable selector</button>
+                        <button class="nav-link" id="types-tab" data-bs-toggle="tab" data-bs-target="#types" type="button" role="tab" aria-controls="types" aria-selected="true"><span id="tr_variable_selector">Variable selector</span></button>
                     </li>
                     <li class="nav-item" role="presentation" id="tour-train-selectmodel">
-                        <button class="nav-link" id="models-tab" data-bs-toggle="tab" data-bs-target="#models" type="button" role="tab" aria-controls="types" aria-selected="true">Model selector</button>
+                        <button class="nav-link" id="models-tab" data-bs-toggle="tab" data-bs-target="#models" type="button" role="tab" aria-controls="types" aria-selected="true"><span id="tr_model_selector">Model selectro</span></button>
                     </li>
                   </ul>
                   <div class="tab-content" id="myTabContent">
@@ -40,7 +40,7 @@
                                     <table class="table table-bordered text-center w-auto">
                                         <thead>
                                             <tr id='tour-train-import-variables'>
-                                                <th scope="col">Variable</th>
+                                                <th scope="col"><span id="tr_variable">Variable</span></th>
                                                 {% for title in titles %}
                                                     
                                                     {% if title == dependend %}
@@ -54,13 +54,13 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td class="align-middle" scope="col">Current unit</td>
+                                                <td class="align-middle" scope="col"><span id="tr_current_unit">Current unit</span></td>
                                                 {% for unit in units %}
                                                     <td class="align-middle">{{unit}}</td>
                                                 {% endfor %}
                                             </tr>
                                             <tr>
-                                                <td class="align-middle" scope="col">New Unit</td>
+                                                <td class="align-middle" scope="col"><span id="tr_new_unit">New Unit</span></td>
                                                 {% for title in titles %}
                                                     <td class="align-middle">
                                                         <select class="form-select form-select-sm mb-3" aria-label=".form-select-sm example" name={{title}}>
@@ -148,7 +148,7 @@
                                     </table>
                                     
                                 </div>
-                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Update units</button>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> <span id="tr_update_units">Update units</span></button>
                             </form>
                         </p>
                     </div>
@@ -158,7 +158,7 @@
                                 <table class="table table-bordered text-center">
                                     <thead>
                                         <tr id='tour-train-import-variables'>
-                                            <th scope="col">Variable</th>
+                                            <th scope="col"><span id="tr_variable">Variable</span></th>
                                             {% for title in titles %}
                                                 
                                                 {% if title == dependend %}
@@ -173,7 +173,7 @@
                                     </thead>
                                     <tbody>
                                         <tr id='tour-train-import-sety'>
-                                            <td class="align-middle">Set as Y column</td>
+                                            <td class="align-middle"><span id="tr_set_y">Set as Y column</span></td>
                                             {% for title in titles %}
                                                 <td class="align-middle">
                                                     <form method="post">
@@ -204,8 +204,8 @@
                         <p class="card-text">
                             <div class="content">
                                 <!-- Line 1 -->
-                                <h3>Regression models</h3>
-                                <h6>Select one of those models when the value to predict is as continuous value.</h6>
+                                <h3><span id="tr_reg_models">Regression models</span></h3>
+                                <h6><span id="tr_reg_models_desc">Select one of those models when the value to predict is as continuous value.</span></h6>
                                 <br>
                                 <div class="row">
                                     
@@ -213,12 +213,12 @@
                                         <div class="card">
                                             <img src="../static/img/linear_regression.png" class="card-img-top" alt="...">
                                             <div class="card-body d-flex flex-column">
-                                              <h5 class="card-title">Linear regression</h5>
-                                              <p class="card-text mb-4">A Linear Regression model is a simple and widely used supervised learning algorithm for solving regression tasks. It works by finding the linear relationship between the input features and the target variable.</p>
+                                              <h5 class="card-title"><span id="tr_lin_reg">Linear regression</span></h5>
+                                              <p class="card-text mb-4"><span id="tr_lin_reg_desc">A Linear Regression model is a simple and widely used supervised learning algorithm for solving regression tasks. It works by finding the linear relationship between the input features and the target variable.</span></p>
                                                 {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('linear')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('linear')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %}   
                                             </div>
                                         </div>
@@ -228,13 +228,13 @@
                                         <div class="card">
                                             <img src="../static/img/knn_regression.png" class="card-img-top" alt="...">
                                             <div class="card-body d-flex flex-column">
-                                              <h5 class="card-title">KNN regression</h5>
-                                              <p class="card-text mb-4">A K-Nearest Neighbors (KNN) regression model is a supervised learning algorithm used for regression tasks. It works by using the K closest data points to make predictions about the target variable.</p>
+                                              <h5 class="card-title"><span id="tr_knn_reg">KNN regression</span></h5>
+                                              <p class="card-text mb-4"><span id="tr_knn_reg_desc">A K-Nearest Neighbors (KNN) regression model is a supervised learning algorithm used for regression tasks. It works by using the K closest data points to make predictions about the target variable.</span></p>
                                               
                                                 {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('knnreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('knnreg')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %}  
                                             </div>
                                         </div>
@@ -248,9 +248,9 @@
                                               <p class="card-text mb-4">A Support Vector Machine regression model is a type of supervised machine learning algorithm used for regression tasks. It works by finding the best-fitting line that separates data points and uses this line to make predictions.</p>
                                               
                                                 {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('svmreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('svmreg')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %}  
                                             </div>
                                         </div>
@@ -264,9 +264,9 @@
                                               <p class="card-text mb-4">A Decision Tree Regression model is a supervised learning algorithm used for regression tasks. It works by partitioning the feature space into regions and fitting a simple model, usually a constant, within each region.</p>
                                               
                                               {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('treereg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('treereg')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %} 
                                             </div>
                                         </div>
@@ -274,15 +274,15 @@
 
                                     <div class="col-xl-3 d-flex align-items-stretch">
                                         <div class="card">
-                                            <img src="../static/img/RandomForest.webp" class="card-img-top" alt="...">
+                                            <img src="../static/img/random_forest.png" class="card-img-top" alt="...">
                                             <div class="card-body d-flex flex-column">
                                               <h5 class="card-title">Random forest regressor</h5>
                                               <p class="card-text mb-4">Random Forest is an ensemble learning method that combines multiple decision trees to make predictions. The final prediction of the Random Forest is the average prediction of all the individual trees, resulting in a robust and accurate regression model</p>
                                               
                                               {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('randomforestreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('randomforestreg')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %} 
                                             </div>
                                         </div>
@@ -296,9 +296,9 @@
                                               <p class="card-text mb-4">An MLP Regressor is a type of artificial neural network that is used for regression tasks, where the goal is to predict a continuous target variable. MLP Regressors can capture non-linear relationships in the data and are capable of learning complex patterns, making them suitable for a wide range of regression problems</p>
                                               
                                               {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('perceptronreg')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('perceptronreg')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %} 
                                             </div>
                                         </div>
@@ -306,8 +306,8 @@
                                     
                                 </div>
                                 <hr>
-                                <h3>Classification models</h3>
-                                <h6>Select one of those models when the value to predict is as categorical value.</h6>
+                                <h3><span id="tr_class_models">Classification models</span></h3>
+                                <h6><span id="tr_class_models_desc">Select one of those models when the value to predict is as categorical value.</span></h6>
                                 <br>
                                 <div class="row">
                                     
@@ -318,9 +318,9 @@
                                               <h5 class="card-title">Random forest classifier</h5>
                                               <p class="card-text mb-4">For a classification task, each tree in the forest predicts the class label and the class that receives the most "votes" from the trees becomes the model's prediction</p>
                                                 {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('randomforest')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('randomforest')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %}   
                                             </div>
                                         </div>
@@ -328,15 +328,15 @@
 
                                     <div class="col-xl-3 d-flex align-items-stretch">
                                         <div class="card">
-                                            <img src="../static/img/KNN-classifier.png" class="card-img-top" alt="...">
+                                            <img src="../static/img/knn_regression.png" class="card-img-top" alt="...">
                                             <div class="card-body d-flex flex-column">
                                               <h5 class="card-title">KNN classifier</h5>
                                               <p class="card-text mb-4">KNN is a type of instance-based learning or lazy learning where the function is only approximated locally and all computation is deferred until the function is needed.</p>
                                               
                                                 {% if dependend == "" %} 
-                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start">Use this model</a>
+                                                <a href="#" class="btn btn-primary disabled mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% else %}
-                                                <a href="{{ url_for('knn')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('knn')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                                 {% endif %}  
                                             </div>
                                         </div>
@@ -344,8 +344,8 @@
                                     
                                 </div>
                                 <hr>
-                                <h3>Annomaly detection models</h3>
-                                <h6>Select one of those models when is needed to detect annomaly in the data. Annomaly detection don't require variable Y selection.</h6>
+                                <h3><span id="tr_anom_models">Annomaly detection models</span></h3>
+                                <h6><span id="tr_anom_models_desc">Select one of those models when is needed to detect annomaly in the data. Annomaly detection don't require variable Y selection.</span></h6>
                                 <br>
                                 <div class="row">
                                     <!-- LOF (Local Outlier Factor)-->
@@ -355,7 +355,7 @@
                                             <div class="card-body d-flex flex-column">
                                                 <h5 class="card-title">Local Outlier Factor (LOF)</h5>
                                                 <p class="card-text mb-4">The anomaly score of each sample is called the Local Outlier Factor. It measures the local deviation of the density of a given sample with respect to its neighbors. It is local in that the anomaly score depends on how isolated the object is with respect to the surrounding neighborhood.</p>
-                                                <a href="{{ url_for('lof')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('lof')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                             </div>
                                         </div>
                                     </div>
@@ -367,7 +367,7 @@
                                             <div class="card-body d-flex flex-column">
                                               <h5 class="card-title">Isolation Forest</h5>
                                               <p class="card-text mb-4">The IsolationForest isolates observations by randomly selecting a feature and then randomly selecting a split value between the maximum and minimum values of the selected feature.</p>
-                                                <a href="{{ url_for('isolationforest')}}" class="btn btn-primary mt-auto align-self-start">Use this model</a>
+                                                <a href="{{ url_for('isolationforest')}}" class="btn btn-primary mt-auto align-self-start"><span id="tr_use_this_model">Use this model</span></a>
                                             </div>
                                         </div>
                                     </div>
