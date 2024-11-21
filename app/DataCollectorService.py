@@ -60,6 +60,41 @@ class DataCollectorService:
                     con = InputConnector(nodeId, nodeInp, ValueType.S7CONNECTION)
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
+                
+                elif elementClass == "modbusconnector":
+                    modbus_host = data["drawflow"]["Home"]["data"][str(i)]["data"]["modbus"]["host"]
+                    modbus_port  = data["drawflow"]["Home"]["data"][str(i)]["data"]["modbus"]["port"]
+                    modbus_unitid = data["drawflow"]["Home"]["data"][str(i)]["data"]["modbus"]["unitid"]
+
+                    params = {
+                        "DEVICEID": i,
+                        "HOST": modbus_host,
+                        "PORT": modbus_port,
+                        "UNITID": modbus_unitid
+                    }
+
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "modbusregister":
+                    modbus_registertype = data["drawflow"]["Home"]["data"][str(i)]["data"]["modbus"]["registertype"]
+                    modbus_address = data["drawflow"]["Home"]["data"][str(i)]["data"]["modbus"]["address"]
+                    modbus_bytes = data["drawflow"]["Home"]["data"][str(i)]["data"]["modbus"]["bytes"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    params = {
+                        "DEVICEID": connector[0]["input"],
+                        "REGISTERTYPE": modbus_registertype,
+                        "ADDRESS": modbus_address,
+                        "BYTES": modbus_bytes,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.MODBUSCONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
 
                 elif elementClass == "mqttconnector":
                     #get data from mqtt connector
