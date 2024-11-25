@@ -11,8 +11,10 @@
           {% if role.value <= 3 %}
             <a class="btn btn-success" type="button" href="{{ url_for('datastudio')}}" id="tour-index-datastudio"><i class="fas fa-database"></i><span id="tr_sp_data_studio"> Data studio</span></a>
             <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i><span id="tr_sp_import_model"> Import existing model</span></a>
+            {% if config.enableAutomation%}
             <a class="btn btn-success" type="button" href="{{ url_for('datacollector')}}" id="tour-index-datacollector"><i class="fas fa-plug"></i><span id="tr_sp_datacollector"> Data collector</span></a>
             <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i><span id="tr_sp_refresh"> Refresh</span></a>
+            {% endif %}
           {% else %}
             <a class="btn btn-success disabled" type="button" href="#" id="tour-index-datastudio"><i class="fas fa-database"></i><span id="tr_sp_data_studio"> Data studio</span></a>
             <a class="btn btn-success disabled" type="button" href="#" id="tour-index-importmodel"><i class="fas fa-file-import"></i><span id="tr_sp_import_model"> Import existing model</span></a>
@@ -95,9 +97,13 @@
                                         <a href="{{ url_for('batch', uuid=model.uuid)}}" type="button" class="btn btn-success" data-toggle="tooltip" title="Batch calculation" id="tour-index-batch-predict"><i class="fa fa-chart-line"></i></a>
                                         <a href="{{ url_for('details', uuid=model.uuid)}}" type="button" class="btn btn-primary" data-toggle="tooltip" title="Model information" id="tour-index-info"><i class="fa fa-info-circle"></i></a>
                                         {% if model.modelType != "detection" %}
-                                        <a href="{{ url_for('automation', uuid=model.uuid)}}" type="button" class="btn btn-warning" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                          {% if config.enableAutomation %}
+                                          <a href="{{ url_for('automation', uuid=model.uuid)}}" type="button" class="btn btn-warning" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                          {% endif %}
                                         {% else %}
-                                        <a href="#" type="button" class="btn btn-warning disabled" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                          {% if config.enableAutomation %}
+                                          <a href="#" type="button" class="btn btn-warning disabled" data-toggle="tooltip" title="Model automation" id="tour-index-automation"><i class="fa fa-robot"></i></a>
+                                          {% endif %}
                                         {% endif %}
 
                                         {% if role.value <= 3 %}

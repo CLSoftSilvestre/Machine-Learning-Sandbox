@@ -44,10 +44,6 @@ if ( (y== "" || y == "false") ){
             title: "Stop flow",
             intro: 'After testing, the user should stop the flow.',
             position: 'right'
-        },
-        {
-            title: "Train time",
-            intro: 'Now that you have your dataset ready, its time to train your model. Please select the kind of model that you want to train.',
         }]
     }).start().oncomplete(function () {
         setCookie("tourAutomationComplete", true, 90);
