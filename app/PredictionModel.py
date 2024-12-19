@@ -127,6 +127,23 @@ class PredictionModel:
                     con = InputConnector(nodeId, nodeInp, ValueType.S7CONNECTION)
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
+                
+                elif elementClass == "osisoftconnector":
+                    node = Node(i, elementClass, None)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "osisoftpipoint":
+                    name = data["drawflow"]["Home"]["data"][str(i)]["data"]["name"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    params = {
+                        "NAME": name,
+                    }
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.OSISOFTCONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
 
                 elif elementClass == "mqttconnector":
                     #get data from mqtt connector

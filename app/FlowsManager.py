@@ -6,6 +6,7 @@ from mqttConnector import MqttConnector, MqttTopic
 from bleConnector import BLECharacteristics, BLEConnector
 from ModbusConnector import ModbusHoldingRegister, ModbusConnector
 from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
+from OsisoftConnector import OSIsoftConnector, PiPoint
 import sys
 import time
 from threading import Thread
@@ -30,6 +31,7 @@ class ValueType(Enum):
     BOOLEAN = 50
     BLUETOOTHCONNECTION = 60
     MODBUSCONNECTION = 70
+    OSISOFTCONNECTION = 80
 
 class InputConnector():
     def __init__(self, nodeId, outputNumber, valueType:ValueType = 0):
@@ -55,6 +57,8 @@ class Flow():
         self.influxPoints = []
         self.modbusServers = []
         self.modbusRegisters = []
+        self.osisoftServers = []
+        self.osisoftPiPoints = []
         self.stop = True
         self.service = None
 
@@ -82,6 +86,32 @@ class Flow():
         self.modbusRegisters = []
         self.influxDB = []
         self.influxPoints = []
+        self.osisoftServers = []
+        self.osisoftPiPoints = []
+
+        # Create the list of OSIsoft Pi Points
+        for node in self.Nodes:
+            if node.nodeClass == "osisoftpipoint":
+                try:
+                    node.rawObject = []
+                    pipoint = PiPoint(node.params["NAME"])
+                    node.rawObject.append(pipoint)
+                    self.osisoftPiPoints.append(pipoint)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Create the list of OSIsoft servers (should be just one)
+        for node in self.Nodes:
+            if node.nodeClass == "osisoftconnector":
+                try:
+                    osisoft = OSIsoftConnector()
+                    for pipoint in self.osisoftPiPoints:
+                        osisoft.AddVariable(pipoint)
+                    self.osisoftServers.append(osisoft)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
 
         # Create list of variables before setting the Simatic connector
         for node in self.Nodes:
@@ -242,6 +272,10 @@ class Flow():
         self.stop = False
         while not self.stop:
 
+            # Update Read data from OSIsoft
+            for server in self.osisoftServers:
+                server.ReadVariables()
+     
             # First loop inputs
             for node in self.Nodes:
                 if node.nodeClass == "s7variable":
@@ -253,6 +287,13 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+                elif node.nodeClass == "osisoftpipoint":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(node.rawObject[0].curValue)
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
 
                 elif node.nodeClass == "bleconnector":
                     node.clearError()

@@ -81,6 +81,9 @@ class Configuration():
 
     def SetAutomation(self, use):
         self.enableAutomation = use
+    
+    def SetOsisoftConnector(self, use):
+        self.useOsisoftConnector = use
 
     def SetSiemensConnector(self, use):
         self.useSiemensConnector = use

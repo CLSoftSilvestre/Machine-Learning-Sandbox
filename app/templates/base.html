@@ -157,7 +157,19 @@
                           <input id="useAutomation" class="form-check-input" type="checkbox" name="useAutomation" {% if app_config.enableAutomation %} checked {% endif %}>
                           <label for="useAutomation" class="form-check-label"><span id="tr_use_flows">Use Automation Flows</span></label>
                         </div>
+
+                        <hr>
             
+                        <div class="form-check form-switch">
+                          {% if system == 'win32' %}
+                          <input id="useOsisoft" class="form-check-input" type="checkbox" name="useOsisoft" {% if app_config.useOsisoftConnector %} checked {% endif %}>
+                          {% else %}
+                          <input id="useOsisoft" class="form-check-input" type="checkbox" name="useOsisoft" disabled>
+                          {% endif %}
+                          <label for="useOsisoft" class="form-check-label"><span id="tr_use_osisoft">Use OSIsoft PI connector</span></label>
+                        </div>
+                        <p><i class="fas fa-circle-info"></i><span id="tr_osisoft_info"> Please ensure the PISDK is installed in the server. Only work in Windows environment.</span></p>
+
                         <hr>
             
                         <div class="form-check form-switch">

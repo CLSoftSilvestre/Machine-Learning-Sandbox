@@ -22,3 +22,4 @@ asyncio
 bleak
 influxdb-client
 pyModbusTCP
+PIconnect
