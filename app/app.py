@@ -12,6 +12,7 @@ from ModelManager import ModelManager
 import pandas as pd
 import sys
 import math
+from platform import system
 
 from sklearn import neighbors
 from sklearn.pipeline import make_pipeline
@@ -66,11 +67,15 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.5"
+appversion = "1.4.7"
 model_version = 7 # Model includes automation diagram
 
 # DataCollectorService
 #dcService = DataCollectorService()
+
+@app.context_processor
+def inject_system_version():
+    return dict(system=sys.platform)
 
 @app.context_processor
 def inject_app_version():
@@ -150,6 +155,7 @@ def configurator():
     if(request.method == 'POST'):
         usePyGWalker = bool(request.form.get('usePyGWalker'))
         useAutomation = bool(request.form.get('useAutomation'))
+        useOsisoft = bool(request.form.get('useOsisoft'))
         useSiemens = bool(request.form.get('useSiemens'))
         useMqtt = bool(request.form.get('useMqtt'))
         useOpcUa = bool(request.form.get('useOpcUa'))
@@ -176,6 +182,7 @@ def configurator():
         configuration.SetBase(useAuth)
         configuration.SetPyGWalker(usePyGWalker)
         configuration.SetAutomation(useAutomation)
+        configuration.SetOsisoftConnector(useOsisoft)
         configuration.SetSiemensConnector(useSiemens)
         configuration.SetMqttConnector(useMqtt)
         configuration.SetOpcUaConnector(useOpcUa)

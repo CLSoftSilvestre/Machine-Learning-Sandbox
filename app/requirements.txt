@@ -21,3 +21,5 @@ paho-mqtt
 asyncio
 bleak
 influxdb-client
+pyModbusTCP
+PIconnect

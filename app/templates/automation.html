@@ -67,6 +67,17 @@
             <div class="accordion-body">
               <div class="form-group row">
 
+                <!-- OSIsoft PI -->
+                {% if app_config.useOsisoftConnector == True %}
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="osisoft_connector">
+                  <i class="fa-solid fa-plug"></i><span> OSIsoft PI</span>
+                </div>
+          
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="osisoft_pipoint">
+                  <i class="fa-solid fa-hashtag"></i><span> PI Point</span>
+                </div>
+                {% endif %}
+
                 <!-- MQTT Nodes -->
                 {% if app_config.useMqttConnector == True %}
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="mqtt_connector">
@@ -109,6 +120,15 @@
                   <i class="fa-brands fa-bluetooth"></i><span> Ble characteristic</span>
                 </div>
                 {% endif %}
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="modbus_connector">
+                  <i class="fa-solid fa-plug"></i><span> Modbus connector</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="modbus_register">
+                  <i class="fa-solid fa-hashtag"></i><span> Modbus holding register</span>
+                </div>
+
                 <!-- Toggle value Nodes -->
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="toggle_value">
                   <i class="fa-solid fa-toggle-on"></i><span> Toggle switch</span>
@@ -727,6 +747,29 @@
         `;
           editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}"}, model);
           break;
+        case 'osisoft_connector':
+          var osisoftconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/osisoftpi.png" style="max-width:80px;">OSIsoft PI Server </div>
+            <div class="box">
+              <p>Using default PISDK configuration.</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('osisoftconnector', 0, 1, pos_x, pos_y, 'osisoftconnector', {}, osisoftconnector );
+          break;
+        case 'osisoft_pipoint':
+          var osisoftpipoint = `
+          <div>
+            <div class="title-box"><img src="../static/img/osisoftpi.png" style="max-width:80px;">PI Point </div>
+            <div class="box">
+              <p>PI Point name</p>
+              <input type="text" df-name><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('osisoftpipoint', 1, 1, pos_x, pos_y, 'osisoftpipoint', { "name": ''}, osisoftpipoint );
+          break;
         case 'mqtt_connector':
           var mqttconnector = `
           <div>
@@ -759,6 +802,43 @@
           </div>
           `;
           editor.addNode('mqtttopic', 1, 1, pos_x, pos_y, 'mqtttopic', { "topic": '', "qos": ''}, mqtttopic );
+          break;
+        case 'modbus_connector':
+          var modbusconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/modbus.png" style="max-width:70px;"> Connector</div>
+            <div class="box">
+              <p>Modbus TCP server:</p>
+              <p>Host</p>
+              <input type="text" df-modbus-host><br>
+              <p>Port</p>
+              <input type="number" df-modbus-port value=502><br>
+              <p>Unit ID</p>
+              <input type="number" df-modbus-unitid><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('modbusconnector', 0, 1, pos_x, pos_y, 'modbusconnector', { "modbus": { "host": '', "port": '', "unitid": '' }}, modbusconnector );
+          break;
+        case 'modbus_register':
+          var modbusregister = `
+          <div>
+            <div class="title-box"><img src="../static/img/modbus.png" style="max-width:70px;"> Holding register</div>
+            <div class="box">
+              <p>Register type</p>
+              <select df-modbus-registertype>
+                <option value="holding">Holding Registers</option>
+                <option value="coils">Coils</option>
+                <option value="inputs">Input Registers</option>
+              </select> <br>
+              <p>Register address</p>
+              <input type="number" df-modbus-address><br>
+              <p>Bytes</p>
+              <input type="number" df-modbus-bytes value=2><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('modbusregister', 1, 1, pos_x, pos_y, 'modbusregister', { "modbus": { "registertype": '', "address": '', "bytes": ''}}, modbusregister );
           break;
         case 'opcua_connector':
           var opcuaconnector = `

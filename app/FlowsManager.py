@@ -4,7 +4,9 @@ from enum import Enum
 from S7Connector import S7Connector, S7Variable
 from mqttConnector import MqttConnector, MqttTopic
 from bleConnector import BLECharacteristics, BLEConnector
+from ModbusConnector import ModbusHoldingRegister, ModbusConnector
 from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
+from OsisoftConnector import OSIsoftConnector, PiPoint
 import sys
 import time
 from threading import Thread
@@ -27,6 +29,9 @@ class ValueType(Enum):
     OPCUACONNECTION = 30
     NUMERIC = 40
     BOOLEAN = 50
+    BLUETOOTHCONNECTION = 60
+    MODBUSCONNECTION = 70
+    OSISOFTCONNECTION = 80
 
 class InputConnector():
     def __init__(self, nodeId, outputNumber, valueType:ValueType = 0):
@@ -50,6 +55,10 @@ class Flow():
         self.mqtttopics = []
         self.influxDB = []
         self.influxPoints = []
+        self.modbusServers = []
+        self.modbusRegisters = []
+        self.osisoftServers = []
+        self.osisoftPiPoints = []
         self.stop = True
         self.service = None
 
@@ -73,8 +82,36 @@ class Flow():
         self.mqtttopics = []
         self.bleconnectors = []
         self.blecharacteristics = []
+        self.modbusServers = []
+        self.modbusRegisters = []
         self.influxDB = []
         self.influxPoints = []
+        self.osisoftServers = []
+        self.osisoftPiPoints = []
+
+        # Create the list of OSIsoft Pi Points
+        for node in self.Nodes:
+            if node.nodeClass == "osisoftpipoint":
+                try:
+                    node.rawObject = []
+                    pipoint = PiPoint(node.params["NAME"])
+                    node.rawObject.append(pipoint)
+                    self.osisoftPiPoints.append(pipoint)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Create the list of OSIsoft servers (should be just one)
+        for node in self.Nodes:
+            if node.nodeClass == "osisoftconnector":
+                try:
+                    osisoft = OSIsoftConnector()
+                    for pipoint in self.osisoftPiPoints:
+                        osisoft.AddVariable(pipoint)
+                    self.osisoftServers.append(osisoft)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
 
         # Create list of variables before setting the Simatic connector
         for node in self.Nodes:
@@ -101,6 +138,34 @@ class Flow():
                     s7con.Connect()
                     print("Connected to Siemens PLC " + s7con.ip + " - Status: " + str(s7con.client.get_connected()))
                     s7con.StartService()
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+        # Create the list of registers before setting the Modbus server
+        for node in self.Nodes:
+            if node.nodeClass == "modbusregister":
+                try:
+                    node.rawObject = []
+                    mbreg = ModbusHoldingRegister(node.param["DEVICEID"], node.param["ADDRESS"], int(node.param["BYTES"]) , node.param["REGISTERTYPE"])
+                    node.rawObject.append(mbreg)
+                    self.modbusRegisters.append(mbreg)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+        
+        # Create the Modbus servers
+        for node in self.Nodes:
+            if node.nodeClass == "modbusconnector":
+                try:
+                    mbcon = ModbusConnector(node.params["HOST"], node.params["PORT"], node.params["UNITID"],True, False)
+                    for register in self.modbusRegisters:
+                        if (register.deviceId == node.id):
+                            mbcon.AddVariable(register)
+                    self.modbusServers.append(mbcon)
+                    mbcon.Connect()
+                    print("Connected to Modbus server " + mbcon.host + " - Status: " + str(mbcon.client.is_open))
+                    mbcon.StartService()
                 except Exception as err:
                     node.outputValue = None
                     node.setError(str(err))
@@ -207,6 +272,10 @@ class Flow():
         self.stop = False
         while not self.stop:
 
+            # Update Read data from OSIsoft
+            for server in self.osisoftServers:
+                server.ReadVariables()
+     
             # First loop inputs
             for node in self.Nodes:
                 if node.nodeClass == "s7variable":
@@ -218,6 +287,13 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                         #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+                elif node.nodeClass == "osisoftpipoint":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(node.rawObject[0].curValue)
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
 
                 elif node.nodeClass == "bleconnector":
                     node.clearError()

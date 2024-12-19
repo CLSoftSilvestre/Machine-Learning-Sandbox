@@ -30,6 +30,8 @@ class Translate{
         {key:"tr_use_ble", pt:"Utilizar conector de Bluetooth Low Energy", en:"Use Bluetooth Low Energy connector", fr:"Utiliser le connecteur Bluetooth Low Energy", default:"Use Bluetooth Low Energy connector"},
         {key:"tr_ble_info", pt:" O conector BLE poderá não funcionar em contentores Docker.", en:" BLE connector may not work on Docker containers.", fr:" Le connecteur BLE peut ne pas fonctionner sur les conteneurs Docker.", default:" BLE connector may not work on Docker containers."},
         {key:"tr_use_autostart", pt:"Usar inicialização automática do coletor de dados", en:"Use Data collector autostart", fr:"Utiliser le démarrage automatique du collecteur de données", default:"Use Data collector autostart"},
+        {key:"tr_use_osisoft", pt:"Utilizar conector OSIsoft PI", en:"Use OSIsoft PI connector", fr:"Utiliser le connecteur OSIsoft PI", default:"Use OSIsoft PI connector"},
+        {key:"tr_osisoft_info", pt:" Certifique-se de que o PISDK esteja instalado no servidor. Funciona apenas em ambiente Windows.", en:" Please ensure the PISDK is installed in the server. Only work in Windows environment.", fr:" Veuillez vous assurer que le PISDK est installé sur le serveur. Fonctionne uniquement dans un environnement Windows.", default:" Please ensure the PISDK is installed in the server. Only work in Windows environment."},
 
         // Sandbox page
         {key:"tr_available_models", pt:"Todos os modelos disponiveis", en:"All available models", fr:"Tous les modèles disponibles", default:"All available models"},
