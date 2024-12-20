@@ -1,6 +1,7 @@
 
 import sys
-import PIconnect as PI
+if sys.platform == 'win32':
+    import PIconnect as PI
 
 class PiPoint:
     def __init__(self, name):
@@ -17,15 +18,16 @@ class OSIsoftConnector:
         self.pointsNames.append(variable.name)
     
     def ReadVariables(self):
-        try:
-            with PI.PIServer() as server:
-                points = server.search(self.pointsNames)
+        if sys.platform == 'win32':
+            try:
+                with PI.PIServer() as server:
+                    points = server.search(self.pointsNames)
 
-                for i in range(len(points)):
-                    self.pipoints[i].curValue = points[i].current_value
-            return None
-        except Exception as err:
-            return err
+                    for i in range(len(points)):
+                        self.pipoints[i].curValue = points[i].current_value
+                return None
+            except Exception as err:
+                return err
         
             
 
