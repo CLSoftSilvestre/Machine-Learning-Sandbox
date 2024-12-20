@@ -54,6 +54,7 @@ from urllib.error import *
 import pygwalker as pyg
 
 from DataCollectorService import DataCollectorService
+from OsisoftConnector import PiPoint, GetPiPointsList
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -1937,6 +1938,17 @@ def Logout():
 @app.route("/notauthorized/",methods=['GET'])
 def NotAuthorized():
     return render_template('notauthorized.html')
+
+@app.route("/pipoints/<query>",methods=['GET'])
+def PiPoints(query):
+    if sys.platform == "win32":
+        points = GetPiPointsList(query)
+
+        if(len(points) >0):
+            jsonStr = json.dumps([obj.__dict__ for obj in points])
+            return jsonStr, 200
+    
+    return "No points found.", 404
 
 # API routes
 @app.route("/api/GetModels", methods=['GET'])

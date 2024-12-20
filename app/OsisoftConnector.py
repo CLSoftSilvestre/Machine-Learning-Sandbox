@@ -4,9 +4,11 @@ if sys.platform == 'win32':
     import PIconnect as PI
 
 class PiPoint:
-    def __init__(self, name):
+    def __init__(self, name, description = "", value = None, uom = None):
         self.name = name
-        self.curValue = None
+        self.description = description
+        self.curValue = value
+        self.uom = uom
 
 class OSIsoftConnector:
     def __init__(self):
@@ -29,5 +31,14 @@ class OSIsoftConnector:
             except Exception as err:
                 return err
         
-            
+def GetPiPointsList(prefix="506-UTILI-"):
+    piPoints = []
+    if sys.platform == 'win32':
+        with PI.PIServer() as server:
+            query = prefix + "*"
+            pip = server.search(query)
+            for piPoint in pip:
+                piPoints.append(PiPoint(piPoint.name, piPoint.description, piPoint.current_value, piPoint.units_of_measurement))
+    
+    return piPoints    
 
