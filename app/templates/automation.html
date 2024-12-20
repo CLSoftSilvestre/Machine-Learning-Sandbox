@@ -351,6 +351,7 @@
         </div>
 
         <div class="btn-group btn-group-sm show-hide-group" role="group" aria-label="Show hide commands">
+          <a href="#" type="button" class="btn btn-outline-success disabled" data-bs-toggle="modal" data-bs-target="#osisoftModal" data-toggle="tooltip" title="Help" id="btnNodeHelp"><i id="help-btn-icon" class="fa-solid fa-circle-info"></i></a>
           <a href="#" type="button" class="btn btn-outline-success disabled" data-toggle="tooltip" title="Locked flow" id="btnLockedFlow"><i id="lock-btn-icon" class="fa-solid fa-unlock"></i></a>
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Show/Hide connections" onclick="toggleConnectors()" id="btnHideConnectors"><i class="fa-solid fa-route"></i></a>
         </div>
@@ -369,6 +370,60 @@
           <p id="flow-status-text"><i class="fa-solid fa-circle-stop"></i> Flow is stopped</p>
           {% endif %}
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Get Osisoft variables Modal -->
+  <div class="modal fade" id="osisoftModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="osisoftModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="osisoftModalLabel">OSIsoft Pi Points list</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="container">
+
+          <label for="filterPrefix" class="form-label">Filter prefix:</label>
+          <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Recipient's username" aria-label="Recipient's username" aria-describedby="basic-addon2" id="filterPrefix" name="filterPrefix" value="506-UTILI-FROID-COMP1-">
+            <div class="input-group-append">
+              <button class="btn btn-outline-primary" type="button" onclick="updatePiPointList()" id="btnUpdateList">Update list</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+            <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+              <table class="table table-hover" id="piListTable">
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Value</th>
+                    <th scope="col">UOM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!--tr>
+                    <td style="vertical-align: middle;">506-UTILI-FROID-COMP1-Z-010</td>
+                    <td style="vertical-align: middle;">Ammonia compressor 1 capacity</td>
+                    <td style="vertical-align: middle;">100</td>
+                    <td style="vertical-align: middle;">%</td>
+                  </tr-->
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+        
       </div>
     </div>
   </div>
@@ -400,6 +455,20 @@
 
     editor.on('nodeSelected', function(id) {
       console.log("Node selected " + id);
+
+      // Check if node selected is osisoftpipoint
+      selectedNode = editor.getNodeFromId(id)
+      if (selectedNode.class == 'osisoftpipoint' || selectedNode.class == 'osisoftconnector'){
+        document.getElementById("btnNodeHelp").classList.remove("disabled")
+      }
+      console.log(editor.getNodeFromId(id).class);
+    })
+
+    editor.on("clickEnd", function(event){
+      console.log(event.target.classList[0])
+      if(event.target.classList[0] === "drawflow") {
+        document.getElementById("btnNodeHelp").classList.add("disabled")
+      }
     })
 
     editor.on('moduleCreated', function(name) {
@@ -1969,6 +2038,62 @@
 
           });
       
+    }
+
+    function updatePiPointList(){
+      console.log("Updating Pi Points List...");
+      prefix = document.getElementById("filterPrefix").value
+      const apiUrl = '/pipoints/' + prefix;
+      console.log(apiUrl)
+
+      document.getElementById("btnUpdateList").innerText = "Updating...";
+
+      const requestOptions = {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data)
+            //add the elements to the Modal table
+            var table = document.getElementById("piListTable");
+
+            for (let i=0; i< data.length; i++){
+
+              // Find a <table> element with id="myTable":
+              var row = table.insertRow(1);
+
+              // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+              var cell1 = row.insertCell(0);
+              var cell2 = row.insertCell(1);
+              var cell3 = row.insertCell(2);
+              var cell4 = row.insertCell(3);
+
+              // Add some text to the new cells:
+              cell1.innerHTML = data[i].name;
+              cell2.innerHTML = data[i].description;
+
+              if (isNaN(data[i].curValue)){
+                // Is string
+                cell3.innerHTML = data[i].curValue;
+              } else {
+                cell3.innerHTML = data[i].curValue.toFixed(2);
+              }
+              cell4.innerHTML = data[i].uom;
+            }
+
+            document.getElementById("btnUpdateList").innerText = "Update list";
+
+          });
     }
 
   </script>
