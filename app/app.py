@@ -54,7 +54,7 @@ from urllib.error import *
 import pygwalker as pyg
 
 from DataCollectorService import DataCollectorService
-from OsisoftConnector import PiPoint, GetPiPointsList
+from OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -768,6 +768,61 @@ def uploader():
     
     except Exception as error:
         session['warning'] = "Error: " + str(error)
+        return redirect('/datastudio')
+
+@app.route("/osisoftdata/", methods=['GET', 'POST'])
+def osisoftdata():
+    if (session.get('autenticated') != True):
+        return redirect('/notauthorized')
+    else:
+        if request.method == 'POST':
+            startDt = request.form['startdate']
+            endDt = request.form['enddate']
+            interval = request.form['interval']
+            pipointname1 = request.form['pipointname1']
+            pipointcalc1 = request.form['calculation1']
+            pipointname2 = request.form['pipointname2']
+            pipointcalc2 = request.form['calculation2']
+            pipointname3 = request.form['pipointname3']
+            pipointcalc3 = request.form['calculation3']
+            pipointname4 = request.form['pipointname4']
+            pipointcalc4 = request.form['calculation4']
+            pipointname5 = request.form['pipointname5']
+            pipointcalc5 = request.form['calculation5']
+
+            print("Start Date : " + str(startDt), file=sys.stderr)
+            print("End Date : " + str(endDt), file=sys.stderr)
+            print("Interval : " + str(interval), file=sys.stderr)
+            print("Pi Point 1 : " + str(pipointname1), file=sys.stderr)
+            print("Pi Point 1 calculation : " + str(pipointcalc1), file=sys.stderr)
+
+            # Get data from OSISoft
+            pp1 = PiPoint(name=pipointname1, calculation=pipointcalc1)
+            pp2 = PiPoint(name=pipointname2, calculation=pipointcalc2)
+            pp3 = PiPoint(name=pipointname3, calculation=pipointcalc3)
+            pp4 = PiPoint(name=pipointname4, calculation=pipointcalc4)
+            pp5 = PiPoint(name=pipointname5, calculation=pipointcalc5)
+
+            points = [pp1, pp2, pp3, pp4, pp5]
+            session['temp_df'] = GetPiData(startDt, endDt, interval, points)
+
+            # Clean the names of the headers to avid problems in fitration and deletion
+            oldNames = session['temp_df'].columns.tolist()
+            newNames = list()
+
+            for i in range(len(oldNames)):
+                newNames.append(CleanColumnHeaderName(oldNames[i]))
+            
+            session['temp_df'].columns = newNames
+
+            # Start a new DataStudio Session
+            session['data_studio'] = DataStudio()
+            tempData = session['temp_df'].copy()
+            session['data_studio'].LoadData(tempData)
+
+
+            return redirect('/datastudio')
+
         return redirect('/datastudio')
 
 @app.route("/cleardataset/", methods=['GET'])

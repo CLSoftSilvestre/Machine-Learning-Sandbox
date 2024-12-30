@@ -26,7 +26,7 @@
         {% if not uploaded %}
         <div class="card bg-light ms-4 me-4 mb-4">
             <div class="card-header">
-                <h3 id="notuploaded"><span id="tr_load_dataset">Load dataset</span></h3>     
+                <h3 id="notuploaded"><span id="tr_load_dataset">Load CSV dataset</span></h3>     
             </div>
             <div class="card-body">             
                 <form action="/uploader/" method="POST" enctype="multipart/form-data">
@@ -70,6 +70,163 @@
                 </form>
             </div>   
         </div>
+
+        {% if app_config.useOsisoftConnector == True %}
+        <form action="/osisoftdata/" method="POST">
+            <div class="card bg-light ms-4 me-4 mb-4">
+                <div class="card-header">
+                    <h3 id="notuploadedosisoft"><span id="tr_load_osisoft">Load from OSIsoft</span></h3>     
+                </div>
+                <div class="card-body">
+                    
+                    <div class="form-group row">
+                        <label for="startdate" class="col-sm-1 col-form-label"><span id="tr_start_date">Start date</span></label>
+                        <div class="col-sm-3" id="tour-train-import-start-date">
+                            <input type="date" class="form-control text-left" name = "startdate" id="startdate">
+                        </div>
+
+                        <label for="enddate" class="col-sm-1 col-form-label"><span id="tr_end_date">End date</span></label>
+                        <div class="col-sm-3" id="tour-train-import-end-date">
+                            <input type="date" class="form-control text-left" name = "enddate" id="enddate">
+                        </div>
+
+                        <label for="interval" class="col-sm-1 col-form-label"><span id="tr_interval">Interval</span></label>
+                        <div class="col-sm-3" id="tour-train-import-interval">
+                            <select class="form-select" id="interval" name="interval">
+                                <option selected value="15m">15 minutes</option>   
+                                <option value="30m">30 minutes</option>
+                                <option value="1h">1 hour</option>
+                                <option value="8h">8 hours</option>
+                                <option value="1d">1 day</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group row">
+
+                        <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col" style="width: 70%;">PI Point</th>
+                                    <th scope="col">Calculation mode</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname1" id="pipointname1">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation1" name="calculation1">
+                                            <option selected value="last value">None (last value)</option>
+                                            <option value="total">Total</option>   
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname2" id="pipointname2">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation2" name="calculation2">
+                                            <option selected value="last value">None (last value)</option>
+                                            <option value="total">Total</option>  
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname3" id="pipointname3">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation3" name="calculation3">
+                                            <option selected value="last value">None (last value)</option>
+                                            <option value="total">Total</option>  
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname4" id="pipointname4">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation4" name="calculation4">
+                                            <option selected value="last value">None (last value)</option>
+                                            <option value="total">Total</option>   
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname5" id="pipointname5">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation5" name="calculation5">
+                                            <option selected value="last value">None (last value)</option>
+                                            <option value="total">Total</option>   
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+ 
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="col-sm-12 text-center">
+                        <button type="submit" class="btn btn-primary" id="tour-train-import-request-osisoft"><i class="fas fa-file-import"></i><span id="tr_request_osisoft"> Request data</span></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% endif %}
+
         <!-- When data is already imported -->
         {% else %}
         <div class="card bg-light ms-4 me-4 mb-4">
