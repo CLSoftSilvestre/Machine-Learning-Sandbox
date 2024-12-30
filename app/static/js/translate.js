@@ -62,7 +62,7 @@ class Translate{
         {key:"tr_load_osisoft", pt:"Carregar dados de OSIsoft", en:"Load OSIsoft dataset", fr:"Charger l'ensemble de données", default:"Load OSIsoft dataset"},
         {key:"tr_start_date", pt:"Data inicio", en:"Start date", fr:"Date de début", default:"Start date"},
         {key:"tr_end_date", pt:"Data fim", en:"End date", fr:"Date de fin", default:"End date"},
-        {key:"tr_interval", pt:"Intervalo temporal", en:"Time interval", fr:"Intervalle de temps", default:"Time interval"},
+        {key:"tr_interval", pt:"Intervalo", en:"Interval", fr:"Intervalle", default:"Interval"},
         {key:"tr_request_osisoft", pt:" Questionar OSIsoft", en:" Request OSIsoft", fr:" Demander OSIsoft", default:" Request OSIsoft"},
 
         {key:"tr_delete_dataset", pt:" Eliminar dados", en:" Delete dataset", fr:" Supprimer l'ensemble de données", default:" Delete dataset"},

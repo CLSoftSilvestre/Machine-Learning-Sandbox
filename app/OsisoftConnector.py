@@ -77,7 +77,6 @@ def GetPiPointData(startTime, endTime, interval, piPoint:PiPoint=0):
         data.columns = [piPoint.name]
         return data
 
-
 def GetPiData(startTime, endTime, interval, piPoints):
     outData = pd.DataFrame()
     for point in piPoints:

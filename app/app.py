@@ -68,7 +68,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.7"
+appversion = "1.4.8"
 model_version = 7 # Model includes automation diagram
 
 # DataCollectorService
@@ -796,6 +796,10 @@ def osisoftdata():
             print("Pi Point 1 : " + str(pipointname1), file=sys.stderr)
             print("Pi Point 1 calculation : " + str(pipointcalc1), file=sys.stderr)
 
+            if startDt == "" or endDt == "":
+                session['warning'] = "Start or End dates could not be null."
+                return redirect('/datastudio')
+            
             # Get data from OSISoft
             pp1 = PiPoint(name=pipointname1, calculation=pipointcalc1)
             pp2 = PiPoint(name=pipointname2, calculation=pipointcalc2)
