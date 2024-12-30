@@ -22,54 +22,144 @@
 <h3 class="m-4" id="tr_data_studio">Data Studio</h3>
 <div class="row">
     <div class="col-12">
+
         <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
-        <div class="card bg-light ms-4 me-4 mb-4">
-            <div class="card-header">
-                <h3 id="notuploaded"><span id="tr_load_dataset">Load dataset</span></h3>     
-            </div>
-            <div class="card-body">             
-                <form action="/uploader/" method="POST" enctype="multipart/form-data">
-                    <div class="form-group row">
-                        <label for="file" class="col-sm-1 col-form-label"><span id="tr_select_file">Select file</span></label>
-                        <div class="col-sm-5" id="tour-train-import-file">
-                            <input type="file" class="form-control text-left" name = "file" id="file" accept=".csv">
+
+        <div class="container text-center">
+            <div class="row g-2">
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/csv.png" class="card-img-top center" alt="csvlogo" style="max-width: 100px; padding: 20px;">
+                            <div class="card-body">
+                              <h5 class="card-title">CSV File</h5>
+                              <p class="card-text">Use this source to import data from CSV file.</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="CSV file importer" data-bs-toggle="modal" data-bs-target="#csvimporter">Use this source</a>
+                            </div>
                         </div>
-
-                        <label for="sep" class="col-sm-1 col-form-label"><span id="tr_separator">Separator</span></label>
-                        <div class="col-sm-1" id="tour-train-import-separator">
-                            <input type="text" class="form-control text-left" name = "sep" id="sep" value=";">
-                        </div>
-
-                        <!--label for="sep" class="col-sm-1 col-form-label">Separator</label>
-                        <div class="col-sm-1">
-                            <select class="form-select form-select-sm" name="sep" id="sep">
-                                <option value=";">Semicolon</option>
-                                <option value=",">Comma</option>
-                            </select>
-                        </div-->
-
-                        <label for="dec" class="col-sm-1 col-form-label"><span id="tr_decimal">Decimal</span></label>
-                        <div class="col-sm-1" id="tour-train-import-decimal">
-                            <input type="text" class="form-control text-left" name = "dec" id="dec" value=",">
-                        </div>
-
-                        <!--label for="dec" class="col-sm-1 col-form-label">Decimal</label>
-                        <div class="col-sm-1">
-                            <select class="form-select form-select-sm" name="dec" id="dec">
-                                <option value=",">Comma</option>
-                                <option value=".">Point</option>
-                            </select>
-                        </div-->
-
-                        <div class="col-sm-2 text-center">
-                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i><span id="tr_parse_csv"> Parse CSV</span></button>
-                        </div>
-
                     </div>
-                </form>
-            </div>   
-        </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/osisoftpi.png" class="card-img-top center" alt="osisoftpilogo" style="width: 150px; padding-top: 30px;">
+                            <div class="card-body">
+                              <h5 class="card-title">OSIsoft PI</h5>
+                              <p class="card-text">Use this source to get data collected in pi points of OSIsoft.</p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary" data-toggle="tooltip" title="OSIsoft Importer" data-bs-toggle="modal" data-bs-target="#osiimporter"> Use this source</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/influxdb.png" class="card-img-top center" alt="influxlogo" style="max-width: 100px; padding: 20px;">
+                            <div class="card-body">
+                                <h5 class="card-title">Influx DB</h5>
+                                <p class="card-text">Use this source to get data collected in Influx Database.</p>
+                                <p style="font-style: italic;">⚠️ Connector under development.</p>  
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary disabled"> Use this source</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/sql_server.png" class="card-img-top center" alt="sqllogo" style="max-width: 90px; padding-top: 10px;">
+                            <div class="card-body">
+                                <h5 class="card-title">SQL Server database</h5>
+                                <p class="card-text">Use this source to get data collected in Microsoft SQL Database.</p>
+                                <p style="font-style: italic;">⚠️ Connector under development.</p> 
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary disabled"> Use this source</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/excel.jpg" class="card-img-top center" alt="sqllogo" style="max-width: 100px; padding: 20px;">
+                            <div class="card-body">
+                                <h5 class="card-title">Excel Workbook</h5>
+                                <p class="card-text">Use this source to get data stored in Microsoft Excel workbook.</p>
+                                <p style="font-style: italic;">⚠️ Connector under development.</p> 
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary disabled"> Use this source</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/gcp.png" class="card-img-top center" alt="gcplogo" style="width: 150px; padding-top: 10px;">
+                            <div class="card-body">
+                                <h5 class="card-title">Google Cloud Platform</h5>
+                                <p class="card-text">Use this source to get data stored in Google Cloud Platform</p>
+                                <p style="font-style: italic;">⚠️ Connector under development.</p> 
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary disabled"> Use this source</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/postgre.png" class="card-img-top center" alt="postgrelogo" style="width: 150px; padding-top: 20px;">
+                            <div class="card-body">
+                                <h5 class="card-title">PostgreSQL database</h5>
+                                <p class="card-text">Use this source to get data stored in PostgreSQL database</p>
+                                <p style="font-style: italic;">⚠️ Connector under development.</p> 
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary disabled"> Use this source</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6 col-xl-3">
+                    <div class="p-3">
+                        <div class="card" style="width: 18rem; height: 20rem;">
+                            <img src="../static/img/restapi.png" class="card-img-top center" alt="restapilogo" style="width: 150px; padding: 10px;">
+                            <div class="card-body">
+                                <h5 class="card-title">Rest API</h5>
+                                <p class="card-text">Use this source to get data exposed by Rest API</p>
+                                <p style="font-style: italic;">⚠️ Connector under development.</p> 
+                            </div>
+                            <div class="card-footer">
+                                <a href="#" type="button" class="btn btn-primary disabled"> Use this source</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+
+        
+
         <!-- When data is already imported -->
         {% else %}
         <div class="card bg-light ms-4 me-4 mb-4">
@@ -1786,6 +1876,233 @@
     </div>
     </div>
 </div>
+
+{% else %}
+
+<!-- CSV data Importer Modal -->
+<div class="modal fade" id="csvimporter" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="csvimporterLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <img src="../static/img/csv.png" class="card-img-top" alt="csvlogo" style="width: 25px; margin-right: 10px;">
+                <h5 class="modal-title" id="CSVimporterLabel"><span id="_data_exploration">Load CSV dataset</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="/uploader/" method="POST" enctype="multipart/form-data">
+
+                <div class="modal-body">
+
+                
+                    <div class="form-group row">
+                        <label for="file" class="col-sm-1 col-form-label"><span id="tr_select_file">Select file</span></label>
+                        <div class="col-sm-5" id="tour-train-import-file">
+                            <input type="file" class="form-control text-left" name = "file" id="file" accept=".csv">
+                        </div>
+
+                        <label for="sep" class="col-sm-1 col-form-label"><span id="tr_separator">Separator</span></label>
+                        <div class="col-sm-1" id="tour-train-import-separator">
+                            <input type="text" class="form-control text-left" name = "sep" id="sep" value=";">
+                        </div>
+
+                        <!--label for="sep" class="col-sm-1 col-form-label">Separator</label>
+                        <div class="col-sm-1">
+                            <select class="form-select form-select-sm" name="sep" id="sep">
+                                <option value=";">Semicolon</option>
+                                <option value=",">Comma</option>
+                            </select>
+                        </div-->
+
+                        <label for="dec" class="col-sm-1 col-form-label"><span id="tr_decimal">Decimal</span></label>
+                        <div class="col-sm-1" id="tour-train-import-decimal">
+                            <input type="text" class="form-control text-left" name = "dec" id="dec" value=",">
+                        </div>
+
+                        <!--label for="dec" class="col-sm-1 col-form-label">Decimal</label>
+                        <div class="col-sm-1">
+                            <select class="form-select form-select-sm" name="dec" id="dec">
+                                <option value=",">Comma</option>
+                                <option value=".">Point</option>
+                            </select>
+                        </div-->
+
+                        <div class="col-sm-2 text-center">
+                            <button type="submit" class="btn btn-primary" id="tour-train-import-parse"><i class="fas fa-file-import"></i><span id="tr_parse_csv"> Parse CSV</span></button>
+                        </div>
+
+                    </div>
+                </div>
+            </form>
+                 
+        </div>
+    </div>
+</div>
+
+<!-- OSIsoft data Importer Modal -->
+<div class="modal fade" id="osiimporter" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="osiimporterLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content ">
+            <div class="modal-header">
+                <img src="../static/img/osisoftpi.png" class="card-img-top" alt="osisoftpilogo" style="width: 75px; margin-right: 10px;">
+                <h5 class="modal-title" id="osiimporterLabel"><span id="_data_exploration">Load OSIsoft dataset</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="/osisoftdata/" method="POST">
+
+                <div class="modal-body">
+
+                
+                    <div class="form-group row">
+                        <label for="startdate" class="col-sm-1 col-form-label"><span id="tr_start_date">Start date</span></label>
+                        <div class="col-sm-3" id="tour-train-import-start-date">
+                            <input type="datetime-local" class="form-control text-left" name = "startdate" id="startdate">
+                        </div>
+
+                        <label for="enddate" class="col-sm-1 col-form-label"><span id="tr_end_date">End date</span></label>
+                        <div class="col-sm-3" id="tour-train-import-end-date">
+                            <input type="datetime-local" class="form-control text-left" name = "enddate" id="enddate">
+                        </div>
+
+                        <label for="interval" class="col-sm-1 col-form-label"><span id="tr_interval">Interval</span></label>
+                        <div class="col-sm-3" id="tour-train-import-interval">
+                            <select class="form-select" id="interval" name="interval">
+                                <option selected value="15m">15 minutes</option>   
+                                <option value="30m">30 minutes</option>
+                                <option value="1h">1 hour</option>
+                                <option value="8h">8 hours</option>
+                                <option value="1d">1 day</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <div class="form-group row">
+
+                        <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col" style="width: 70%;">PI Point</th>
+                                    <th scope="col">Calculation mode</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname1" id="pipointname1">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation1" name="calculation1">
+                                            <option selected value="total">Total</option>   
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname2" id="pipointname2">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation2" name="calculation2">
+                                            <option selected value="total">Total</option>  
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname3" id="pipointname3">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation3" name="calculation3">
+                                            <option selected value="total">Total</option>  
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname4" id="pipointname4">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation4" name="calculation4">
+                                            <option selected value="total">Total</option>   
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>
+                                        <input type="text" class="form-control text-left" name = "pipointname5" id="pipointname5">
+                                    </td>
+                                    <td>
+                                        <select class="form-select" id="calculation5" name="calculation5">
+                                            <option selected value="total">Total</option>   
+                                            <option value="minimum">Minimum</option>
+                                            <option value="maximum">Maximum</option>
+                                            <option value="standard deviation">Standard deviation</option>
+                                            <option value="range">Range</option>
+                                            <option value="count">Count</option>
+                                            <option value="average time-weighted">Average</option>
+                                            <!--option value="average event-weighted">Average (Event-weighted)</option-->
+                                        </select>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+    
+                    </div>
+
+                    <div class="modal-footer">
+                        <div class="col-sm-12 text-left">
+                            <p class="text-left" style="font-style: italic;">⚠️ Warning, it could take few minutes to retrive the complete dataset.</p>
+                        </div>
+                        
+                        <div class="col-sm-12 text-center">
+                            <button type="submit" class="btn btn-primary" id="tour-train-import-request-osisoft"><i class="fas fa-file-import"></i><span id="tr_request_osisoft"> Request data</span></button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+                 
+        </div>
+    </div>
+</div>
+
 {% endif %}
 
 {% endblock %}

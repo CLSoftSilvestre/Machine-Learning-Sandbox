@@ -98,3 +98,10 @@
 .form-container .btn:hover, .open-button:hover {
 opacity: 0.95;
 }
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
+}

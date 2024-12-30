@@ -631,7 +631,6 @@ class Flow():
 
                         #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
                         for i, variable in enumerate(inpVariables):
-                            print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
                             inputData[variable] = [float(inputsNodes[i].outputValue)]
                             #print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
                         

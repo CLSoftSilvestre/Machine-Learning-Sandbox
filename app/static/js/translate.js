@@ -35,7 +35,7 @@ class Translate{
 
         // Sandbox page
         {key:"tr_available_models", pt:"Todos os modelos disponiveis", en:"All available models", fr:"Tous les modèles disponibles", default:"All available models"},
-        {key:"tr_sp_data_studio", pt:" Estúdio de dados", en:" Data studio", fr:" Studio de données", default:" Data studio"},
+        {key:"tr_sp_data_studio", pt:" Estúdio de dados", en:" Data studio", fr:" Atelier de données", default:" Data studio"},
         {key:"tr_sp_import_model", pt:" Importar modelo existente", en:" Import existing model", fr:" Importer un modèle existant", default:" Import existing model"},
         {key:"tr_sp_datacollector", pt:" Colector de dados", en:" Data collector", fr:" Collecteur de données", default:" Data collector"},
         {key:"tr_sp_refresh", pt:" Recarregar", en:" Refresh", fr:" Rafraîchir", default:" Refresh"},
@@ -53,11 +53,18 @@ class Translate{
 
         // Data Studio page
         {key:"tr_data_studio", pt:"Estúdio de dados", en:"Data studio", fr:"Studio de données", default:"Data studio"},
-        {key:"tr_load_dataset", pt:"Carregar dados", en:"Load dataset", fr:"Charger l'ensemble de données", default:"Load dataset"},
+        {key:"tr_load_dataset", pt:"Carregar dados de CSV", en:"Load CSV dataset", fr:"Charger l'ensemble de données", default:"Load CSV dataset"},
         {key:"tr_select_file", pt:"Selecionar ficheiro", en:"Select file", fr:"Sélectionner un fichier", default:"Select file"},
         {key:"tr_separator", pt:"Separador", en:"Separator", fr:"Séparateur", default:"Separator"},
         {key:"tr_decimal", pt:"Decimal", en:"Decimal", fr:"Décimal", default:"Decimal"},
         {key:"tr_parse_csv", pt:" Analisar CSV", en:" Parse CSV", fr:" Analyser le CSV", default:" Parse CSV"},
+
+        {key:"tr_load_osisoft", pt:"Carregar dados de OSIsoft", en:"Load OSIsoft dataset", fr:"Charger l'ensemble de données", default:"Load OSIsoft dataset"},
+        {key:"tr_start_date", pt:"Data inicio", en:"Start date", fr:"Date de début", default:"Start date"},
+        {key:"tr_end_date", pt:"Data fim", en:"End date", fr:"Date de fin", default:"End date"},
+        {key:"tr_interval", pt:"Intervalo", en:"Interval", fr:"Intervalle", default:"Interval"},
+        {key:"tr_request_osisoft", pt:" Questionar OSIsoft", en:" Request OSIsoft", fr:" Demander OSIsoft", default:" Request OSIsoft"},
+
         {key:"tr_delete_dataset", pt:" Eliminar dados", en:" Delete dataset", fr:" Supprimer l'ensemble de données", default:" Delete dataset"},
         {key:"tr_clear_nulls", pt:" Eliminar nulos", en:" Clear nulls", fr:" Supprimer nulles", default:" Clear nulls"},
         {key:"tr_python_code", pt:" Código Python", en:" Python code", fr:" Code Python", default:" Python code"},
@@ -72,7 +79,7 @@ class Translate{
         {key:"tr_data_operations", pt:"Histórico de operações", en:"Data operations", fr:"Opérations sur les données", default:"Data operations"},
         {key:"tr_variable", pt:"Variável", en:"Variable", fr:"Variable", default:"Variable"},
         {key:"tr_current_data_type", pt:"Tipo de dados atual", en:"Current data type", fr:"Type de données actuel", default:"Current data type"},
-        {key:"tr_set_datatype", pt:"Definir tipo de dados", en:"Set dataype", fr:"Définir le type de données", default:"Set dataype"},
+        {key:"tr_set_datatype", pt:"Definir tipo de dados", en:"Set data type", fr:"Définir le type de données", default:"Set data type"},
         {key:"tr_remove_column", pt:"Remover coluna", en:"Remove column", fr:"Supprimer la colonne", default:"Remove column"},
         {key:"tr_filter_column", pt:"Filtrar coluna", en:"Filter column", fr:"Filtre de colonne", default:"Filter column"},
         {key:"tr_remove_outliers", pt:"Remover valores anormais", en:"Remove outliers", fr:"Supprimer les valeurs aberrantes", default:"Remove outliers"},
