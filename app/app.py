@@ -68,7 +68,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.8"
+appversion = "1.4.9"
 model_version = 7 # Model includes automation diagram
 
 # DataCollectorService

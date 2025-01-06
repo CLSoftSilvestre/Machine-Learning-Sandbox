@@ -570,6 +570,32 @@
           toastList.forEach(toast => toast.show()) 
         }
       }
+
+      if(nodeInputClass.class == "osisoftpipoint" && nodeOutputClass.class != "osisoftconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Pi Points input can only be connected to output of OSIsoft Connectors.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "osisoftconnector" && nodeInputClass.class != "osisoftpipoint"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! OSIsoft Connectors can only be connected to input of Pi Points.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
       
 
       if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
@@ -769,6 +795,19 @@
       // Check for unique nodes (Model, Siemens Connector)
       if(name == "model"){
         modelLst = editor.getNodesFromName("model");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of model node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "osisoft_connector"){
+        modelLst = editor.getNodesFromName("osisoftconnector");
         if (modelLst.length > 0){
           document.getElementById("warning-text").innerText = "Only one instance of model node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
