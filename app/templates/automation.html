@@ -428,6 +428,37 @@
     </div>
   </div>
 
+  <!-- Config Display Modal -->
+  <div class="modal fade" id="displayModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="displayModalLabel" aria-hidden="false" nodeId="0">
+    <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="displayModalLabel">Display value configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+            <label for="decimalPoint" class="form-label">Decimal places</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" placeholder="Visualization decimal point" aria-label="Decimal point" aria-describedby="basic-addon2" id="decimalPoint" name="decimalPoint" value="4" min="0" max="5" step="1">
+            </div>
+            <label for="displayUnits" class="form-label">Engineering Units</label>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Enginering units" aria-label="EU" aria-describedby="basic-addon2" id="displayUnits" name="displayUnits" value="">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" type="button" onclick="setDisplaySettings()">Apply</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <script>
     var id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
@@ -458,9 +489,32 @@
 
       // Check if node selected is osisoftpipoint
       selectedNode = editor.getNodeFromId(id)
+      var nodeConfigButton = document.getElementById('btnNodeHelp');
+        
       if (selectedNode.class == 'osisoftpipoint' || selectedNode.class == 'osisoftconnector'){
-        document.getElementById("btnNodeHelp").classList.remove("disabled")
+        nodeConfigButton.dataset.bsTarget = "#osisoftModal";
+        nodeConfigButton.classList.remove("disabled")
       }
+
+      if (selectedNode.class == 'display'){
+        document.getElementById('displayModal').nodeId = id;
+        nodeConfigButton.dataset.bsTarget = "#displayModal";
+        let node = editor.getNodeFromId(id);
+
+        console.log(node);
+
+        // Set the data on the modal
+        if (typeof node.data.point === 'undefined'){
+          console.log("Variable undefined")
+        } else {
+          document.getElementById('decimalPoint').value = node.data.point;
+          document.getElementById('displayUnits').value = node.data.units;
+          nodeConfigButton.classList.remove("disabled");
+        }
+
+      }
+
+
       console.log(editor.getNodeFromId(id).class);
     })
 
@@ -813,7 +867,7 @@
               {% endfor %}
             </div>
           </div>
-        `;
+          `;
           editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}"}, model);
           break;
         case 'osisoft_connector':
@@ -1117,7 +1171,7 @@
             </div>
           </div>
           `;
-          editor.addNode('display', 1, 0, pos_x, pos_y, 'display', {}, displaytemplate );
+          editor.addNode('display', 1, 0, pos_x, pos_y, 'display', { "point":'', "units":''}, displaytemplate );
           break;
         case 'out_notification':
           var notificationtemplate = `
@@ -1682,8 +1736,25 @@
           let nodeId = rawId.split("node-")[1]
 
           if (nodeId == nodeData.nodeId){
-            valueField = elements[i].querySelectorAll("input") 
-            valueField[0].value = nodeData.value
+            valueField = elements[i].querySelectorAll("input")
+            // TODO: Adjust the units and decimal points.
+            // Set the data on the modal
+            //console.log(nodeData);
+            let node = editor.getNodeFromId(nodeId);
+
+            try {
+              if (typeof node.data.point === 'undefined'){
+                //console.log("Variable undefined")
+                valueField[0].value = nodeData.value;
+              } else {
+                valueField[0].value = nodeData.value.toFixed(node.data.point) + " " + node.data.units;
+              }
+
+            } catch (err){
+              valueField[0].value = nodeData.value;
+            }
+            
+
           }
         }
       }
@@ -2094,6 +2165,24 @@
             document.getElementById("btnUpdateList").innerText = "Update list";
 
           });
+    }
+
+    function setDisplaySettings(){
+      let displayId = document.getElementById('displayModal').nodeId
+      console.log("Setting data on display: " + displayId);
+      let node = editor.getNodeFromId(displayId);
+      if (typeof node.data.point === 'undefined'){
+        console.log("Variable undefined")
+      } else {
+        let pointVal = document.getElementById('decimalPoint').value;
+        let unitsVal = document.getElementById('displayUnits').value;
+        editor.updateNodeDataFromId(displayId, {point:pointVal, units:unitsVal});
+
+      }
+
+      // Hide modal
+      $('#displayModal').modal("hide");
+
     }
 
   </script>

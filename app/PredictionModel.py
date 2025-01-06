@@ -87,7 +87,7 @@ class PredictionModel:
         for i in range(100):
             try:  
                 elementClass = data["drawflow"]["Home"]["data"][str(i)]["class"]
-                #print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
+                print(data["drawflow"]["Home"]["data"][str(i)], file=sys.stderr)
                 #print("--------------------------------------", file=sys.stderr)
                 #print("Element class: " + str(elementClass), file=sys.stderr)
                 if elementClass == "s7connector":
