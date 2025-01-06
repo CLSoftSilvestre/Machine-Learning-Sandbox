@@ -4,7 +4,6 @@ import pandas as pd
 if sys.platform == 'win32':
     import PIconnect as PI
     from PIconnect.PIConsts import SummaryType
-    from PIconnect import _time
 
 class PiPoint:
     def __init__(self, name, description = "", value = None, uom = None, calculation = None):
