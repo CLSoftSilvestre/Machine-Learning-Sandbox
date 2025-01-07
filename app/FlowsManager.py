@@ -61,6 +61,7 @@ class Flow():
         self.osisoftPiPoints = []
         self.stop = True
         self.service = None
+        self.refreshTime = 10
 
     def AddNode(self, node):
         self.Nodes.append(node)
@@ -752,7 +753,7 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
 
-            time.sleep(10)
+            time.sleep(self.refreshTime)
         return False
     
     def Stop(self):

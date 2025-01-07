@@ -351,7 +351,7 @@
         </div>
 
         <div class="btn-group btn-group-sm show-hide-group" role="group" aria-label="Show hide commands">
-          <a href="#" type="button" class="btn btn-outline-success disabled" data-bs-toggle="modal" data-bs-target="#osisoftModal" data-toggle="tooltip" title="Help" id="btnNodeHelp"><i id="help-btn-icon" class="fa-solid fa-circle-info"></i></a>
+          <a href="#" type="button" class="btn btn-outline-success disabled" data-bs-toggle="modal" data-bs-target="#osisoftModal" data-toggle="tooltip" title="Help" id="btnNodeHelp"><i id="help-btn-icon" class="fa-solid fa-gear"></i></a>
           <a href="#" type="button" class="btn btn-outline-success disabled" data-toggle="tooltip" title="Locked flow" id="btnLockedFlow"><i id="lock-btn-icon" class="fa-solid fa-unlock"></i></a>
           <a href="#" type="button" class="btn btn-outline-success" data-toggle="tooltip" title="Show/Hide connections" onclick="toggleConnectors()" id="btnHideConnectors"><i class="fa-solid fa-route"></i></a>
         </div>
@@ -459,6 +459,34 @@
     </div>
   </div>
 
+  <!-- Config Model Modal -->
+  <div class="modal fade" id="modelModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modelModalLabel" aria-hidden="false" nodeId="0">
+    <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modelModalLabel">Model configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+            <label for="refreshTime" class="form-label">Refresh time</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" placeholder="Model refresh time" aria-label="Refresh Time" aria-describedby="basic-addon2" id="refreshTime" name="refreshTime" value="10" min="10" max="300" step="5">
+              <span class="input-group-text">sec.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" type="button" onclick="setModelSettings()">Apply</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <script>
     var id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
@@ -509,6 +537,21 @@
         } else {
           document.getElementById('decimalPoint').value = node.data.point;
           document.getElementById('displayUnits').value = node.data.units;
+          nodeConfigButton.classList.remove("disabled");
+        }
+
+      }
+
+      if (selectedNode.class == 'model'){
+        document.getElementById('modelModal').nodeId = id;
+        nodeConfigButton.dataset.bsTarget = "#modelModal";
+        let node = editor.getNodeFromId(id);
+
+        // Set the data on the modal
+        if (typeof node.data.refresh_time === 'undefined'){
+          console.log("Variable undefined")
+        } else {
+          document.getElementById('refreshTime').value = node.data.refresh_time;
           nodeConfigButton.classList.remove("disabled");
         }
 
@@ -907,7 +950,7 @@
             </div>
           </div>
           `;
-          editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}"}, model);
+          editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}", "refresh_time":''}, model);
           break;
         case 'osisoft_connector':
           var osisoftconnector = `
@@ -1803,7 +1846,8 @@
         let now = new Date();
         labelsData.push(now.toLocaleTimeString("pt-PT"));
         predictionData.push(nodeData.value);
-        /* Stay only with the last n elements from array */          
+        /* Stay only with the last n elements from array */
+        // TODO: Adjust the max of data in chart...        
         if (predictionData.length > 50){
             labelsData.shift();
             predictionData.shift();
@@ -2095,6 +2139,7 @@
 
     }
 
+    /* Function to download the csv data from the log node */
     function downloadLog(event){
       parent = event.target.parentNode;
       grandParent = parent.parentNode;
@@ -2150,6 +2195,7 @@
       
     }
 
+    /* Function to get the list of available PI Points */
     function updatePiPointList(){
       console.log("Updating Pi Points List...");
       prefix = document.getElementById("filterPrefix").value
@@ -2206,6 +2252,7 @@
           });
     }
 
+    /* Function to update the setting of the display node */
     function setDisplaySettings(){
       let displayId = document.getElementById('displayModal').nodeId
       console.log("Setting data on display: " + displayId);
@@ -2221,6 +2268,21 @@
 
       // Hide modal
       $('#displayModal').modal("hide");
+
+    }
+
+    /* Function to update the setting of the model node */
+    function setModelSettings(){
+      let modelId = document.getElementById('modelModal').nodeId
+      console.log("Setting data on model: " + modelId);
+      let node = editor.getNodeFromId(modelId);
+
+      let refreshTimeVal = document.getElementById('refreshTime').value;
+
+      editor.updateNodeDataFromId(modelId, {model_uuid: "{{Model.uuid}}", features_count:"{{Model.variables|count}}", refresh_time:refreshTimeVal});
+
+      // Hide modal
+      $('#modelModal').modal("hide");
 
     }
 
