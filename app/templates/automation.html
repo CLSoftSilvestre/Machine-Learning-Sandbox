@@ -1712,7 +1712,8 @@
                         borderWidth: 2,
                         pointStyle: 'circle',
                         pointRadius: 2,
-                        pointHoverRadius: 7
+                        pointHoverRadius: 7,
+                        tension: 0.2
                     },{
                         label: l2Name,
                         fill: false,
@@ -1721,7 +1722,8 @@
                         borderWidth: 2,
                         pointStyle: 'circle',
                         pointRadius: 2,
-                        pointHoverRadius: 7
+                        pointHoverRadius: 7,
+                        tension: 0.2
                     },{
                         label: l3Name,
                         fill: false,
@@ -1730,22 +1732,37 @@
                         borderWidth: 2,
                         pointStyle: 'circle',
                         pointRadius: 2,
-                        pointHoverRadius: 7
+                        pointHoverRadius: 7,
+                        tension: 0.2
                     }]
                 },
                 options: {
                   plugins: {
                     legend: {
-                      display: false
+                      display: true,
+                      position: 'bottom',
+                      align: 'center',
+                      labels: {
+                        display: false,
+                        boxWidth: 10,
+                        font: {
+                          size: 8
+                        }
+                      }
                     }
                   },
                   responsive: true,
                   scales: {
                     x: {
                       display: true,
+                      ticks: {
+                        font:{
+                          size: 8,
+                        }
+                      },
                       title: {
                         display: false,
-                        text: "Prediction test number",
+                        text: "Date",
                       }  
                     },
                     y: {
@@ -2014,8 +2031,6 @@
         //Update chart data
         let now = new Date();
         labelsData.push(now.toLocaleTimeString("pt-PT"));
-        // console.log(nodeData.value)
-        predictionData.push(nodeData.value[0]);
 
         try {
           lineData1.push(nodeData.value[0]);
