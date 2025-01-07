@@ -68,7 +68,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.8"
+appversion = "1.4.9"
 model_version = 7 # Model includes automation diagram
 
 # DataCollectorService
@@ -790,11 +790,11 @@ def osisoftdata():
             pipointname5 = request.form['pipointname5']
             pipointcalc5 = request.form['calculation5']
 
-            print("Start Date : " + str(startDt), file=sys.stderr)
-            print("End Date : " + str(endDt), file=sys.stderr)
-            print("Interval : " + str(interval), file=sys.stderr)
-            print("Pi Point 1 : " + str(pipointname1), file=sys.stderr)
-            print("Pi Point 1 calculation : " + str(pipointcalc1), file=sys.stderr)
+            #print("Start Date : " + str(startDt), file=sys.stderr)
+            #print("End Date : " + str(endDt), file=sys.stderr)
+            #print("Interval : " + str(interval), file=sys.stderr)
+            #print("Pi Point 1 : " + str(pipointname1), file=sys.stderr)
+            #print("Pi Point 1 calculation : " + str(pipointcalc1), file=sys.stderr)
 
             if startDt == "" or endDt == "":
                 session['warning'] = "Start or End dates could not be null."

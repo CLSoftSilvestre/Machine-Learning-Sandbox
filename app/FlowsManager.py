@@ -61,6 +61,7 @@ class Flow():
         self.osisoftPiPoints = []
         self.stop = True
         self.service = None
+        self.refreshTime = 10
 
     def AddNode(self, node):
         self.Nodes.append(node)
@@ -658,15 +659,26 @@ class Flow():
                 if node.nodeClass == "chart":
                     node.clearError()
                     try:
-                        prevNodeId = node.inputConnectors[0].nodeId
+                        outputArray = []
+                        inputsCount = len(node.inputConnectors)
+
+                        for i in range(0, inputsCount):
+                            tempNodeId = node.inputConnectors[i].nodeId
+                            tempNode = self.GetNodeById(tempNodeId)
+                            tempValue = tempNode.outputValue
+                            outputArray.append(tempValue)
+
+                        node.outputValue = outputArray
+
+                        #prevNodeId = node.inputConnectors[0].nodeId
                         #print("Chart data predious node id " + str(prevNodeId), file=sys.stderr)
-                        prevNode = self.GetNodeById(prevNodeId)
-                        value = prevNode.outputValue
-                        node.innerStorageArray.append(value)
+                        #prevNode = self.GetNodeById(prevNodeId)
+                        #value = prevNode.outputValue
+                        #node.innerStorageArray.append(value)
                         # Only stay with last 15 inputs...
-                        if len(node.innerStorageArray) > 15:
-                            node.innerStorageArray.pop(0)
-                        node.outputValue = value
+                        #if len(node.innerStorageArray) > 15:
+                        #    node.innerStorageArray.pop(0)
+                        #node.outputValue = value
                         #print("Chart data previous node " + str(value), file=sys.stderr)
                         #print(node.innerStorageArray, file=sys.stderr)
                     except Exception as err:
@@ -752,7 +764,7 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
 
-            time.sleep(10)
+            time.sleep(self.refreshTime)
         return False
     
     def Stop(self):

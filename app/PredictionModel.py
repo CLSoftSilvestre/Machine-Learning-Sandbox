@@ -509,6 +509,12 @@ class PredictionModel:
 
                     model_uuid = data["drawflow"]["Home"]["data"][str(i)]["data"]["model_uuid"]
                     features = int(data["drawflow"]["Home"]["data"][str(i)]["data"]["features_count"])
+                    refreshTime = 10
+                    try:
+                        refreshTime = int(data["drawflow"]["Home"]["data"][str(i)]["data"]["refresh_time"])
+                    except:
+                        print("Error seting model refresh time.", file=sys.stderr)
+
 
                     inputs = []
                     for x in range(1, features+1):
@@ -531,14 +537,20 @@ class PredictionModel:
                         node.SetInputConnector(con)
                         #print(z, file=sys.stderr)
                     self.flow.AddNode(node)
+                    self.flow.refreshTime = refreshTime
 
                 elif elementClass == "chart":
                     connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    conCount = len(connector)
                     node = Node(i, elementClass, None)
-                    nodeId = connector[0]["node"]
-                    nodeInp = connector[0]["input"]
-                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
-                    node.SetInputConnector(con)
+
+                    for pos in range(0, conCount):
+                        node.SetInputConnector(InputConnector(connector[pos]["node"], connector[pos]["input"], ValueType.NUMERIC))
+
+                    #nodeId = connector[0]["node"]
+                    #nodeInp = connector[0]["input"]
+                    #con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    #node.SetInputConnector(con)
                     self.flow.AddNode(node)
                 
                 elif elementClass == "display":

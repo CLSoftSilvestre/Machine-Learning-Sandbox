@@ -5,7 +5,7 @@
 {% block content %}
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.48.4/codemirror.min.css">
-<link rel="stylesheet" href="https://codemirror.net/5/theme/monokai.css" /> 
+<link rel="stylesheet" href="../static/css/monokai.css"> 
 <script src="https://cdn.jsdelivr.net/pyodide/v0.18.1/full/pyodide.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/codemirror.min.js" integrity="sha512-XMlgZzPyVXf1I/wbGnofk1Hfdx+zAWyZjh6c21yGo/k1zNC4Ve6xcQnTDTCHrjFGsOrVicJsBURLYktVEu/8vQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.3/mode/python/python.min.js" integrity="sha512-/mavDpedrvPG/0Grj2Ughxte/fsm42ZmZWWpHz1jCbzd5ECv8CB7PomGtw0NAnhHmE/lkDFkRMupjoohbKNA1Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -25,7 +25,6 @@
 
         <!-- Import dataset or use dummy data for training purposes -->
         {% if not uploaded %}
-
         <div class="container text-center">
             <div class="row g-2">
 
@@ -156,10 +155,7 @@
                 </div>
 
             </div>
-          </div>
-
-        
-
+        </div>
         <!-- When data is already imported -->
         {% else %}
         <div class="card bg-light ms-4 me-4 mb-4">
@@ -1006,7 +1002,8 @@
                 </div>
             </div>
         </div>
-        {% endif %}    
+        {% endif %}
+        
     </div>
 </div>
 <div class="row">
