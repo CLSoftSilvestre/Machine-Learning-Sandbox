@@ -487,6 +487,73 @@
     </div>
   </div>
 
+  <!-- Config Chart Modal -->
+  <div class="modal fade" id="chartModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="chartModalLabel" aria-hidden="false" nodeId="0">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="chartModalLabel">Chart configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+            <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Line #</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Line color</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Line 1-->
+                  <tr>
+                    <td style="vertical-align: middle;">1</td>
+                    <td style="vertical-align: middle;">
+                      <input type="text" class="form-control" placeholder="Line 1 name" id="line1Name" name="line1Name">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <input type="color" class="form-control form-control-color" id="line1Color" name="line1Color" value="#00a87e">
+                    </td>
+                  </tr>
+                  <!-- Line 2-->
+                  <tr>
+                    <td style="vertical-align: middle;">2</td>
+                    <td style="vertical-align: middle;">
+                      <input type="text" class="form-control" placeholder="Line 2 name" id="line2Name" name="line2Name">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <input type="color" class="form-control form-control-color" id="line2Color" name="line2Color" value="#007D99">
+                    </td>
+                  </tr>
+                  <!-- Line 3-->
+                  <tr>
+                    <td style="vertical-align: middle;">3</td>
+                    <td style="vertical-align: middle;">
+                      <input type="text" class="form-control" placeholder="Line 3 name" id="line3Name" name="line3Name">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <input type="color" class="form-control form-control-color" id="line3Color" name="line3Color" value="#FF7B0D">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" type="button" onclick="setChartSettings()">Apply</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <script>
     var id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
@@ -557,6 +624,34 @@
 
       }
 
+      if (selectedNode.class == 'chart'){
+        document.getElementById('chartModal').nodeId = id;
+        nodeConfigButton.dataset.bsTarget = "#chartModal";
+        let node = editor.getNodeFromId(id);
+
+        // Set the data on the modal
+
+        document.getElementById('line1Name').value = node.data.l1Name;
+        document.getElementById('line1Color').value = node.data.l1Color;
+
+        document.getElementById('line2Name').value = node.data.l2Name;
+        document.getElementById('line2Color').value = node.data.l2Color;
+
+        document.getElementById('line3Name').value = node.data.l3Name;
+        document.getElementById('line3Color').value = node.data.l3Color;
+
+        /*
+        if (typeof node.data.refresh_time === 'undefined'){
+          console.log("Variable undefined")
+        } else {
+          document.getElementById('refreshTime').value = node.data.refresh_time;
+          nodeConfigButton.classList.remove("disabled");
+        }
+        */
+        nodeConfigButton.classList.remove("disabled");
+
+      }
+
 
       console.log(editor.getNodeFromId(id).class);
     })
@@ -601,11 +696,24 @@
       //console.log(nodeInputClass.inputs.input_["input_" + input_id].connections);
       //const x = eval(`document.forms.form_name.elements.${strFormControl}.value`);
       //console.log(nodeInputClass);
-      if (nodeInputClass.class != "influxdb") {
+      if (nodeInputClass.class != "influxdb" && nodeInputClass.class != "chart") {
         if (nodeInputClass.inputs[input_class].connections.length > 1){
           editor.removeSingleConnection(output_id, input_id, output_class, input_class)
 
           document.getElementById("warning-text").innerText = "Multiple connections! Only 1 connection is supported by this input node.";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+        }
+      }
+
+      if (nodeInputClass.class == "chart") {
+        if (nodeInputClass.inputs[input_class].connections.length > 3){
+          editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+          document.getElementById("warning-text").innerText = "Max. connections! Maximum of 3 connection is supported by this input node.";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -1548,16 +1656,77 @@
       
     labelsData = [];
     predictionData = []
+    lineData1 = []
+    lineData2 = []
+    lineData3 = []
+
+    let l1Name = "Default Line 1";
+    let l2Name = "Default Line 2";
+    let l3Name = "Default Line 3";
+
+    let l1Color = "#00a87e";
+    let l2Color = "#007D99";
+    let l3Color = "#FF7B0D";
+
+    let l1Width = 2;
+    let l2Width  = 2;
+    let l3Width  = 2;
+
+    // Get the node of the Chart
+    let chartNodeIds = []
+    try {
+      chartNodeIds = editor.getNodesFromName("chart")
+    } catch {
+      // Do notting
+    }
+    
+
+    if (chartNodeIds.length > 0){
+      //console.log(chartNode[0])
+      chartNode = editor.getNodeFromId(chartNodeIds[0])
+      try{
+        l1Name = chartNode.data.l1Name;
+        l2Name = chartNode.data.l2Name;
+        l3Name = chartNode.data.l3Name;
+
+        l1Color = chartNode.data.l1Color;
+        l2Color = chartNode.data.l2Color;
+        l3Color = chartNode.data.l3Color;
+
+      } catch {
+        // Do notting
+      }
+      
+
+    }
 
     const myChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: labelsData,
                     datasets: [{
-                        label: 'real',
+                        label: l1Name,
                         fill: false,
-                        data: predictionData,
-                        borderColor: '#00a87e',
+                        data: lineData1,
+                        borderColor: l1Color,
+                        borderWidth: 2,
+                        pointStyle: 'circle',
+                        pointRadius: 2,
+                        pointHoverRadius: 7
+                    },{
+                        label: l2Name,
+                        fill: false,
+                        data: lineData2,
+                        borderColor: l2Color,
+                        borderWidth: 2,
+                        pointStyle: 'circle',
+                        pointRadius: 2,
+                        pointHoverRadius: 7
+                    },{
+                        label: l3Name,
+                        fill: false,
+                        data: lineData3,
+                        borderColor: l3Color,
                         borderWidth: 2,
                         pointStyle: 'circle',
                         pointRadius: 2,
@@ -1845,14 +2014,46 @@
         //Update chart data
         let now = new Date();
         labelsData.push(now.toLocaleTimeString("pt-PT"));
-        predictionData.push(nodeData.value);
+        // console.log(nodeData.value)
+        predictionData.push(nodeData.value[0]);
+
+        try {
+          lineData1.push(nodeData.value[0]);
+        } catch {
+          // Do notting
+        }
+
+        try {
+          lineData2.push(nodeData.value[1]);
+        } catch {
+          // Do notting
+        }
+
+        try {
+          lineData3.push(nodeData.value[2]);
+        } catch {
+          // Do notting
+        }
+
         /* Stay only with the last n elements from array */
-        // TODO: Adjust the max of data in chart...        
-        if (predictionData.length > 50){
-            labelsData.shift();
-            predictionData.shift();
-          }   
-          myChart.update();
+        // TODO: Adjust the max of data in chart parameters...
+        let MaxPoints = 50
+
+        if (lineData1.length > MaxPoints){
+          lineData1.shift();
+          labelsData.shift();
+        }
+
+        if (lineData2.length > MaxPoints){
+          lineData2.shift();
+        }
+
+        if (lineData3.length > MaxPoints){
+          lineData3.shift();
+        }
+
+        myChart.update();
+
       }
 
       if (nodeData.nodeClass == "notification"){
@@ -2283,6 +2484,30 @@
 
       // Hide modal
       $('#modelModal').modal("hide");
+
+    }
+
+    /* Function to update the setting of the chart node */
+    function setChartSettings(){
+      let chartId = document.getElementById('chartModal').nodeId
+      console.log("Setting data on chart: " + chartId);
+      let node = editor.getNodeFromId(chartId);
+
+      //let refreshTimeVal = document.getElementById('refreshTime').value;
+      let line1Name = document.getElementById('line1Name').value;
+      let line1Color = document.getElementById('line1Color').value;
+
+      let line2Name = document.getElementById('line2Name').value;
+      let line2Color = document.getElementById('line2Color').value;
+
+      let line3Name = document.getElementById('line3Name').value;
+      let line3Color = document.getElementById('line3Color').value;
+
+
+      editor.updateNodeDataFromId(chartId, {l1Name:line1Name, l1Color:line1Color, l2Name:line2Name, l2Color:line2Color, l3Name:line3Name, l3Color:line3Color});
+
+      // Hide modal
+      $('#chartModal').modal("hide");
 
     }
 
