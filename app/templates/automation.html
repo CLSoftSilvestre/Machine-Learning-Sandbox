@@ -596,16 +596,9 @@
         nodeConfigButton.dataset.bsTarget = "#displayModal";
         let node = editor.getNodeFromId(id);
 
-        console.log(node);
-
-        // Set the data on the modal
-        if (typeof node.data.point === 'undefined'){
-          console.log("Variable undefined")
-        } else {
-          document.getElementById('decimalPoint').value = node.data.point;
-          document.getElementById('displayUnits').value = node.data.units;
-          nodeConfigButton.classList.remove("disabled");
-        }
+        document.getElementById('decimalPoint').value = node.data.point;
+        document.getElementById('displayUnits').value = node.data.units;
+        nodeConfigButton.classList.remove("disabled");
 
       }
 
@@ -640,20 +633,12 @@
         document.getElementById('line3Name').value = node.data.l3Name;
         document.getElementById('line3Color').value = node.data.l3Color;
 
-        /*
-        if (typeof node.data.refresh_time === 'undefined'){
-          console.log("Variable undefined")
-        } else {
-          document.getElementById('refreshTime').value = node.data.refresh_time;
-          nodeConfigButton.classList.remove("disabled");
-        }
-        */
         nodeConfigButton.classList.remove("disabled");
 
       }
 
 
-      console.log(editor.getNodeFromId(id).class);
+      // console.log(editor.getNodeFromId(id).class);
     })
 
     editor.on("clickEnd", function(event){
@@ -1766,6 +1751,7 @@
                       }  
                     },
                     y: {
+                      min: 0,
                       display: true,
                       title: {
                         display: false,
@@ -2030,29 +2016,29 @@
       if (nodeData.nodeClass == "chart"){
         //Update chart data
         let now = new Date();
-        labelsData.push(now.toLocaleTimeString("pt-PT"));
-
+        
         try {
           lineData1.push(nodeData.value[0]);
-        } catch {
-          // Do notting
+          labelsData.push(now.toLocaleTimeString("pt-PT"));
+        } catch(err) {
+          console.log("Error pushing data to line chart 1. " + err.message);
         }
 
         try {
           lineData2.push(nodeData.value[1]);
-        } catch {
-          // Do notting
+        } catch(err) {
+          console.log("Error pushing data to line chart 1. " + err.message);
         }
 
         try {
           lineData3.push(nodeData.value[2]);
-        } catch {
-          // Do notting
+        } catch(err) {
+          console.log("Error pushing data to line chart 1. " + err.message);
         }
 
         /* Stay only with the last n elements from array */
         // TODO: Adjust the max of data in chart parameters...
-        let MaxPoints = 50
+        let MaxPoints = 100
 
         if (lineData1.length > MaxPoints){
           lineData1.shift();
