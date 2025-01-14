@@ -498,6 +498,29 @@
 
         <div class="modal-body">
           <div class="container">
+            <h4>Y scale configuration:</h4>
+            <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Suggested Min Value</th>
+                    <th scope="col">Suggested Max Value</th>      
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="vertical-align: middle;">
+                      <input type="number" class="form-control" aria-describedby="basic-addon2" id="suggestedMin" name="suggestedMin" value="0">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <input type="number" class="form-control" aria-describedby="basic-addon2" id="suggestedMax" name="suggestedMax" value="100">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <hr>
+            <h4>Lines configuration:</h4>
             <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
               <table class="table table-hover">
                 <thead>
@@ -505,6 +528,9 @@
                     <th scope="col">Line #</th>
                     <th scope="col">Name</th>
                     <th scope="col">Line color</th>
+                    <th scope="col">Line style</th>
+                    <th scope="col">Ticks</th>
+                    <th scope="col">Fill</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -517,6 +543,23 @@
                     <td style="vertical-align: middle;">
                       <input type="color" class="form-control form-control-color" id="line1Color" name="line1Color" value="#00a87e">
                     </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="line1Style" name="line1Style">
+                        <option selected value="continuous">Continuous</option>
+                        <option value="dashed">Dashed</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line1Ticks" name="line1Ticks" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line1Fill" name="line1Fill" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+
                   </tr>
                   <!-- Line 2-->
                   <tr>
@@ -527,6 +570,22 @@
                     <td style="vertical-align: middle;">
                       <input type="color" class="form-control form-control-color" id="line2Color" name="line2Color" value="#007D99">
                     </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="line2Style" name="line2Style">
+                        <option selected value="continuous">Continuous</option>
+                        <option value="dashed">Dashed</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line2Ticks" name="line2Ticks" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line2Fill" name="line2Fill" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
                   </tr>
                   <!-- Line 3-->
                   <tr>
@@ -536,6 +595,22 @@
                     </td>
                     <td style="vertical-align: middle;">
                       <input type="color" class="form-control form-control-color" id="line3Color" name="line3Color" value="#FF7B0D">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="line3Style" name="line3Style">
+                        <option selected value="continuous">Continuous</option>
+                        <option value="dashed">Dashed</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line3Ticks" name="line3Ticks" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line3Fill" name="line3Fill" class="form-check-input" type="checkbox" value="">
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -622,16 +697,29 @@
         nodeConfigButton.dataset.bsTarget = "#chartModal";
         let node = editor.getNodeFromId(id);
 
-        // Set the data on the modal
+        // Set the data on the moda
+        console.log(node.data);
+
+        document.getElementById('suggestedMin').value = node.data.suggestedYMin;
+        document.getElementById('suggestedMax').value = node.data.suggestedYMax;
 
         document.getElementById('line1Name').value = node.data.l1Name;
         document.getElementById('line1Color').value = node.data.l1Color;
+        document.getElementById('line1Style').value = node.data.l1Style;
+        document.getElementById('line1Ticks').checked = node.data.l1Ticks;
+        document.getElementById('line1Fill').checked = node.data.l1Fill;
 
         document.getElementById('line2Name').value = node.data.l2Name;
         document.getElementById('line2Color').value = node.data.l2Color;
+        document.getElementById('line2Style').value = node.data.l2Style;
+        document.getElementById('line2Ticks').checked = node.data.l2Ticks;
+        document.getElementById('line2Fill').checked = node.data.l2Fill;
 
         document.getElementById('line3Name').value = node.data.l3Name;
         document.getElementById('line3Color').value = node.data.l3Color;
+        document.getElementById('line3Style').value = node.data.l3Style;
+        document.getElementById('line3Ticks').checked = node.data.l3Ticks;
+        document.getElementById('line3Fill').checked = node.data.l3Fill;
 
         nodeConfigButton.classList.remove("disabled");
 
@@ -1678,6 +1766,63 @@
         l2Color = chartNode.data.l2Color;
         l3Color = chartNode.data.l3Color;
 
+        l1Style = [1,0];
+        if (chartNode.data.l1Style == "dashed"){
+          l1Style = [5,5];
+        }
+
+        l2Style = [1,0];
+        if (chartNode.data.l2Style == "dashed"){
+          l2Style = [5,5];
+        }
+
+        l3Style = [1,0];
+        if (chartNode.data.l3Style == "dashed"){
+          l3Style = [5,5];
+        }
+
+        l1Ticks = false;
+        if (chartNode.data.l1Ticks == true){
+          l1Ticks = 'circle';
+        }
+
+        l2Ticks = false;
+        if (chartNode.data.l2Ticks == true){
+          l2Ticks = 'circle';
+        }
+
+        l3Ticks = false;
+        if (chartNode.data.l3Ticks == true){
+          l3Ticks = 'circle';
+        }
+
+        l1Fill = false;
+        if (chartNode.data.l1Fill == true){
+          l1Fill = true;
+        }
+
+        l2Fill = false;
+        if (chartNode.data.l2Fill == true){
+          l2Fill = true;
+        }
+
+        l3Fill = false;
+        if (chartNode.data.l3Fill == true){
+          l3Fill = true;
+        }
+
+        suggestedMin = null;
+        suggestedMax = null;
+
+        if (chartNode.data.suggestedYMin != undefined){
+          suggestedMin = chartNode.data.suggestedYMin;
+        }
+
+        if (chartNode.data.suggestedYMax != undefined){
+          suggestedMax = chartNode.data.suggestedYMax;
+        }
+
+
       } catch {
         // Do notting
       }
@@ -1691,34 +1836,40 @@
                     labels: labelsData,
                     datasets: [{
                         label: l1Name,
-                        fill: false,
+                        fill: l1Fill,
                         data: lineData1,
                         borderColor: l1Color,
                         borderWidth: 2,
-                        pointStyle: 'circle',
-                        pointRadius: 2,
-                        pointHoverRadius: 7,
-                        tension: 0.2
+                        pointStyle: l1Ticks,
+                        //pointStyle: 'circle',
+                        //pointRadius: 2,
+                        //pointHoverRadius: 7,
+                        tension: 0,
+                        borderDash: l1Style
                     },{
                         label: l2Name,
-                        fill: false,
+                        fill: l2Fill,
                         data: lineData2,
                         borderColor: l2Color,
                         borderWidth: 2,
-                        pointStyle: 'circle',
-                        pointRadius: 2,
-                        pointHoverRadius: 7,
-                        tension: 0.2
+                        pointStyle: l2Ticks,
+                        //pointStyle: 'circle',
+                        //pointRadius: 2,
+                        //pointHoverRadius: 7,
+                        tension: 0,
+                        borderDash: l2Style
                     },{
                         label: l3Name,
-                        fill: false,
+                        fill: l3Fill,
                         data: lineData3,
                         borderColor: l3Color,
                         borderWidth: 2,
-                        pointStyle: 'circle',
-                        pointRadius: 2,
-                        pointHoverRadius: 7,
-                        tension: 0.2
+                        pointStyle: l3Ticks,
+                        //pointStyle: 'circle',
+                        //pointRadius: 2,
+                        //pointHoverRadius: 7,
+                        tension: 0,
+                        borderDash: l3Style
                     }]
                 },
                 options: {
@@ -1751,7 +1902,8 @@
                       }  
                     },
                     y: {
-                      min: 0,
+                      suggestedMin: suggestedMin,
+                      suggestedMax: suggestedMax,
                       display: true,
                       title: {
                         display: false,
@@ -2495,17 +2647,29 @@
       let node = editor.getNodeFromId(chartId);
 
       //let refreshTimeVal = document.getElementById('refreshTime').value;
+      let suggestedMin = document.getElementById('suggestedMin').value;
+      let suggestedMax = document.getElementById('suggestedMax').value;
+
       let line1Name = document.getElementById('line1Name').value;
       let line1Color = document.getElementById('line1Color').value;
+      let line1Style = document.getElementById('line1Style').value;
+      let line1Ticks = document.getElementById('line1Ticks').checked;
+      let line1Fill = document.getElementById('line1Fill').checked;
 
       let line2Name = document.getElementById('line2Name').value;
       let line2Color = document.getElementById('line2Color').value;
+      let line2Style = document.getElementById('line2Style').value;
+      let line2Ticks = document.getElementById('line2Ticks').checked;
+      let line2Fill = document.getElementById('line2Fill').checked;
 
       let line3Name = document.getElementById('line3Name').value;
       let line3Color = document.getElementById('line3Color').value;
+      let line3Style = document.getElementById('line3Style').value;
+      let line3Ticks = document.getElementById('line3Ticks').checked;
+      let line3Fill = document.getElementById('line3Fill').checked;
 
 
-      editor.updateNodeDataFromId(chartId, {l1Name:line1Name, l1Color:line1Color, l2Name:line2Name, l2Color:line2Color, l3Name:line3Name, l3Color:line3Color});
+      editor.updateNodeDataFromId(chartId, {suggestedYMin:suggestedMin, suggestedYMax:suggestedMax, l1Name:line1Name, l1Color:line1Color, l1Style:line1Style, l1Ticks:line1Ticks, l1Fill:line1Fill, l2Name:line2Name, l2Color:line2Color, l2Style:line2Style, l2Ticks:line2Ticks, l2Fill:line2Fill, l3Name:line3Name, l3Color:line3Color, l3Style:line3Style, l3Ticks:line3Ticks, l3Fill:line3Fill});
 
       // Hide modal
       $('#chartModal').modal("hide");
