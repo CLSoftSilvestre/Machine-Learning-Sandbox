@@ -6,3 +6,5 @@
 /flask_session
 /app/flask_session
 /app/config/*.conf
+.cache.sqlite
+

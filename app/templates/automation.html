@@ -161,6 +161,35 @@
                   </span>
                 </div>
 
+                <!-- Weather Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_value">
+                  <i class="fa-solid fa-cloud-sun-rain"></i><span> Weather info</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Weather node" data-bs-content="This node exposes the current weather data from the selected location.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
+                <!-- Weather Temperature Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_temperature_value">
+                  <i class="fa-solid fa-temperature-half"></i><span> Weather Temperature</span>
+                </div>
+
+                <!-- Weather Humidity Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_humidity_value">
+                  <i class="fa-solid fa-droplet"></i><span> Weather Relative Humidity</span>
+                </div>
+
+                <!-- Weather Wind Speed Nodes -->
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_speed_value">
+                  <i class="fa-solid fa-wind"></i><span> Weather Wind Speed</span>
+                </div-->
+
+                <!-- Weather Wind Direction Nodes -->
+                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_dir_value">
+                  <i class="fa-solid fa-compass"></i><span> Weather Wind Direction</span>
+                </div-->
+
               </div>
             </div>
           </div>
@@ -629,7 +658,44 @@
     </div>
   </div>
 
+  <!-- Config Weather Modal -->
+  <div class="modal fade" id="weatherModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="weatherModalLabel" aria-hidden="false" nodeId="0">
+    <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="weatherModalLabel">Weather configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+
+            <label for="latitude" class="form-label">Latitude</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" id="latitude" name="latitude">
+              <span class="input-group-text">ºN</span>
+            </div>
+
+            <label for="longitude" class="form-label">Longitude</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" id="longitude" name="longitude">
+              <span class="input-group-text">ºE</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" type="button" onclick="setWeatherSettings()">Apply</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <script>
+
     var id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
     editor.reroute = true;
@@ -725,6 +791,18 @@
 
       }
 
+      if (selectedNode.class == 'weather'){
+        document.getElementById('weatherModal').nodeId = id;
+        nodeConfigButton.dataset.bsTarget = "#weatherModal";
+        let node = editor.getNodeFromId(id);
+
+        document.getElementById('latitude').value = node.data.latitude;
+        document.getElementById('longitude').value = node.data.longitude;
+        nodeConfigButton.classList.remove("disabled");
+
+        initMap();
+
+      }
 
       // console.log(editor.getNodeFromId(id).class);
     })
@@ -1399,6 +1477,39 @@
           </div>
           `;
           editor.addNode('random', 0, 1, pos_x, pos_y, 'random', { "minvalue": '',"maxvalue": ''}, randomtemplate );
+          break;
+        case 'weather_value':
+          var weathertemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;"> Weather API</div>
+            <div class="box">
+              <p>Open-Meteo Weather API</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weather', 0, 1, pos_x, pos_y, 'weather', {}, weathertemplate );
+          break;
+        case 'weather_temperature_value':
+          var weathertemptemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Temperature</div>
+            <div class="box">
+              <p>Current temperature (ºC)</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weathertemperature', 1, 1, pos_x, pos_y, 'weathertemperature', {}, weathertemptemplate );
+          break;
+        case 'weather_humidity_value':
+          var weatherhumiditytemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Humidity</div>
+            <div class="box">
+              <p>Relative Humidity (%)</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weatherhumidity', 1, 1, pos_x, pos_y, 'weatherhumidity', {}, weatherhumiditytemplate );
           break;
         case 'out_email':
           var emailtemplate = `
@@ -2673,6 +2784,22 @@
 
       // Hide modal
       $('#chartModal').modal("hide");
+
+    }
+
+    /* Function to update the setting of the model node */
+    function setWeatherSettings(){
+      let weatherId = document.getElementById('weatherModal').nodeId
+      //console.log("Setting data on weather: " + weatherId);
+      let node = editor.getNodeFromId(weatherId);
+
+      let lat = document.getElementById('latitude').value;
+      let lon = document.getElementById('longitude').value;
+
+      editor.updateNodeDataFromId(weatherId, {latitude:lat, longitude:lon});
+
+      // Hide modal
+      $('#weatherModal').modal("hide");
 
     }
 

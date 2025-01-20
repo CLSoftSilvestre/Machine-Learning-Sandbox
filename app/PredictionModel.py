@@ -282,6 +282,36 @@ class PredictionModel:
                     node = Node(i, elementClass, params)
                     self.flow.AddNode(node)  
 
+                elif elementClass == "weather":
+                    latValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["latitude"]
+                    lonValue = data["drawflow"]["Home"]["data"][str(i)]["data"]["longitude"]
+
+                    params = {
+                        "LATITUDE": float(latValue),
+                        "LONGITUDE": float(lonValue),
+                    }
+
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "weathertemperature":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    node = Node(i, elementClass, None)
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+
+                elif elementClass == "weatherhumidity":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    node = Node(i, elementClass, None)
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+
                 elif elementClass == "addition":
                     connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
                     connector2 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_2"]["connections"]

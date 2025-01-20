@@ -7,6 +7,8 @@ from bleConnector import BLECharacteristics, BLEConnector
 from ModbusConnector import ModbusHoldingRegister, ModbusConnector
 from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
 from OsisoftConnector import OSIsoftConnector, PiPoint
+from WeatherConnector import WeatherConnector
+
 import sys
 import time
 from threading import Thread
@@ -59,6 +61,7 @@ class Flow():
         self.modbusRegisters = []
         self.osisoftServers = []
         self.osisoftPiPoints = []
+        self.weatherData = []
         self.stop = True
         self.service = None
         self.refreshTime = 10
@@ -89,6 +92,7 @@ class Flow():
         self.influxPoints = []
         self.osisoftServers = []
         self.osisoftPiPoints = []
+        self.weatherData = []
 
         # Create the list of OSIsoft Pi Points
         for node in self.Nodes:
@@ -265,7 +269,19 @@ class Flow():
                 writer.writerow(csvdata)
 
                 #print(node.innerStorageArray.getvalue(), file=sys.stderr)
-                
+
+        # Setup the Weather connector
+        for node in self.Nodes:
+            if node.nodeClass == "weather":
+                try:
+                    node.rawObject = []
+                    weatherCon = WeatherConnector(node.params["LATITUDE"], node.params["LONGITUDE"])
+                    node.rawObject.append(weatherCon)
+                    self.weatherData.append(weatherCon.GetData())
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
         # Start the Loop of the Flow
         self.Restart()
     
@@ -340,6 +356,22 @@ class Flow():
                         node.outputValue = None
                         node.setError(str(err))
                 
+                elif node.nodeClass == "weathertemperature":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(self.weatherData[0].Variables(0).Value())
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "weatherhumidity":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(self.weatherData[0].Variables(1).Value())
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+
             # Second loop operations and conditionals
             for node in self.Nodes:
                 if node.nodeClass == "addition":
