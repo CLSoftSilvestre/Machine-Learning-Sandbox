@@ -371,6 +371,22 @@ class Flow():
                     except Exception as err:
                         node.outputValue = None
                         node.setError(str(err))
+                
+                elif node.nodeClass == "weatherwindspeed":
+                    node.clearError()
+                    try:
+                        node.outputValue = float(self.weatherData[0].Variables(2).Value())
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
+                
+                elif node.nodeClass == "weatherwinddir":
+                    node.clearError()
+                    try:
+                        node.outputValue = self.weatherData[0].Variables(3).Value()
+                    except Exception as err:
+                        node.outputValue = None
+                        node.setError(str(err))
 
             # Second loop operations and conditionals
             for node in self.Nodes:

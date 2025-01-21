@@ -181,14 +181,14 @@
                 </div>
 
                 <!-- Weather Wind Speed Nodes -->
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_speed_value">
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_speed_value">
                   <i class="fa-solid fa-wind"></i><span> Weather Wind Speed</span>
-                </div-->
+                </div>
 
                 <!-- Weather Wind Direction Nodes -->
-                <!--div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_dir_value">
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_dir_value">
                   <i class="fa-solid fa-compass"></i><span> Weather Wind Direction</span>
-                </div-->
+                </div>
 
               </div>
             </div>
@@ -1509,6 +1509,28 @@
           `;
           editor.addNode('weatherhumidity', 1, 1, pos_x, pos_y, 'weatherhumidity', {}, weatherhumiditytemplate );
           break;
+        case 'weather_wind_speed_value':
+          var weatherwindspeedtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Wind Speed</div>
+            <div class="box">
+              <p>Wind Speed (Km/h)</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weatherwindspeed', 1, 1, pos_x, pos_y, 'weatherwindspeed', {}, weatherwindspeedtemplate );
+          break;
+        case 'weather_wind_dir_value':
+          var weatherwinddirtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Wind Dir</div>
+            <div class="box">
+              <p>Wind Direction</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weatherwinddir', 1, 1, pos_x, pos_y, 'weatherwinddir', {}, weatherwinddirtemplate );
+          break;
         case 'out_email':
           var emailtemplate = `
           <div>
@@ -1854,6 +1876,18 @@
     let l2Width  = 2;
     let l3Width  = 2;
 
+    let l1Fill = false;
+    let l2Fill = false;
+    let l3Fill = false;
+
+    let l1Ticks = false;
+    let l2Ticks = false;
+    let l3Ticks = false;
+
+    let l1Style = [1,0];
+    let l2Style = [1,0];
+    let l3Style = [1,0];
+
     // Get the node of the Chart
     let chartNodeIds = []
     try {
@@ -1862,7 +1896,6 @@
       // Do notting
     }
     
-
     if (chartNodeIds.length > 0){
       //console.log(chartNode[0])
       chartNode = editor.getNodeFromId(chartNodeIds[0])
@@ -1931,98 +1964,96 @@
           suggestedMax = chartNode.data.suggestedYMax;
         }
 
-
       } catch {
         // Do notting
       }
       
-
     }
 
     const myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labelsData,
-                    datasets: [{
-                        label: l1Name,
-                        fill: l1Fill,
-                        data: lineData1,
-                        borderColor: l1Color,
-                        borderWidth: 2,
-                        pointStyle: l1Ticks,
-                        //pointStyle: 'circle',
-                        //pointRadius: 2,
-                        //pointHoverRadius: 7,
-                        tension: 0,
-                        borderDash: l1Style
-                    },{
-                        label: l2Name,
-                        fill: l2Fill,
-                        data: lineData2,
-                        borderColor: l2Color,
-                        borderWidth: 2,
-                        pointStyle: l2Ticks,
-                        //pointStyle: 'circle',
-                        //pointRadius: 2,
-                        //pointHoverRadius: 7,
-                        tension: 0,
-                        borderDash: l2Style
-                    },{
-                        label: l3Name,
-                        fill: l3Fill,
-                        data: lineData3,
-                        borderColor: l3Color,
-                        borderWidth: 2,
-                        pointStyle: l3Ticks,
-                        //pointStyle: 'circle',
-                        //pointRadius: 2,
-                        //pointHoverRadius: 7,
-                        tension: 0,
-                        borderDash: l3Style
-                    }]
-                },
-                options: {
-                  plugins: {
-                    legend: {
-                      display: true,
-                      position: 'bottom',
-                      align: 'center',
-                      labels: {
-                        display: false,
-                        boxWidth: 10,
-                        font: {
-                          size: 8
-                        }
+              type: 'line',
+              data: {
+                  labels: labelsData,
+                  datasets: [{
+                      label: l1Name,
+                      fill: l1Fill,
+                      data: lineData1,
+                      borderColor: l1Color,
+                      borderWidth: 2,
+                      pointStyle: l1Ticks,
+                      //pointStyle: 'circle',
+                      //pointRadius: 2,
+                      //pointHoverRadius: 7,
+                      tension: 0,
+                      borderDash: l1Style
+                  },{
+                      label: l2Name,
+                      fill: l2Fill,
+                      data: lineData2,
+                      borderColor: l2Color,
+                      borderWidth: 2,
+                      pointStyle: l2Ticks,
+                      //pointStyle: 'circle',
+                      //pointRadius: 2,
+                      //pointHoverRadius: 7,
+                      tension: 0,
+                      borderDash: l2Style
+                  },{
+                      label: l3Name,
+                      fill: l3Fill,
+                      data: lineData3,
+                      borderColor: l3Color,
+                      borderWidth: 2,
+                      pointStyle: l3Ticks,
+                      //pointStyle: 'circle',
+                      //pointRadius: 2,
+                      //pointHoverRadius: 7,
+                      tension: 0,
+                      borderDash: l3Style
+                  }]
+              },
+              options: {
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom',
+                    align: 'center',
+                    labels: {
+                      display: false,
+                      boxWidth: 10,
+                      font: {
+                        size: 8
                       }
                     }
-                  },
-                  responsive: true,
-                  scales: {
-                    x: {
-                      display: true,
-                      ticks: {
-                        font:{
-                          size: 8,
-                        }
-                      },
-                      title: {
-                        display: false,
-                        text: "Date",
-                      }  
+                  }
+                },
+                responsive: true,
+                scales: {
+                  x: {
+                    display: true,
+                    ticks: {
+                      font:{
+                        size: 8,
+                      }
                     },
-                    y: {
-                      suggestedMin: suggestedMin,
-                      suggestedMax: suggestedMax,
-                      display: true,
-                      title: {
-                        display: false,
-                        text: "Value",
-                      } 
-                    }
+                    title: {
+                      display: false,
+                      text: "Date",
+                    }  
+                  },
+                  y: {
+                    suggestedMin: suggestedMin,
+                    suggestedMax: suggestedMax,
+                    display: true,
+                    title: {
+                      display: false,
+                      text: "Value",
+                    } 
                   }
                 }
-              });
-    
+              }
+            });
+   
     function getNodeStatus()
     {
       setTimeout(function() {

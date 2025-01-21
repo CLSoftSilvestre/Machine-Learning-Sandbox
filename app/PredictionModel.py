@@ -311,6 +311,24 @@ class PredictionModel:
                     con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
+                
+                elif elementClass == "weatherwindspeed":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    node = Node(i, elementClass, None)
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "weatherwinddir":
+                    connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    node = Node(i, elementClass, None)
+                    nodeId = connector1[0]["node"]
+                    nodeInp = connector1[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
 
                 elif elementClass == "addition":
                     connector1 = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
