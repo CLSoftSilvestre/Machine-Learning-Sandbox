@@ -38,7 +38,10 @@ class ModelManager:
         files = self.GetModelsFiles(path)
         
         for file in files:
-            models.append(self.LoadModel(file))
+            try:
+                models.append(self.LoadModel(file))
+            except Exception as Err:
+                print("Error loading model " + file + " : " + str(Err))
         
         return models
         

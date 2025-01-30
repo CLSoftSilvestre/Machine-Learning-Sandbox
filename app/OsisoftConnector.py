@@ -34,7 +34,7 @@ class PiPoint:
                 self.calculation = SummaryType.NONE
 
         else:
-            self.calculation = None
+            self.calculation = SummaryType.NONE
 
 class OSIsoftConnector:
     def __init__(self):
@@ -52,7 +52,14 @@ class OSIsoftConnector:
                     points = server.search(self.pointsNames)
 
                     for i in range(len(points)):
-                        self.pipoints[i].curValue = points[i].current_value
+                        self.pipoints[i].curValue = points[i].summary('*-1m', '*', SummaryType.AVERAGE).iloc[0][0]
+
+                        # TODO: To add the calculation property to the PI Points
+                        #if self.pipoints[i].calculation != SummaryType.NONE:
+                        #    self.pipoints[i].curValue = points[i].summary('*-1m', '*', self.pipoints[i].calculation).iloc[0][0]
+                        #else:
+                        #    self.pipoints[i].curValue = points[i].current_value
+
                 return None
             except Exception as err:
                 return err

@@ -161,6 +161,35 @@
                   </span>
                 </div>
 
+                <!-- Weather Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_value">
+                  <i class="fa-solid fa-cloud-sun-rain"></i><span> Weather info</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Weather node" data-bs-content="This node exposes the current weather data from the selected location.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
+                <!-- Weather Temperature Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_temperature_value">
+                  <i class="fa-solid fa-temperature-half"></i><span> Weather Temperature</span>
+                </div>
+
+                <!-- Weather Humidity Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_humidity_value">
+                  <i class="fa-solid fa-droplet"></i><span> Weather Relative Humidity</span>
+                </div>
+
+                <!-- Weather Wind Speed Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_speed_value">
+                  <i class="fa-solid fa-wind"></i><span> Weather Wind Speed</span>
+                </div>
+
+                <!-- Weather Wind Direction Nodes -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="weather_wind_dir_value">
+                  <i class="fa-solid fa-compass"></i><span> Weather Wind Direction</span>
+                </div>
+
               </div>
             </div>
           </div>
@@ -498,6 +527,29 @@
 
         <div class="modal-body">
           <div class="container">
+            <h4>Y scale configuration:</h4>
+            <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Suggested Min Value</th>
+                    <th scope="col">Suggested Max Value</th>      
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="vertical-align: middle;">
+                      <input type="number" class="form-control" aria-describedby="basic-addon2" id="suggestedMin" name="suggestedMin" value="0">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <input type="number" class="form-control" aria-describedby="basic-addon2" id="suggestedMax" name="suggestedMax" value="100">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <hr>
+            <h4>Lines configuration:</h4>
             <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
               <table class="table table-hover">
                 <thead>
@@ -505,6 +557,9 @@
                     <th scope="col">Line #</th>
                     <th scope="col">Name</th>
                     <th scope="col">Line color</th>
+                    <th scope="col">Line style</th>
+                    <th scope="col">Ticks</th>
+                    <th scope="col">Fill</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -517,6 +572,23 @@
                     <td style="vertical-align: middle;">
                       <input type="color" class="form-control form-control-color" id="line1Color" name="line1Color" value="#00a87e">
                     </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="line1Style" name="line1Style">
+                        <option selected value="continuous">Continuous</option>
+                        <option value="dashed">Dashed</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line1Ticks" name="line1Ticks" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line1Fill" name="line1Fill" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+
                   </tr>
                   <!-- Line 2-->
                   <tr>
@@ -527,6 +599,22 @@
                     <td style="vertical-align: middle;">
                       <input type="color" class="form-control form-control-color" id="line2Color" name="line2Color" value="#007D99">
                     </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="line2Style" name="line2Style">
+                        <option selected value="continuous">Continuous</option>
+                        <option value="dashed">Dashed</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line2Ticks" name="line2Ticks" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line2Fill" name="line2Fill" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
                   </tr>
                   <!-- Line 3-->
                   <tr>
@@ -536,6 +624,22 @@
                     </td>
                     <td style="vertical-align: middle;">
                       <input type="color" class="form-control form-control-color" id="line3Color" name="line3Color" value="#FF7B0D">
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="line3Style" name="line3Style">
+                        <option selected value="continuous">Continuous</option>
+                        <option value="dashed">Dashed</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line3Ticks" name="line3Ticks" class="form-check-input" type="checkbox" value="">
+                      </div>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <div class="form-check form-switch">
+                        <input id="line3Fill" name="line3Fill" class="form-check-input" type="checkbox" value="">
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -554,7 +658,44 @@
     </div>
   </div>
 
+  <!-- Config Weather Modal -->
+  <div class="modal fade" id="weatherModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="weatherModalLabel" aria-hidden="false" nodeId="0">
+    <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="weatherModalLabel">Weather configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+
+            <label for="latitude" class="form-label">Latitude</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" id="latitude" name="latitude">
+              <span class="input-group-text">ºN</span>
+            </div>
+
+            <label for="longitude" class="form-label">Longitude</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" id="longitude" name="longitude">
+              <span class="input-group-text">ºE</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" type="button" onclick="setWeatherSettings()">Apply</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <script>
+
     var id = document.getElementById("drawflow");
     const editor = new Drawflow(id);
     editor.reroute = true;
@@ -596,16 +737,9 @@
         nodeConfigButton.dataset.bsTarget = "#displayModal";
         let node = editor.getNodeFromId(id);
 
-        console.log(node);
-
-        // Set the data on the modal
-        if (typeof node.data.point === 'undefined'){
-          console.log("Variable undefined")
-        } else {
-          document.getElementById('decimalPoint').value = node.data.point;
-          document.getElementById('displayUnits').value = node.data.units;
-          nodeConfigButton.classList.remove("disabled");
-        }
+        document.getElementById('decimalPoint').value = node.data.point;
+        document.getElementById('displayUnits').value = node.data.units;
+        nodeConfigButton.classList.remove("disabled");
 
       }
 
@@ -629,31 +763,46 @@
         nodeConfigButton.dataset.bsTarget = "#chartModal";
         let node = editor.getNodeFromId(id);
 
-        // Set the data on the modal
+        // Set the data on the moda
+        console.log(node.data);
+
+        document.getElementById('suggestedMin').value = node.data.suggestedYMin;
+        document.getElementById('suggestedMax').value = node.data.suggestedYMax;
 
         document.getElementById('line1Name').value = node.data.l1Name;
         document.getElementById('line1Color').value = node.data.l1Color;
+        document.getElementById('line1Style').value = node.data.l1Style;
+        document.getElementById('line1Ticks').checked = node.data.l1Ticks;
+        document.getElementById('line1Fill').checked = node.data.l1Fill;
 
         document.getElementById('line2Name').value = node.data.l2Name;
         document.getElementById('line2Color').value = node.data.l2Color;
+        document.getElementById('line2Style').value = node.data.l2Style;
+        document.getElementById('line2Ticks').checked = node.data.l2Ticks;
+        document.getElementById('line2Fill').checked = node.data.l2Fill;
 
         document.getElementById('line3Name').value = node.data.l3Name;
         document.getElementById('line3Color').value = node.data.l3Color;
+        document.getElementById('line3Style').value = node.data.l3Style;
+        document.getElementById('line3Ticks').checked = node.data.l3Ticks;
+        document.getElementById('line3Fill').checked = node.data.l3Fill;
 
-        /*
-        if (typeof node.data.refresh_time === 'undefined'){
-          console.log("Variable undefined")
-        } else {
-          document.getElementById('refreshTime').value = node.data.refresh_time;
-          nodeConfigButton.classList.remove("disabled");
-        }
-        */
         nodeConfigButton.classList.remove("disabled");
 
       }
 
+      if (selectedNode.class == 'weather'){
+        document.getElementById('weatherModal').nodeId = id;
+        nodeConfigButton.dataset.bsTarget = "#weatherModal";
+        let node = editor.getNodeFromId(id);
 
-      console.log(editor.getNodeFromId(id).class);
+        document.getElementById('latitude').value = node.data.latitude;
+        document.getElementById('longitude').value = node.data.longitude;
+        nodeConfigButton.classList.remove("disabled");
+
+      }
+
+      // console.log(editor.getNodeFromId(id).class);
     })
 
     editor.on("clickEnd", function(event){
@@ -1327,6 +1476,61 @@
           `;
           editor.addNode('random', 0, 1, pos_x, pos_y, 'random', { "minvalue": '',"maxvalue": ''}, randomtemplate );
           break;
+        case 'weather_value':
+          var weathertemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;"> Weather API</div>
+            <div class="box">
+              <p>Open-Meteo Weather API</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weather', 0, 1, pos_x, pos_y, 'weather', {}, weathertemplate );
+          break;
+        case 'weather_temperature_value':
+          var weathertemptemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Temperature</div>
+            <div class="box">
+              <p>Current temperature (ºC)</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weathertemperature', 1, 1, pos_x, pos_y, 'weathertemperature', {}, weathertemptemplate );
+          break;
+        case 'weather_humidity_value':
+          var weatherhumiditytemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Humidity</div>
+            <div class="box">
+              <p>Relative Humidity (%)</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weatherhumidity', 1, 1, pos_x, pos_y, 'weatherhumidity', {}, weatherhumiditytemplate );
+          break;
+        case 'weather_wind_speed_value':
+          var weatherwindspeedtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Wind Speed</div>
+            <div class="box">
+              <p>Wind Speed (Km/h)</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weatherwindspeed', 1, 1, pos_x, pos_y, 'weatherwindspeed', {}, weatherwindspeedtemplate );
+          break;
+        case 'weather_wind_dir_value':
+          var weatherwinddirtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/weather.png" style="max-width:15px;">Weather Wind Dir</div>
+            <div class="box">
+              <p>Wind Direction</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('weatherwinddir', 1, 1, pos_x, pos_y, 'weatherwinddir', {}, weatherwinddirtemplate );
+          break;
         case 'out_email':
           var emailtemplate = `
           <div>
@@ -1672,6 +1876,18 @@
     let l2Width  = 2;
     let l3Width  = 2;
 
+    let l1Fill = false;
+    let l2Fill = false;
+    let l3Fill = false;
+
+    let l1Ticks = false;
+    let l2Ticks = false;
+    let l3Ticks = false;
+
+    let l1Style = [1,0];
+    let l2Style = [1,0];
+    let l3Style = [1,0];
+
     // Get the node of the Chart
     let chartNodeIds = []
     try {
@@ -1680,7 +1896,6 @@
       // Do notting
     }
     
-
     if (chartNodeIds.length > 0){
       //console.log(chartNode[0])
       chartNode = editor.getNodeFromId(chartNodeIds[0])
@@ -1693,72 +1908,152 @@
         l2Color = chartNode.data.l2Color;
         l3Color = chartNode.data.l3Color;
 
+        l1Style = [1,0];
+        if (chartNode.data.l1Style == "dashed"){
+          l1Style = [5,5];
+        }
+
+        l2Style = [1,0];
+        if (chartNode.data.l2Style == "dashed"){
+          l2Style = [5,5];
+        }
+
+        l3Style = [1,0];
+        if (chartNode.data.l3Style == "dashed"){
+          l3Style = [5,5];
+        }
+
+        l1Ticks = false;
+        if (chartNode.data.l1Ticks == true){
+          l1Ticks = 'circle';
+        }
+
+        l2Ticks = false;
+        if (chartNode.data.l2Ticks == true){
+          l2Ticks = 'circle';
+        }
+
+        l3Ticks = false;
+        if (chartNode.data.l3Ticks == true){
+          l3Ticks = 'circle';
+        }
+
+        l1Fill = false;
+        if (chartNode.data.l1Fill == true){
+          l1Fill = true;
+        }
+
+        l2Fill = false;
+        if (chartNode.data.l2Fill == true){
+          l2Fill = true;
+        }
+
+        l3Fill = false;
+        if (chartNode.data.l3Fill == true){
+          l3Fill = true;
+        }
+
+        suggestedMin = null;
+        suggestedMax = null;
+
+        if (chartNode.data.suggestedYMin != undefined){
+          suggestedMin = chartNode.data.suggestedYMin;
+        }
+
+        if (chartNode.data.suggestedYMax != undefined){
+          suggestedMax = chartNode.data.suggestedYMax;
+        }
+
       } catch {
         // Do notting
       }
       
-
     }
 
     const myChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: labelsData,
-                    datasets: [{
-                        label: l1Name,
-                        fill: false,
-                        data: lineData1,
-                        borderColor: l1Color,
-                        borderWidth: 2,
-                        pointStyle: 'circle',
-                        pointRadius: 2,
-                        pointHoverRadius: 7
-                    },{
-                        label: l2Name,
-                        fill: false,
-                        data: lineData2,
-                        borderColor: l2Color,
-                        borderWidth: 2,
-                        pointStyle: 'circle',
-                        pointRadius: 2,
-                        pointHoverRadius: 7
-                    },{
-                        label: l3Name,
-                        fill: false,
-                        data: lineData3,
-                        borderColor: l3Color,
-                        borderWidth: 2,
-                        pointStyle: 'circle',
-                        pointRadius: 2,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                  plugins: {
-                    legend: {
-                      display: false
-                    }
-                  },
-                  responsive: true,
-                  scales: {
-                    x: {
-                      display: true,
-                      title: {
-                        display: false,
-                        text: "Prediction test number",
-                      }  
-                    },
-                    y: {
-                      display: true,
-                      title: {
-                        display: false,
-                        text: "Value",
-                      } 
+              type: 'line',
+              data: {
+                  labels: labelsData,
+                  datasets: [{
+                      label: l1Name,
+                      fill: l1Fill,
+                      data: lineData1,
+                      borderColor: l1Color,
+                      borderWidth: 2,
+                      pointStyle: l1Ticks,
+                      //pointStyle: 'circle',
+                      //pointRadius: 2,
+                      //pointHoverRadius: 7,
+                      tension: 0,
+                      borderDash: l1Style
+                  },{
+                      label: l2Name,
+                      fill: l2Fill,
+                      data: lineData2,
+                      borderColor: l2Color,
+                      borderWidth: 2,
+                      pointStyle: l2Ticks,
+                      //pointStyle: 'circle',
+                      //pointRadius: 2,
+                      //pointHoverRadius: 7,
+                      tension: 0,
+                      borderDash: l2Style
+                  },{
+                      label: l3Name,
+                      fill: l3Fill,
+                      data: lineData3,
+                      borderColor: l3Color,
+                      borderWidth: 2,
+                      pointStyle: l3Ticks,
+                      //pointStyle: 'circle',
+                      //pointRadius: 2,
+                      //pointHoverRadius: 7,
+                      tension: 0,
+                      borderDash: l3Style
+                  }]
+              },
+              options: {
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom',
+                    align: 'center',
+                    labels: {
+                      display: false,
+                      boxWidth: 10,
+                      font: {
+                        size: 8
+                      }
                     }
                   }
+                },
+                responsive: true,
+                scales: {
+                  x: {
+                    display: true,
+                    ticks: {
+                      font:{
+                        size: 8,
+                      }
+                    },
+                    title: {
+                      display: false,
+                      text: "Date",
+                    }  
+                  },
+                  y: {
+                    suggestedMin: suggestedMin,
+                    suggestedMax: suggestedMax,
+                    display: true,
+                    title: {
+                      display: false,
+                      text: "Value",
+                    } 
+                  }
                 }
-              });
-    
+              }
+            });
+   
     function getNodeStatus()
     {
       setTimeout(function() {
@@ -2013,31 +2308,29 @@
       if (nodeData.nodeClass == "chart"){
         //Update chart data
         let now = new Date();
-        labelsData.push(now.toLocaleTimeString("pt-PT"));
-        // console.log(nodeData.value)
-        predictionData.push(nodeData.value[0]);
-
+        
         try {
           lineData1.push(nodeData.value[0]);
-        } catch {
-          // Do notting
+          labelsData.push(now.toLocaleTimeString("pt-PT"));
+        } catch(err) {
+          console.log("Error pushing data to line chart 1. " + err.message);
         }
 
         try {
           lineData2.push(nodeData.value[1]);
-        } catch {
-          // Do notting
+        } catch(err) {
+          console.log("Error pushing data to line chart 1. " + err.message);
         }
 
         try {
           lineData3.push(nodeData.value[2]);
-        } catch {
-          // Do notting
+        } catch(err) {
+          console.log("Error pushing data to line chart 1. " + err.message);
         }
 
         /* Stay only with the last n elements from array */
         // TODO: Adjust the max of data in chart parameters...
-        let MaxPoints = 50
+        let MaxPoints = 100
 
         if (lineData1.length > MaxPoints){
           lineData1.shift();
@@ -2494,20 +2787,48 @@
       let node = editor.getNodeFromId(chartId);
 
       //let refreshTimeVal = document.getElementById('refreshTime').value;
+      let suggestedMin = document.getElementById('suggestedMin').value;
+      let suggestedMax = document.getElementById('suggestedMax').value;
+
       let line1Name = document.getElementById('line1Name').value;
       let line1Color = document.getElementById('line1Color').value;
+      let line1Style = document.getElementById('line1Style').value;
+      let line1Ticks = document.getElementById('line1Ticks').checked;
+      let line1Fill = document.getElementById('line1Fill').checked;
 
       let line2Name = document.getElementById('line2Name').value;
       let line2Color = document.getElementById('line2Color').value;
+      let line2Style = document.getElementById('line2Style').value;
+      let line2Ticks = document.getElementById('line2Ticks').checked;
+      let line2Fill = document.getElementById('line2Fill').checked;
 
       let line3Name = document.getElementById('line3Name').value;
       let line3Color = document.getElementById('line3Color').value;
+      let line3Style = document.getElementById('line3Style').value;
+      let line3Ticks = document.getElementById('line3Ticks').checked;
+      let line3Fill = document.getElementById('line3Fill').checked;
 
 
-      editor.updateNodeDataFromId(chartId, {l1Name:line1Name, l1Color:line1Color, l2Name:line2Name, l2Color:line2Color, l3Name:line3Name, l3Color:line3Color});
+      editor.updateNodeDataFromId(chartId, {suggestedYMin:suggestedMin, suggestedYMax:suggestedMax, l1Name:line1Name, l1Color:line1Color, l1Style:line1Style, l1Ticks:line1Ticks, l1Fill:line1Fill, l2Name:line2Name, l2Color:line2Color, l2Style:line2Style, l2Ticks:line2Ticks, l2Fill:line2Fill, l3Name:line3Name, l3Color:line3Color, l3Style:line3Style, l3Ticks:line3Ticks, l3Fill:line3Fill});
 
       // Hide modal
       $('#chartModal').modal("hide");
+
+    }
+
+    /* Function to update the setting of the model node */
+    function setWeatherSettings(){
+      let weatherId = document.getElementById('weatherModal').nodeId
+      //console.log("Setting data on weather: " + weatherId);
+      let node = editor.getNodeFromId(weatherId);
+
+      let lat = document.getElementById('latitude').value;
+      let lon = document.getElementById('longitude').value;
+
+      editor.updateNodeDataFromId(weatherId, {latitude:lat, longitude:lon});
+
+      // Hide modal
+      $('#weatherModal').modal("hide");
 
     }
 

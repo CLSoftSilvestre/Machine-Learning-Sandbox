@@ -7,6 +7,8 @@ from bleConnector import BLECharacteristics, BLEConnector
 from ModbusConnector import ModbusHoldingRegister, ModbusConnector
 from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
 from OsisoftConnector import OSIsoftConnector, PiPoint
+from WeatherConnector import WeatherConnector
+
 import sys
 import time
 from threading import Thread
@@ -59,9 +61,11 @@ class Flow():
         self.modbusRegisters = []
         self.osisoftServers = []
         self.osisoftPiPoints = []
+        self.weatherData = []
         self.stop = True
         self.service = None
         self.refreshTime = 10
+        self.cooldownTime = 0
 
     def AddNode(self, node):
         self.Nodes.append(node)
@@ -89,6 +93,8 @@ class Flow():
         self.influxPoints = []
         self.osisoftServers = []
         self.osisoftPiPoints = []
+        self.weatherData = []
+        self.cooldownTime = 0
 
         # Create the list of OSIsoft Pi Points
         for node in self.Nodes:
@@ -265,7 +271,19 @@ class Flow():
                 writer.writerow(csvdata)
 
                 #print(node.innerStorageArray.getvalue(), file=sys.stderr)
-                
+
+        # Setup the Weather connector
+        for node in self.Nodes:
+            if node.nodeClass == "weather":
+                try:
+                    node.rawObject = []
+                    weatherCon = WeatherConnector(node.params["LATITUDE"], node.params["LONGITUDE"])
+                    node.rawObject.append(weatherCon)
+                    self.weatherData.append(weatherCon.GetData())
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
         # Start the Loop of the Flow
         self.Restart()
     
@@ -273,498 +291,534 @@ class Flow():
         self.stop = False
         while not self.stop:
 
-            # Update Read data from OSIsoft
-            for server in self.osisoftServers:
-                server.ReadVariables()
-     
-            # First loop inputs
-            for node in self.Nodes:
-                if node.nodeClass == "s7variable":
-                    node.clearError()
-                    try:
-                        #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
-                        node.outputValue = float(node.rawObject[0].curProcValue)
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                        #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
-                elif node.nodeClass == "osisoftpipoint":
-                    node.clearError()
-                    try:
-                        node.outputValue = float(node.rawObject[0].curValue)
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-
-                elif node.nodeClass == "bleconnector":
-                    node.clearError()
-                    try:
-                        asyncio.run(node.rawObject[0].readDevice())
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-
-                elif node.nodeClass == "blecharacteristic":
-                    node.clearError()
-                    try:
-                        node.outputValue = float(node.rawObject[0].value)
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "mqtttopic":
-                    node.clearError()
-                    try:
-                        node.outputValue = float(node.rawObject[0].payload)
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "static":
-                    try:
-                        staticValue = node.params["STATICVALUE"]
-                        node.outputValue = staticValue
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "random":   
-                    node.clearError()   
-                    try:
-                        minValue = node.params["MINVALUE"]
-                        maxValue = node.params["MAXVALUE"]
-                        print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
-                        rndValue = random.randrange(minValue, maxValue)
-                        node.outputValue = rndValue
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-            # Second loop operations and conditionals
-            for node in self.Nodes:
-                if node.nodeClass == "addition":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        node.outputValue = value1 + value2
-                        #print("Addition performed: " + str(value1) + " + " + str(value2) + " = " + str(node.outputValue))
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                        #print("Error updating addition operation " + str(err), file=sys.stderr)
-
-                elif node.nodeClass == "subtraction":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        node.outputValue = value1 - value2
-                        #print("Addition performed: " + str(value1) + " - " + str(value2) + " = " + str(node.outputValue))
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                        #print("Error updating subtraction operation " + str(err), file=sys.stderr)
-
-                elif node.nodeClass == "multiplication":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        node.outputValue = value1 * value2
-                        #print("Addition performed: " + str(value1) + " * " + str(value2) + " = " + str(node.outputValue))
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                        #print("Error updating multiplication operation " + str(err), file=sys.stderr)
-
-                elif node.nodeClass == "division":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        node.outputValue = value1 / value2
-                        #print("Addition performed: " + str(value1) + " / " + str(value2) + " = " + str(node.outputValue))
-                    except ZeroDivisionError:
-                        node.outputValue = "div/0"
-                        node.setError("Division by zero")
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "scale":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-
-                        # Get the node parameters
-                        minValue = node.params["MINVALUE"]
-                        maxValue = node.params["MAXVALUE"]
-                        
-                        # Perform operation
-                        node.outputValue = minValue + (maxValue - minValue) * (value1 / 100)
-
-                    except ZeroDivisionError:
-                        node.outputValue = "div/0"
-                        node.setError("Division by zero")
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-
-                elif node.nodeClass == "equal":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1 == value2):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "notequal":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1 != value2):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "greater":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1 > value2):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "greaterequal":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1 >= value2):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "lower":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1 < value2):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "lowerequal":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1 <= value2):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "and":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1>=1) and (value2>=1):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                
-                elif node.nodeClass == "or":
-                    node.clearError()
-                    try:
-                        # Get the input nodes
-                        prevNodeId1 = node.inputConnectors[0].nodeId
-                        prevNodeId2 = node.inputConnectors[1].nodeId
-                        prevNode1 = self.GetNodeById(prevNodeId1)
-                        prevNode2 = self.GetNodeById(prevNodeId2)
-
-                        # Get the value of the input nodes
-                        value1 = float(prevNode1.outputValue)
-                        value2 = float(prevNode2.outputValue)
-                        # Perform operation
-                        if (value1>=1) or (value2>=1):
-                            node.outputValue = 1
-                        else:
-                            node.outputValue = 0
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-
-            # Third loop model
-            for node in self.Nodes:
-                if node.nodeClass == "model":
-                    node.clearError()
-                    try:
-                        mlModel = node.params["MODEL"]
-                        inpVariables = node.params["VARIABLES"]
-                        featuresCount = node.params["FEATURES"]
-                        inputsNodes=[]
-                        inputData = pd.DataFrame()
-
-                        for i in range(0, featuresCount):
-                            inputsNodes.append(self.GetNodeById(node.inputConnectors[i].nodeId))
-
-                        #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
-                        for i, variable in enumerate(inpVariables):
-                            inputData[variable] = [float(inputsNodes[i].outputValue)]
-                            #print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
-                        
+            if self.cooldownTime <= 0:
+                # Update Read data from OSIsoft
+                for server in self.osisoftServers:
+                    server.ReadVariables()
+        
+                # First loop inputs
+                for node in self.Nodes:
+                    if node.nodeClass == "s7variable":
+                        node.clearError()
                         try:
-                            result = mlModel.predict(inputData)
+                            #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
+                            node.outputValue = float(node.rawObject[0].curProcValue)
                         except Exception as err:
+                            node.outputValue = None
                             node.setError(str(err))
-                        
-                        if result:
+                            #print("Error updating Node " + str(node.id) + " - value", file=sys.stderr)
+                    elif node.nodeClass == "osisoftpipoint":
+                        node.clearError()
+                        try:
+                            node.outputValue = float(node.rawObject[0].curValue)
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                    elif node.nodeClass == "bleconnector":
+                        node.clearError()
+                        try:
+                            asyncio.run(node.rawObject[0].readDevice())
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                    elif node.nodeClass == "blecharacteristic":
+                        node.clearError()
+                        try:
+                            node.outputValue = float(node.rawObject[0].value)
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "mqtttopic":
+                        node.clearError()
+                        try:
+                            node.outputValue = float(node.rawObject[0].payload)
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "static":
+                        try:
+                            staticValue = node.params["STATICVALUE"]
+                            node.outputValue = staticValue
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "random":   
+                        node.clearError()   
+                        try:
+                            minValue = node.params["MINVALUE"]
+                            maxValue = node.params["MAXVALUE"]
+                            print("Minvalue: " + str(minValue) + ", Maxvalue: " + str(maxValue))
+                            rndValue = random.randrange(minValue, maxValue)
+                            node.outputValue = rndValue
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "weathertemperature":
+                        node.clearError()
+                        try:
+                            node.outputValue = float(self.weatherData[0].Variables(0).Value())
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "weatherhumidity":
+                        node.clearError()
+                        try:
+                            node.outputValue = float(self.weatherData[0].Variables(1).Value())
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "weatherwindspeed":
+                        node.clearError()
+                        try:
+                            node.outputValue = float(self.weatherData[0].Variables(2).Value())
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "weatherwinddir":
+                        node.clearError()
+                        try:
+                            node.outputValue = self.weatherData[0].Variables(3).Value()
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                # Second loop operations and conditionals
+                for node in self.Nodes:
+                    if node.nodeClass == "addition":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            node.outputValue = value1 + value2
+                            #print("Addition performed: " + str(value1) + " + " + str(value2) + " = " + str(node.outputValue))
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                            #print("Error updating addition operation " + str(err), file=sys.stderr)
+
+                    elif node.nodeClass == "subtraction":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            node.outputValue = value1 - value2
+                            #print("Addition performed: " + str(value1) + " - " + str(value2) + " = " + str(node.outputValue))
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                            #print("Error updating subtraction operation " + str(err), file=sys.stderr)
+
+                    elif node.nodeClass == "multiplication":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            node.outputValue = value1 * value2
+                            #print("Addition performed: " + str(value1) + " * " + str(value2) + " = " + str(node.outputValue))
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                            #print("Error updating multiplication operation " + str(err), file=sys.stderr)
+
+                    elif node.nodeClass == "division":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            node.outputValue = value1 / value2
+                            #print("Addition performed: " + str(value1) + " / " + str(value2) + " = " + str(node.outputValue))
+                        except ZeroDivisionError:
+                            node.outputValue = "div/0"
+                            node.setError("Division by zero")
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "scale":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+
+                            # Get the node parameters
+                            minValue = node.params["MINVALUE"]
+                            maxValue = node.params["MAXVALUE"]
+                            
+                            # Perform operation
+                            node.outputValue = minValue + (maxValue - minValue) * (value1 / 100)
+
+                        except ZeroDivisionError:
+                            node.outputValue = "div/0"
+                            node.setError("Division by zero")
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                    elif node.nodeClass == "equal":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1 == value2):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "notequal":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1 != value2):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "greater":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1 > value2):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "greaterequal":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1 >= value2):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "lower":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1 < value2):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "lowerequal":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1 <= value2):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "and":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1>=1) and (value2>=1):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    elif node.nodeClass == "or":
+                        node.clearError()
+                        try:
+                            # Get the input nodes
+                            prevNodeId1 = node.inputConnectors[0].nodeId
+                            prevNodeId2 = node.inputConnectors[1].nodeId
+                            prevNode1 = self.GetNodeById(prevNodeId1)
+                            prevNode2 = self.GetNodeById(prevNodeId2)
+
+                            # Get the value of the input nodes
+                            value1 = float(prevNode1.outputValue)
+                            value2 = float(prevNode2.outputValue)
+                            # Perform operation
+                            if (value1>=1) or (value2>=1):
+                                node.outputValue = 1
+                            else:
+                                node.outputValue = 0
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                # Third loop model
+                for node in self.Nodes:
+                    if node.nodeClass == "model":
+                        node.clearError()
+                        try:
+                            mlModel = node.params["MODEL"]
+                            inpVariables = node.params["VARIABLES"]
+                            featuresCount = node.params["FEATURES"]
+                            inputsNodes=[]
+                            inputData = pd.DataFrame()
+
+                            for i in range(0, featuresCount):
+                                inputsNodes.append(self.GetNodeById(node.inputConnectors[i].nodeId))
+
+                            #print("Node " + str(node.id) + " - Siemens variable value: " +str(node.rawObject[0].curProcValue), file=sys.stderr)
+                            for i, variable in enumerate(inpVariables):
+                                inputData[variable] = [float(inputsNodes[i].outputValue)]
+                                #print("Variable : " + str(variable.name) + ", Value : " + str(inputsNodes[i].outputValue), file=sys.stderr)
+                            
                             try:
-                                resultValue = result[0][0]
-                            except:
-                                resultValue = result[0]
-                            node.outputValue = resultValue
-                            #print("Prediction: " + str(resultValue), file=sys.stderr)
-                        else:
+                                result = mlModel.predict(inputData)
+                            except Exception as err:
+                                node.setError(str(err))
+                            
+                            if result:
+                                try:
+                                    resultValue = result[0][0]
+                                except:
+                                    resultValue = result[0]
+                                node.outputValue = resultValue
+                                #print("Prediction: " + str(resultValue), file=sys.stderr)
+                            else:
+                                node.outputValue = None
+                                node.setError("Error predicting value.")
+                        except Exception as err:
                             node.outputValue = None
-                            node.setError("Error predicting value.")
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
+                            node.setError(str(err))
 
-            # Forth loop outputs
-            for node in self.Nodes:
-                if node.nodeClass == "chart":
-                    node.clearError()
-                    try:
-                        outputArray = []
-                        inputsCount = len(node.inputConnectors)
+                # Forth loop outputs
+                for node in self.Nodes:
+                    if node.nodeClass == "chart":
+                        node.clearError()
+                        try:
+                            outputArray = []
+                            inputsCount = len(node.inputConnectors)
 
-                        for i in range(0, inputsCount):
-                            tempNodeId = node.inputConnectors[i].nodeId
-                            tempNode = self.GetNodeById(tempNodeId)
-                            tempValue = tempNode.outputValue
-                            outputArray.append(tempValue)
+                            for i in range(0, inputsCount):
+                                tempNodeId = node.inputConnectors[i].nodeId
+                                tempNode = self.GetNodeById(tempNodeId)
+                                tempValue = tempNode.outputValue
+                                outputArray.append(tempValue)
 
-                        node.outputValue = outputArray
+                            node.outputValue = outputArray
 
-                        #prevNodeId = node.inputConnectors[0].nodeId
-                        #print("Chart data predious node id " + str(prevNodeId), file=sys.stderr)
-                        #prevNode = self.GetNodeById(prevNodeId)
-                        #value = prevNode.outputValue
-                        #node.innerStorageArray.append(value)
-                        # Only stay with last 15 inputs...
-                        #if len(node.innerStorageArray) > 15:
-                        #    node.innerStorageArray.pop(0)
-                        #node.outputValue = value
-                        #print("Chart data previous node " + str(value), file=sys.stderr)
-                        #print(node.innerStorageArray, file=sys.stderr)
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-                        #print("Error updating chart " + str(err), file=sys.stderr)
-
-                if node.nodeClass == "display":
-                    node.clearError()
-                    try:
-                        prevNodeId = node.inputConnectors[0].nodeId
-                        prevNode = self.GetNodeById(prevNodeId)
-                        value = prevNode.outputValue
-                        if value == None:
-                            node.outputValue = "NULL"
-                        else:
-                            node.outputValue = value
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
-
-                if node.nodeClass == "notification":
-                    node.clearError()
-                    try:
-                        message = node.params["MESSAGE"]
-                        prevNodeId = node.inputConnectors[0].nodeId
-                        prevNode = self.GetNodeById(prevNodeId)
-                        value = prevNode.outputValue
-                        if value < 1:
+                            #prevNodeId = node.inputConnectors[0].nodeId
+                            #print("Chart data predious node id " + str(prevNodeId), file=sys.stderr)
+                            #prevNode = self.GetNodeById(prevNodeId)
+                            #value = prevNode.outputValue
+                            #node.innerStorageArray.append(value)
+                            # Only stay with last 15 inputs...
+                            #if len(node.innerStorageArray) > 15:
+                            #    node.innerStorageArray.pop(0)
+                            #node.outputValue = value
+                            #print("Chart data previous node " + str(value), file=sys.stderr)
+                            #print(node.innerStorageArray, file=sys.stderr)
+                        except Exception as err:
                             node.outputValue = None
-                        else:
-                            node.outputValue = message
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
+                            node.setError(str(err))
+                            #print("Error updating chart " + str(err), file=sys.stderr)
 
-                if node.nodeClass == "log":
-                    node.clearError()
-                    try:
-                        print("Logging data.", file=sys.stderr)
-                        #node.innerStorageArray = io.StringIO()
-                        csvdata = []
-                        csvdata.append(datetime.now())
-                        for i in range(0, len(node.inputConnectors)):
-                            prevNodeId = node.inputConnectors[i].nodeId
+                    if node.nodeClass == "display":
+                        node.clearError()
+                        try:
+                            prevNodeId = node.inputConnectors[0].nodeId
                             prevNode = self.GetNodeById(prevNodeId)
                             value = prevNode.outputValue
-                            csvdata.append(value)
+                            if value == None:
+                                node.outputValue = "NULL"
+                            else:
+                                node.outputValue = value
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
 
-                        writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONE, delimiter=";")
-                        writer.writerow(csvdata)
+                    if node.nodeClass == "notification":
+                        node.clearError()
+                        try:
+                            message = node.params["MESSAGE"]
+                            prevNodeId = node.inputConnectors[0].nodeId
+                            prevNode = self.GetNodeById(prevNodeId)
+                            value = prevNode.outputValue
+                            if value < 1:
+                                node.outputValue = None
+                            else:
+                                node.outputValue = message
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
 
-                        #print(node.innerStorageArray.getvalue(), file=sys.stderr)
+                    if node.nodeClass == "log":
+                        node.clearError()
+                        try:
+                            print("Logging data.", file=sys.stderr)
+                            #node.innerStorageArray = io.StringIO()
+                            csvdata = []
+                            csvdata.append(datetime.now())
+                            for i in range(0, len(node.inputConnectors)):
+                                prevNodeId = node.inputConnectors[i].nodeId
+                                prevNode = self.GetNodeById(prevNodeId)
+                                value = prevNode.outputValue
+                                csvdata.append(value)
 
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
+                            writer = csv.writer(node.innerStorageArray, quoting=csv.QUOTE_NONE, delimiter=";")
+                            writer.writerow(csvdata)
 
-            # Fifth loop Update the InfluxPoint and then publish data to database
-            for node in self.Nodes:
-                if node.nodeClass == "influxpoint":
-                    node.clearError()
-                    try:
-                        prevNodeId = node.inputConnectors[0].nodeId
-                        prevNode = self.GetNodeById(prevNodeId)
-                        value = prevNode.outputValue
-                        if value == None:
-                            node.outputValue = "NULL"
-                            #node.rawObject[0].SetValue("NULL")
-                        else:
-                            node.outputValue = value
-                            node.rawObject[0].SetValue(value)
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
+                            #print(node.innerStorageArray.getvalue(), file=sys.stderr)
 
-            for node in self.Nodes:
-                if node.nodeClass == "influxdb":
-                    node.clearError()
-                    try:
-                        node.rawObject[0].WritePoints()
-                    except Exception as err:
-                        node.outputValue = None
-                        node.setError(str(err))
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
 
-            time.sleep(self.refreshTime)
+                # Fifth loop Update the InfluxPoint and then publish data to database
+                for node in self.Nodes:
+                    if node.nodeClass == "influxpoint":
+                        node.clearError()
+                        try:
+                            prevNodeId = node.inputConnectors[0].nodeId
+                            prevNode = self.GetNodeById(prevNodeId)
+                            value = prevNode.outputValue
+                            if value == None:
+                                node.outputValue = "NULL"
+                                #node.rawObject[0].SetValue("NULL")
+                            else:
+                                node.outputValue = value
+                                node.rawObject[0].SetValue(value)
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                for node in self.Nodes:
+                    if node.nodeClass == "influxdb":
+                        node.clearError()
+                        try:
+                            node.rawObject[0].WritePoints()
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                self.cooldownTime = self.refreshTime
+            else:
+                self.cooldownTime -=1
+            time.sleep(1)
         return False
     
     def Stop(self):

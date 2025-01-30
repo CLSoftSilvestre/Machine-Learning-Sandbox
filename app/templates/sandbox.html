@@ -39,6 +39,7 @@
                           <thead>
                             <tr>
                               <th scope="col"></th>
+                              <th scope="col"></th>
                               <th scope="col" id="tr_model_name">Model name</th>
                               <th scope="col" id="tr_model_description">Model description</th>
                               <th scope="col" id="tr_model_keywords">Keywords</th>
@@ -55,6 +56,21 @@
                                     <td style="vertical-align: middle;"></td>
                                   {% else %}
                                     <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This model was trained in other software version. Some functionalities may not be available.'>⚠️</td>
+                                  {% endif %}
+                                  {% if model.modelType != "detection" %}
+                                    {% if model.flow is defined %}
+                                      {% if model.flow.service is defined %}
+                                        {% if model.flow.stop == false %}
+                                        <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow is running.'><i class="fa-solid fa-circle-play" style="color: #00A87E"></i></td>
+                                        {% else %}
+                                        <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow is not running.'><i class="fa-solid fa-circle-stop" style="color: #005C44"></i></td>
+                                        {% endif %} 
+                                      {% endif %}
+                                    {% else %}
+                                    <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow does not exist.'><i class="fa-solid fa-circle-xmark" style="color: #fd7474"></i></td>
+                                    {% endif %}
+                                    {% else %}
+                                    <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow does not exist.'><i class="fa-solid fa-circle-xmark" style="color: #fd7474"></i></td>
                                   {% endif %}
                                   <td style="vertical-align: middle;">{{model.name}}</td>
                                   <td style="vertical-align: middle;">{{model.description}}</td>
@@ -146,7 +162,7 @@
               </div>
             </div>
             {% else %}
-              <h5 class="alert alert-primary ms-4 me-4">No trained models available</h5>
+              <h5 class="alert alert-secondary ms-4 me-4">Ops! Seems there is no trained model available.</h5>
           {% endif %}   
       </div>
   </div>
