@@ -3,7 +3,7 @@ Flask Web application to train and use machine learning models with integrated A
 ***
 ## Available ML models
 The platform can train several types of models including classification and regressions.
-Sdandard scaler and feature reduction can also be applied in the pipeline by selecting the desired functionalities in the training process.
+Standard scaler and feature reduction can also be applied in the pipeline by selecting the desired functionalities in the training process.
 
 ### Regression models
 - Linear regression
@@ -17,30 +17,40 @@ Sdandard scaler and feature reduction can also be applied in the pipeline by sel
 - Random forest
 - K Nearest Neighbors
 
-### Anomaly detection models (alfa)
+### Anomaly detection models (under development)
 - Local Outlier Factor (LOF)
 - Isolation forest
 
 
-## Printscreens of the app
+## Application showcase
 
 ### Main screen
-Management of existent models
-![alt text](./screenshots/index.jpg?raw=true)
+On the main screen user can check the available trained models, quickly check the status of the automation flow and access to the main actions (Single prediction, Batch prediction, Information, Automation Flow, Download and Delete)
+![alt text](./screenshots/mainscreen.jpeg?raw=true)
 
-### Data Studio screen
-In the Data Studio the data can be imported, cleaned and analysed before imported into the model training area
-![alt text](./screenshots/datastudio.jpg?raw=true)
+### Data Studio
+In the Data Studio the data can be imported using several connectors. (more to be added in the future).
+![alt text](./screenshots/Datastudio_import.jpeg?raw=true)
+
+From this module, data can be cleaned and analysed before imported into the model training area
+![alt text](./screenshots/datastudio.png?raw=true)
+
+![alt text](./screenshots/boxplots.png?raw=true)
+
+Several operation can be performed to the dataset and if needed data transformation steps can be changed or deleted.
+
+![alt text](./screenshots/dataoperations.png?raw=true)
 
 It's also possible to add python code to perform operation in the Dataset
-![alt text](./screenshots/scripting.jpg?raw=true)
+![alt text](./screenshots/scripting.png?raw=true)
 
 And check the correlations and show a scatter plot between the available variables.
-![alt text](./screenshots/scatter.jpeg?raw=true)
+![alt text](./screenshots/correlations.png?raw=true)
+![alt text](./screenshots/scatterplot.png?raw=true)
 
 ### Train  models screen
 After cleaned and analysed, the dataset can be imported to the model training area.
-Here the user can set the deatils of the model and select the model algorithm.
+Here the user can set the details of the model and select the model algorithm.
 ![alt text](./screenshots/models.jpeg?raw=true)
 
 ### Check the model performance
@@ -48,8 +58,17 @@ After training the model, it will be saved in the folder ./app/models/. The user
 ![alt text](./screenshots/details.jpeg?raw=true)
 
 ### Model automated simulation flow
-Once created the models, the simulation environment can access in the details page of the model. Users can use this enviroment to simulate several working conditions and output the values to CSV file to be analysed. (This feature is only available for regression models)
-![alt text](./screenshots/automation_flows.jpeg?raw=true)
+Once created the models, the user can connect the model to sources of data or directly to equipments to analyse the model with live data. Users can use this enviroment to simulate several working conditions and output the values to CSV file to be analysed. (This feature is currently only available for regression models)
+Several connector are available as:
+- OSIsoft PI (using PISDK only available for windows)
+- MQTT
+- Siemens S7 connector
+- OPC UA (under development)
+- Bluetooth Low Energy
+- Modbus TCP
+- ...
+
+![alt text](./screenshots/automationflow.png?raw=true)
 
 ### Using API
 The integrated API prodived methods to list the available models, get the required input fields and retrieve the prediction.
