@@ -74,17 +74,17 @@ Several connector are available as:
 The integrated API prodived methods to list the available models, get the required input fields and retrieve the prediction.
 
 #### Getting the list of available trained models
-The get method to the address <http://{serveraddress}/GetModels> return the list of available models in the server. The uuid of the model will be required for the other endpoints.
+The get method to the address <http://{serveraddress}/api/GetModels> return the list of available models in the server. The uuid of the model will be required for the other endpoints.
 
 ![alt text](./screenshots/apigetmodels.jpg?raw=true)
 
 #### Getting the list inputs for the model
-The get method to the address <http://{serveraddress}/Predict/{model_uuid}> return the list of input parameters of the model.
+The get method to the address <http://{serveraddress}/api/Predict/{model_uuid}> return the list of input parameters of the model.
 
 ![alt text](./screenshots/apipredictget.jpg?raw=true)
 
 #### Predicting the value
-The post method to the address <http://{serveraddress}/Predict/{model_uuid}> return the information regarding the mode, the list of input parameters and the prediction result.
+The post method to the address <http://{serveraddress}/api/Predict/{model_uuid}> return the information regarding the mode, the list of input parameters and the prediction result.
 
 ![alt text](./screenshots/apipredictpost.jpg?raw=true)
 
@@ -120,4 +120,5 @@ python<version> app.py
 ```bash
 docker-compose up
 ```
-The folder ./app/models/ will be shared with the docker container. Any models created in the docker environment will be saved in the models folder of the host.
+- The folder `./app/models/` will be shared with the docker container to store the models created.
+- The folder `./app/config/` will be shared with the docker container to store the app configuration file.
