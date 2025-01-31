@@ -13,6 +13,7 @@ class Translate{
         {key:"tr_app_version", pt:"Versão app:", en:"App version:", fr:"Version de l'app:", default:"App version:"},
         {key:"tr_model_version", pt:"Versão modelo:", en:"Model version:", fr:"Version du modèle:", default:"Model version:"},
         {key:"tr_for_more_info", pt:"Para mais informações contatar:", en:"For more information please contact:", fr:"Pour plus d'informations, veuillez contacter:", default:"For more information please contact:"},
+        {key:"tr_support", pt:"Sinta-se à vontade para apoiar este projeto.", en:"Feel free to support this project.", fr:"N'hésitez pas à soutenir ce projet.", default:"Feel free to support this project."},
         {key:"tr_show_tutorials", pt:"Mostrar tutoriais", en:"Show tutorials", fr:"Afficher les tutoriels", default:"Show tutorials"},
         {key:"tr_username", pt:"Nome utilizador", en:"Username", fr:"Nom d'utilisateur", default:"Username"},
         {key:"tr_oldpassword", pt:"Palavra passe antiga", en:"Old password", fr:"Ancien mot de passe", default:"Old password"},
