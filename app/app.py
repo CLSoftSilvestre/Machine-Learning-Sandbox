@@ -56,12 +56,17 @@ import pygwalker as pyg
 from DataCollectorService import DataCollectorService
 from OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
 
+import logging
+
 
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config['SECRET'] = "secret!123"
 Session(app)
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 cfg = Configurator()
 confList = []

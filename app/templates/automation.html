@@ -331,6 +331,14 @@
                   </span>
                 </div>
 
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_teams">
+                  <i class="fa-solid fa-users"></i><span> Teams message</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Teams message node" data-bs-content="Sends teams message to specific user or group according rules.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_log">
                   <i class="fa-solid fa-file-signature"></i><span> Logfile</span>
                   <!-- Display popover with information about the node -->
@@ -694,6 +702,87 @@
     </div>
   </div>
 
+  <!-- Config Teams Modal -->
+  <div class="modal fade" id="teamsModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="teamsModalLabel" aria-hidden="false" nodeId="0">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="teamsModalLabel">Teams message configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+
+            <h5>Message info:</h5>
+            <br>
+
+            <label for="webhook" class="form-label">Webhook URL</label>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Webhook URL" aria-label="webhook-url" aria-describedby="basic-addon2" id="webhook" name="webhook">
+            </div>
+
+            <label for="teamsmessage" class="form-label">Message</label>
+            <div class="input-group mb-3">
+              <textarea type="text" class="form-control" placeholder="Define here the message to be sent..." aria-label="webhook-url" aria-describedby="basic-addon2" id="teamsmessage" name="teamsmessage"></textarea>
+            </div>
+            <p><i class="fa-solid fa-circle-info"></i> If you want to include the input value in the message use the <b>{VALUE}</b> placeholder</p>
+
+            <hr>
+
+            <h5>Notification rules:</h5>
+            <br>
+
+            <label for="sendif" class="form-label">Send message if:</label>
+
+            <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Value</th>
+                    <th scope="col">Operator</th>
+                    <th scope="col">Target</th>  
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="vertical-align: middle;">
+                      Input value
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="teamsOperator" name="teamsOperator">
+                        <option selected value="lower">Lower</option>
+                        <option value="equal">Equal</option>
+                        <option value="higher">Higher</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <input type="number" class="form-control" aria-describedby="basic-addon2" id="teamstarget" name="teamstarget" value="0">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <label for="teamsCooldownTime" class="form-label">Message cooldown time</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" placeholder="Model refresh time" aria-label="Refresh Time" aria-describedby="basic-addon2" id="teamsCooldownTime" name="teamsCooldownTime" value="60" min="60" max="300" step="10">
+              <span class="input-group-text">sec.</span>
+            </div>
+            <p><i class="fa-solid fa-circle-info"></i> After initial sent, cooldown time will avoid re-sending the same message reducing the spam efect.</p>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" type="button" onclick="setTeamsSettings()">Apply</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <script>
 
     var id = document.getElementById("drawflow");
@@ -802,6 +891,20 @@
 
       }
 
+      if (selectedNode.class == 'teams'){
+        document.getElementById('teamsModal').nodeId = id;
+        nodeConfigButton.dataset.bsTarget = "#teamsModal";
+        let node = editor.getNodeFromId(id);
+
+        document.getElementById('webhook').value = node.data.webhook;
+        document.getElementById('teamsmessage').value = node.data.message;
+        document.getElementById('teamsOperator').value = node.data.operator;
+        document.getElementById('teamstarget').value = node.data.target;
+        document.getElementById('teamsCooldownTime').value = node.data.cooldown;
+
+        nodeConfigButton.classList.remove("disabled");
+
+      }
       // console.log(editor.getNodeFromId(id).class);
     })
 
@@ -1578,6 +1681,17 @@
           </div>
           `;
           editor.addNode('notification', 1, 0, pos_x, pos_y, 'notification', { "message": ''}, notificationtemplate );
+          break;
+        case 'out_teams':
+          var teamstemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/msteams.png" style="max-width:20px;"> Teams message</div>
+            <div class="box">
+              <p>Send message using webhook</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('teams', 1, 0, pos_x, pos_y, 'teams', {}, teamstemplate );
           break;
         case 'out_influxdb':
           var influxdbtemplate = `
@@ -2829,6 +2943,24 @@
 
       // Hide modal
       $('#weatherModal').modal("hide");
+
+    }
+
+    /* Function to update the setting of the model node */
+    function setTeamsSettings(){
+      let teamsId = document.getElementById('teamsModal').nodeId
+      let node = editor.getNodeFromId(teamsId);
+
+      let webhook = document.getElementById('webhook').value;
+      let message = document.getElementById('teamsmessage').value;
+      let operator = document.getElementById('teamsOperator').value;
+      let target = document.getElementById('teamstarget').value;
+      let cooldown = document.getElementById('teamsCooldownTime').value;
+
+      editor.updateNodeDataFromId(teamsId, {webhook:webhook, message:message, operator:operator, target:target, cooldown:cooldown});
+
+      // Hide modal
+      $('#teamsModal').modal("hide");
 
     }
 

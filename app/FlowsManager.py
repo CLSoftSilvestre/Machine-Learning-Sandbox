@@ -7,7 +7,8 @@ from bleConnector import BLECharacteristics, BLEConnector
 from ModbusConnector import ModbusHoldingRegister, ModbusConnector
 from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
 from OsisoftConnector import OSIsoftConnector, PiPoint
-from WeatherConnector import WeatherConnector
+from connectors.WeatherConnector import WeatherConnector
+from connectors.TeamsConnector import TeamsConnector
 
 import sys
 import time
@@ -283,6 +284,18 @@ class Flow():
                 except Exception as err:
                     node.outputValue = None
                     node.setError(str(err))
+
+        # Setup the Teams connectors
+        for node in self.Nodes:
+            if node.nodeClass == "teams":
+                try:
+                    node.rawObject = []
+                    teamsCon = TeamsConnector(node.params["WEBHOOK"], 60, node.params["COOLDOWN"], node.params["OPERATOR"], node.params["TARGET"])
+                    node.rawObject.append(teamsCon)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
 
         # Start the Loop of the Flow
         self.Restart()
@@ -762,6 +775,19 @@ class Flow():
                                 node.outputValue = None
                             else:
                                 node.outputValue = message
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    
+                    if node.nodeClass == "teams":
+                        node.clearError()
+                        try:
+                            prevNodeId = node.inputConnectors[0].nodeId
+                            prevNode = self.GetNodeById(prevNodeId)
+                            value = prevNode.outputValue
+
+                            node.rawObject[0].cooldownReduction(self.refreshTime)
+                            node.rawObject[0].text(node.params["MESSAGE"], value)
                         except Exception as err:
                             node.outputValue = None
                             node.setError(str(err))
