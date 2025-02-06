@@ -648,6 +648,29 @@ class PredictionModel:
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
                 
+                elif elementClass == "discord":
+                    webhook = data["drawflow"]["Home"]["data"][str(i)]["data"]["webhook"]
+                    message = data["drawflow"]["Home"]["data"][str(i)]["data"]["message"]
+                    operator = data["drawflow"]["Home"]["data"][str(i)]["data"]["operator"]
+                    target = data["drawflow"]["Home"]["data"][str(i)]["data"]["target"]
+                    cooldown = data["drawflow"]["Home"]["data"][str(i)]["data"]["cooldown"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+                    
+                    params = {
+                        "WEBHOOK": webhook,
+                        "MESSAGE": message,
+                        "OPERATOR": operator,
+                        "TARGET": target,
+                        "COOLDOWN": cooldown,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.NUMERIC)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+                
                 elif elementClass == "log":
                     connectors = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
 

@@ -9,6 +9,7 @@ from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
 from OsisoftConnector import OSIsoftConnector, PiPoint
 from connectors.WeatherConnector import WeatherConnector
 from connectors.TeamsConnector import TeamsConnector
+from connectors.DiscordConnector import DiscordConnector
 
 import sys
 import time
@@ -291,6 +292,15 @@ class Flow():
                 try:
                     node.rawObject = []
                     teamsCon = TeamsConnector(node.params["WEBHOOK"], 60, node.params["COOLDOWN"], node.params["OPERATOR"], node.params["TARGET"])
+                    node.rawObject.append(teamsCon)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+
+            elif node.nodeClass == "discord":
+                try:
+                    node.rawObject = []
+                    teamsCon = DiscordConnector(node.params["WEBHOOK"], node.params["COOLDOWN"], node.params["OPERATOR"], node.params["TARGET"])
                     node.rawObject.append(teamsCon)
                 except Exception as err:
                     node.outputValue = None
@@ -780,6 +790,19 @@ class Flow():
                             node.setError(str(err))
                     
                     if node.nodeClass == "teams":
+                        node.clearError()
+                        try:
+                            prevNodeId = node.inputConnectors[0].nodeId
+                            prevNode = self.GetNodeById(prevNodeId)
+                            value = prevNode.outputValue
+
+                            node.rawObject[0].cooldownReduction(self.refreshTime)
+                            node.rawObject[0].text(node.params["MESSAGE"], value)
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+
+                    if node.nodeClass == "discord":
                         node.clearError()
                         try:
                             prevNodeId = node.inputConnectors[0].nodeId

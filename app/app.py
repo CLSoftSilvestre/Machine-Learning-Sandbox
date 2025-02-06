@@ -4,7 +4,7 @@ Created on Fri Aug 18 09:53:44 2023
 
 @author: CSilvestre
 """
-
+import pip_system_certs.wrapt_requests
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file
 from flask_session import Session
 
@@ -59,6 +59,7 @@ from OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
 import logging
 
 
+
 app = Flask(__name__, instance_relative_config=True)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -66,7 +67,7 @@ app.config['SECRET'] = "secret!123"
 Session(app)
 
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+log.setLevel(logging.DEBUG)
 
 cfg = Configurator()
 confList = []

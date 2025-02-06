@@ -339,6 +339,14 @@
                   </span>
                 </div>
 
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_discord">
+                  <i class="fa-solid fa-users"></i><span> Discord message</span>
+                  <!-- Display popover with information about the node -->
+                  <span class="d-inline-block" tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus"  title="Discord message node" data-bs-content="Sends message to specific discord server channel.">
+                    <span class="bg-info badge rounded-circle">?</span>
+                  </span>
+                </div>
+
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="out_log">
                   <i class="fa-solid fa-file-signature"></i><span> Logfile</span>
                   <!-- Display popover with information about the node -->
@@ -783,6 +791,87 @@
     </div>
   </div>
 
+  <!-- Config Discord Modal -->
+  <div class="modal fade" id="discordModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="discordModalLabel" aria-hidden="false" nodeId="0">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="discordModalLabel">Discord message configuration</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+
+            <h5>Message info:</h5>
+            <br>
+
+            <label for="webhook" class="form-label">Webhook URL</label>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="Webhook URL" aria-label="webhook-url" aria-describedby="basic-addon2" id="discordwebhook" name="discordwebhook">
+            </div>
+
+            <label for="teamsmessage" class="form-label">Message</label>
+            <div class="input-group mb-3">
+              <textarea type="text" class="form-control" placeholder="Define here the message to be sent..." aria-label="webhook-url" aria-describedby="basic-addon2" id="discordmessage" name="discordmessage"></textarea>
+            </div>
+            <p><i class="fa-solid fa-circle-info"></i> If you want to include the input value in the message use the <b>{VALUE}</b> placeholder</p>
+
+            <hr>
+
+            <h5>Notification rules:</h5>
+            <br>
+
+            <label for="sendif" class="form-label">Send message if:</label>
+
+            <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Value</th>
+                    <th scope="col">Operator</th>
+                    <th scope="col">Target</th>  
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="vertical-align: middle;">
+                      Input value
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <select class="form-select" id="discordOperator" name="discordOperator">
+                        <option selected value="lower">Lower</option>
+                        <option value="equal">Equal</option>
+                        <option value="higher">Higher</option>
+                      </select>
+                    </td>
+                    <td style="vertical-align: middle;">
+                      <input type="number" class="form-control" aria-describedby="basic-addon2" id="discordtarget" name="discordtarget" value="0">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <label for="teamsCooldownTime" class="form-label">Message cooldown time</label>
+            <div class="input-group mb-3">
+              <input type="number" class="form-control" placeholder="Model refresh time" aria-label="Refresh Time" aria-describedby="basic-addon2" id="discordCooldownTime" name="discordCooldownTime" value="60" min="60" max="300" step="10">
+              <span class="input-group-text">sec.</span>
+            </div>
+            <p><i class="fa-solid fa-circle-info"></i> After initial sent, cooldown time will avoid re-sending the same message reducing the spam efect.</p>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" type="button" onclick="setDiscordSettings()">Apply</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <script>
 
     var id = document.getElementById("drawflow");
@@ -901,6 +990,21 @@
         document.getElementById('teamsOperator').value = node.data.operator;
         document.getElementById('teamstarget').value = node.data.target;
         document.getElementById('teamsCooldownTime').value = node.data.cooldown;
+
+        nodeConfigButton.classList.remove("disabled");
+
+      }
+
+      if (selectedNode.class == 'discord'){
+        document.getElementById('discordModal').nodeId = id;
+        nodeConfigButton.dataset.bsTarget = "#discordModal";
+        let node = editor.getNodeFromId(id);
+
+        document.getElementById('discordwebhook').value = node.data.webhook;
+        document.getElementById('discordmessage').value = node.data.message;
+        document.getElementById('discordOperator').value = node.data.operator;
+        document.getElementById('discordtarget').value = node.data.target;
+        document.getElementById('discordCooldownTime').value = node.data.cooldown;
 
         nodeConfigButton.classList.remove("disabled");
 
@@ -1692,6 +1796,17 @@
           </div>
           `;
           editor.addNode('teams', 1, 0, pos_x, pos_y, 'teams', {}, teamstemplate );
+          break;
+        case 'out_discord':
+          var discordtemplate = `
+          <div>
+            <div class="title-box"><img src="../static/img/discord-logo.png" style="max-width:25px;"> Discord message</div>
+            <div class="box">
+              <p>Send message using webhook</p>
+            </div>
+          </div>
+          `;
+          editor.addNode('discord', 1, 0, pos_x, pos_y, 'discord', {}, discordtemplate );
           break;
         case 'out_influxdb':
           var influxdbtemplate = `
@@ -2946,7 +3061,7 @@
 
     }
 
-    /* Function to update the setting of the model node */
+    /* Function to update the setting of the Teams message node */
     function setTeamsSettings(){
       let teamsId = document.getElementById('teamsModal').nodeId
       let node = editor.getNodeFromId(teamsId);
@@ -2961,6 +3076,24 @@
 
       // Hide modal
       $('#teamsModal').modal("hide");
+
+    }
+
+    /* Function to update the setting of the discord message node */
+    function setDiscordSettings(){
+      let discordId = document.getElementById('discordModal').nodeId
+      let node = editor.getNodeFromId(discordId);
+
+      let webhook = document.getElementById('discordwebhook').value;
+      let message = document.getElementById('discordmessage').value;
+      let operator = document.getElementById('discordOperator').value;
+      let target = document.getElementById('discordtarget').value;
+      let cooldown = document.getElementById('discordCooldownTime').value;
+
+      editor.updateNodeDataFromId(discordId, {webhook:webhook, message:message, operator:operator, target:target, cooldown:cooldown});
+
+      // Hide modal
+      $('#discordModal').modal("hide");
 
     }
 
