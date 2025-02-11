@@ -54,7 +54,7 @@ from urllib.error import *
 import pygwalker as pyg
 
 from DataCollectorService import DataCollectorService
-from OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
+from connectors.OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
 
 import logging
 
@@ -74,7 +74,7 @@ confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.10"
+appversion = "1.4.11"
 model_version = 7 # Model includes automation diagram
 
 # DataCollectorService

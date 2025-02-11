@@ -1,12 +1,12 @@
 import uuid
 from datetime import datetime
 from enum import Enum
-from S7Connector import S7Connector, S7Variable
-from mqttConnector import MqttConnector, MqttTopic
-from bleConnector import BLECharacteristics, BLEConnector
-from ModbusConnector import ModbusHoldingRegister, ModbusConnector
-from InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
-from OsisoftConnector import OSIsoftConnector, PiPoint
+from connectors.S7Connector import S7Connector, S7Variable
+from connectors.mqttConnector import MqttConnector, MqttTopic
+from connectors.bleConnector import BLECharacteristics, BLEConnector
+from connectors.ModbusConnector import ModbusHoldingRegister, ModbusConnector
+from connectors.InfluxdbConnector import InfluxDBConnector, InfluxDBPoint
+from connectors.OsisoftConnector import OSIsoftConnector, PiPoint
 from connectors.WeatherConnector import WeatherConnector
 from connectors.TeamsConnector import TeamsConnector
 from connectors.DiscordConnector import DiscordConnector
