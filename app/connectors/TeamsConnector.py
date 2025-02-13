@@ -1,5 +1,8 @@
+import pip_system_certs.wrapt_requests
 import urllib3
 import json
+
+import urllib3.connection
 
 class TeamsWebhookException(Exception):
     """custom exception for failed webhook call"""
@@ -7,7 +10,7 @@ class TeamsWebhookException(Exception):
 
 class TeamsConnector:
     def __init__(self, hookurl, http_timeout=60, cooldown=60, operator="lower", target=0):
-        self.http = urllib3.PoolManager()
+        self.http = urllib3.PoolManager(cert_reqs='CERT_NONE')
         self.payload = {}
         self.hookurl = hookurl
         self.http_timeout = http_timeout
@@ -17,7 +20,15 @@ class TeamsConnector:
         self.target = float(target)
     
     def text(self, mtext:str, value):
-        replacedText = mtext.replace('{VALUE}', str(value))
+        pos = mtext.find("|")
+        roundDigits = 2
+        tempText = mtext
+        if pos > -1:
+            roundDigits = int(mtext[pos+1])
+            strToRemove = "|" + str(mtext[pos+1])
+            tempText = tempText.replace(strToRemove,"")
+
+        replacedText = tempText.replace('{VALUE}', str(round(value, roundDigits)))
         self.payload["text"] = replacedText
         self.testConditions(value)
         return
@@ -50,7 +61,7 @@ class TeamsConnector:
                     f'{self.hookurl}',
                     body=json.dumps(self.payload).encode('utf-8'),
                     headers=headers, timeout=self.http_timeout)
-            if r.status == 200:
+            if r.status == 202:
                 self.remainingCooldown = int(self.cooldown)
                 return True
             else:
