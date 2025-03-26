@@ -11,7 +11,7 @@
   <li class="breadcrumb-item active" id="tr_viewproject">Predict</li>
 </ol-->
 
-<h3 class="m-4">Predict value</h3>
+<h3 class="m-4"><span id="tr_predict_value">Predict value</span></h3>
 
   {% if Result %}
     <h5 class="alert alert-primary ms-4 me-4">
@@ -27,7 +27,7 @@
 
       {% if Model.modelType != "detection" %}
       <b>
-        Model prediction: {{Result}} {{Units}}
+        <span id="tr_model_prediction">Model prediction</span>: {{Result}} {{Units}}
       </b>
       {% else %}
       <b>
@@ -42,12 +42,12 @@
       <br>
       <br>
       {% if Model.modelType != "detection" %}
-      Confidence interval based on MSE score
+      <span id="tr_confidence_interval">Confidence interval based on RMSE score</span>
 
       <br>
-      <b>
-        Min prediction: {{MinResult}} - Max prediction: {{MaxResult}}   
-      </b>
+
+      <span id="tr_interval_min">Min interval</span>: {{MinResult}} - <span id="tr_interval_max">Max interval</span>: {{MaxResult}}   
+
       {% endif %}
       
     </h5>
@@ -63,7 +63,7 @@
       
       <div class="card bg-light ms-4 me-4 mb-4">
         <div class="card-header">
-          <i class="fa-solid fa-list fa-lg"></i> Model details
+          <i class="fa-solid fa-list fa-lg"></i> <span id="tr_model_details">Model details</span>
         </div>
         <div class="card-body">
           <!-- Controlos para selecionar projecto a visualizar -->
@@ -71,13 +71,13 @@
 
             <div class="form-group row">       
               <!-- Model Name field -->
-              <label for="ModelName" class="col-sm-2 col-form-label">Model name</label>
+              <label for="ModelName" class="col-sm-2 col-form-label"><span id="tr_model_name">Model name</span></label>
               <div class="col-sm-3">
                 <input type="text" class="form-control text-left" id="ModelName" value="{{Model.name}}" disabled>
               </div>
               
-              <!-- Plant field -->
-              <label for="Description" class="col-sm-2 col-form-label">Description</label>
+              <!-- Description field -->
+              <label for="Description" class="col-sm-2 col-form-label"><span id="tr_model_description">Description</span></label>
               <div class="col-sm-5">
                 <input type="text" class="form-control text-left" id="Description" value="{{Model.description}}" disabled>
               </div>
@@ -85,7 +85,7 @@
 
             <hr>
 
-            <h5>Data input variables for model:</h5>
+            <h5><span id="tr_model_data_input">Data input variables for model:</span></h5>
             <div>&MediumSpace;</div>
 
             <form method="post">
@@ -128,7 +128,7 @@
                 <!-- Predict button -->
                 <div class="form-group row">
                     <div class="col-sm-12 text-center">
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> Predict value using model</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-calculator"></i> <span id="tr_predict_button">Predict value using model</span> </button>
                     </div>
                 </div>
 

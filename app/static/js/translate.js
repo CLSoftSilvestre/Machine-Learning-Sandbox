@@ -7,7 +7,7 @@ class Translate{
         {key:"tr_home", pt:"Início", en:"Home", fr:"Commencer", default:"Home"},
         {key:"tr_about", pt:"Acerca", en:"About", fr:"À propos", default:"About"},
         {key:"tr_configuration", pt:"Configuração", en:"Configuration", fr:"Configuration", default:"Configuration"},
-        {key:"tr_change_password", pt:"Alterar password", en:"Change password", fr:"Changer le mot de passefi", default:"Change password"},
+        {key:"tr_change_password", pt:"Alterar password", en:"Change password", fr:"Changer le mot de passe", default:"Change password"},
         {key:"tr_logout", pt:"Desconectar", en:"Logout", fr:"Déconnexion", default:"Logout"},
         {key:"tr_really_logout", pt:"Deseja realmente desconectar-se?", en:"Do you really want to logout?", fr:"Voulez-vous vraiment vous déconnecter ?", default:"Do you really want to logout?"},
         {key:"tr_app_version", pt:"Versão app:", en:"App version:", fr:"Version de l'app:", default:"App version:"},
@@ -184,6 +184,15 @@ class Translate{
         {key:"tr_anom_models", pt:"Modelos de detecção de anomalias", en:"Anomaly detection models", fr:"Modèles de détection d'anomalies", default:"Anomaly detection models"},
         {key:"tr_anom_models_desc", pt:"Selecione um destes modelos quando o valor a prever é uma categoria.", en:"Select one of those models when is needed to detect anomaly in the data. Anomaly detection don't require variable Y selection.", fr:"Sélectionnez l'un de ces modèles lorsque cela est nécessaire pour détecter une anomalie dans les données. La détection des anomalies ne nécessite pas de sélection de variable Y", default:"Select one of those models when is needed to detect anomaly in the data. Annomaly detection don't require variable Y selection."},
 
+        // Predict page
+        {key:"tr_predict_value", pt:"Prever valor", en:"Predict value", fr:"Prédire la valeur", default:"Predict value"},
+        {key:"tr_model_details", pt:"Detalhes do modelo", en:"Model details", fr:"Détails du modèle", default:"Model details"},
+        {key:"tr_model_data_input", pt:"Variáveis de entrada do modelo:", en:"Data input variables for model:", fr:"Variables d'entrée de données pour le modèle :", default:"Data input variables for model:"},
+        {key:"tr_predict_button", pt:"Prever valor utilizando modelo", en:"Predict value using model", fr:"Prédire la valeur à l'aide du modèle", default:"Predict value using model"},
+        {key:"tr_model_prediction", pt:"Previsão do modelo", en:"Model prediction", fr:"Prédiction du modèle", default:"Model prediction"},
+        {key:"tr_confidence_interval", pt:"Intervalo de confiança baseado no valor de RMSE", en:"Confidence interval based on RMSE score", fr:"Intervalle de confiance basé sur le score RMSE", default:"Confidence interval based on RMSE score"},
+        {key:"tr_interval_min", pt:"Intervalo minimo", en:"Min interval", fr:"Intervalle minimum", default:"Min interval"},
+        {key:"tr_interval_max", pt:"Intervalo minimo", en:"Max interval", fr:"Intervalle maximum", default:"Max interval"},
 
         // States
         {key:"tr_error", pt:"Erro!", en:"Error!", fr:"Erreur!", default:"Error!"},
