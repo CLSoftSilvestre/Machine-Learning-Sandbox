@@ -1934,7 +1934,6 @@ def UpdateModelsList():
 def UpdateConfigurationList():
     global cfg
     global confList
-    global dcService
     configPath = os.path.join(app.root_path, 'config', "*.conf")
     confList = cfg.GetConfigFilesList(configPath)
 
@@ -1942,8 +1941,6 @@ def UpdateConfigurationList():
     try:
         if len(confList)>0:
             if (confList[0].dcsAutostart == True) and (confList[0].dataCollector is not None):
-                #dcService = confList[0].dataCollector
-                #dcService.StartService()
                 confList[0].dataCollector.StartService()
                 print("Data Collector service has started. ", file=sys.stderr)
     except Exception as err:
