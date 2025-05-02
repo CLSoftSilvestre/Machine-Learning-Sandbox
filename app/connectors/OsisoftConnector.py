@@ -1,6 +1,7 @@
 
 import sys
 import pandas as pd
+import numpy as np
 if sys.platform == 'win32':
     import PIconnect as PI
     from PIconnect.PIConsts import SummaryType
@@ -79,8 +80,14 @@ def GetPiPointData(startTime, endTime, interval, piPoint:PiPoint=0):
     with PI.PIServer() as server:
         point = server.search(piPoint.name)[0]
         data = point.summaries(start_time=startTime, end_time=endTime, interval=interval, summary_types=piPoint.calculation)
+
         # Change the data column names
         data.columns = [piPoint.name]
+
+        for index, row in data.iterrows():
+            if isinstance(row[0], float) == False:
+                data[piPoint.name].loc[index] = np.NaN
+
         return data
 
 def GetPiData(startTime, endTime, interval, piPoints):

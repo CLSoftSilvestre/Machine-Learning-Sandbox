@@ -4,7 +4,7 @@ Created on Fri Aug 18 09:53:44 2023
 
 @author: CSilvestre
 """
-
+import pip_system_certs.wrapt_requests
 from flask import Flask, render_template, send_from_directory, request, redirect, url_for, jsonify, session, send_file
 from flask_session import Session
 
@@ -54,7 +54,10 @@ from urllib.error import *
 import pygwalker as pyg
 
 from DataCollectorService import DataCollectorService
-from OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
+from connectors.OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
+
+import logging
+
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -63,12 +66,15 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config['SECRET'] = "secret!123"
 Session(app)
 
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.DEBUG)
+
 cfg = Configurator()
 confList = []
 
 mm = ModelManager()
 modelsList = []
-appversion = "1.4.10"
+appversion = "1.4.12"
 model_version = 7 # Model includes automation diagram
 
 # DataCollectorService
@@ -1928,7 +1934,6 @@ def UpdateModelsList():
 def UpdateConfigurationList():
     global cfg
     global confList
-    global dcService
     configPath = os.path.join(app.root_path, 'config', "*.conf")
     confList = cfg.GetConfigFilesList(configPath)
 
@@ -1936,8 +1941,6 @@ def UpdateConfigurationList():
     try:
         if len(confList)>0:
             if (confList[0].dcsAutostart == True) and (confList[0].dataCollector is not None):
-                #dcService = confList[0].dataCollector
-                #dcService.StartService()
                 confList[0].dataCollector.StartService()
                 print("Data Collector service has started. ", file=sys.stderr)
     except Exception as err:

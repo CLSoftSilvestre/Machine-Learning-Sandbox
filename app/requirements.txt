@@ -26,3 +26,5 @@ PIconnect
 openmeteo-requests
 requests-cache
 retry-requests
+discord-webhook
+pip-system-certs

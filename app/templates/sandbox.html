@@ -13,8 +13,8 @@
             <a class="btn btn-success" type="button" href="{{ url_for('importFile')}}" id="tour-index-importmodel"><i class="fas fa-file-import"></i><span id="tr_sp_import_model"> Import existing model</span></a>
             {% if config.enableAutomation%}
             <a class="btn btn-success" type="button" href="{{ url_for('datacollector')}}" id="tour-index-datacollector"><i class="fas fa-plug"></i><span id="tr_sp_datacollector"> Data collector</span></a>
-            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i><span id="tr_sp_refresh"> Refresh</span></a>
             {% endif %}
+            <a class="btn btn-success" type="button" href="{{ url_for('refresh')}}" id="tour-index-refresh"><i class="fas fa-rotate"></i><span id="tr_sp_refresh"> Refresh</span></a>
           {% else %}
             <a class="btn btn-success disabled" type="button" href="#" id="tour-index-datastudio"><i class="fas fa-database"></i><span id="tr_sp_data_studio"> Data studio</span></a>
             <a class="btn btn-success disabled" type="button" href="#" id="tour-index-importmodel"><i class="fas fa-file-import"></i><span id="tr_sp_import_model"> Import existing model</span></a>
@@ -57,21 +57,26 @@
                                   {% else %}
                                     <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This model was trained in other software version. Some functionalities may not be available.'>⚠️</td>
                                   {% endif %}
-                                  {% if model.modelType != "detection" %}
-                                    {% if model.flow is defined %}
-                                      {% if model.flow.service is defined %}
-                                        {% if model.flow.stop == false %}
-                                        <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow is running.'><i class="fa-solid fa-circle-play" style="color: #00A87E"></i></td>
-                                        {% else %}
-                                        <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow is not running.'><i class="fa-solid fa-circle-stop" style="color: #005C44"></i></td>
-                                        {% endif %} 
+                                  {% if config.enableAutomation %}
+                                    {% if model.modelType != "detection"%}
+                                      {% if model.flow is defined %}
+                                        {% if model.flow.service is defined %}
+                                          {% if model.flow.stop == false %}
+                                          <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow is running.'><i class="fa-solid fa-circle-play" style="color: #00A87E"></i></td>
+                                          {% else %}
+                                          <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow is not running.'><i class="fa-solid fa-circle-stop" style="color: #005C44"></i></td>
+                                          {% endif %} 
+                                        {% endif %}
+                                      {% else %}
+                                      <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow does not exist.'><i class="fa-solid fa-circle-xmark" style="color: #fd7474"></i></td>
                                       {% endif %}
-                                    {% else %}
-                                    <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow does not exist.'><i class="fa-solid fa-circle-xmark" style="color: #fd7474"></i></td>
+                                      {% else %}
+                                      <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow does not exist.'><i class="fa-solid fa-circle-xmark" style="color: #fd7474"></i></td>
                                     {% endif %}
-                                    {% else %}
-                                    <td style="vertical-align: middle;" data-bs-toggle="tooltip" data-bs-html="true" title='This automation flow does not exist.'><i class="fa-solid fa-circle-xmark" style="color: #fd7474"></i></td>
+                                  {% else %}
+                                    <td style="vertical-align: middle;"></td>
                                   {% endif %}
+
                                   <td style="vertical-align: middle;">{{model.name}}</td>
                                   <td style="vertical-align: middle;">{{model.description}}</td>
                                   {% if model.keywords|length > 0 %}
