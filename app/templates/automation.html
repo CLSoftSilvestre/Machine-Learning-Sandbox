@@ -1113,6 +1113,31 @@
         toastList.forEach(toast => toast.show()) 
       }
       
+      if(nodeInputClass.class == "edgeattribute" && nodeOutputClass.class != "edgeconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Edge attributes input can only be connected to output of Edge IEVD.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "edgeconnector" && nodeInputClass.class != "edgeattribute"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Edge IEVD Connectors can only be connected to input of Edge attributes.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
 
       if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
         // Delete the connection
@@ -1325,7 +1350,20 @@
       if(name == "osisoft_connector"){
         modelLst = editor.getNodesFromName("osisoftconnector");
         if (modelLst.length > 0){
-          document.getElementById("warning-text").innerText = "Only one instance of model node can be used!";
+          document.getElementById("warning-text").innerText = "Only one instance of OSIsoft node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "edge_connector"){
+        modelLst = editor.getNodesFromName("edgeconnector");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of Edge IEVD node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -1445,7 +1483,7 @@
             <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> Edge attribute</div>
             <div class="box">
               <p>Attribute Id</p>
-              <input type="text" df-edge-anchor placeholder="Attribute Id"><br><br>
+              <input type="text" df-edge-anchor placeholder="Attribute Id"><br>
             </div>
           </div>
           `;

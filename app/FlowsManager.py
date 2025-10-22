@@ -123,6 +123,7 @@ class Flow():
                     edge = EdgeConnector(node.params["IP"], node.params["USERNAME"], node.params["PASSWORD"])
                     for attr in self.edgeAttributes:
                         edge.AddAttribute(attr)
+                    edge.Connect()
                     self.edgeServers.append(edge)
                 except Exception as err:
                     node.outputValue = None

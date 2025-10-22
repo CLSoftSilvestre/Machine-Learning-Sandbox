@@ -50,22 +50,18 @@ class EdgeConnector:
             "Cookie":"authToken="+self.accessToken
         }
 
-        # Check if login i valid
-        if self.accessToken != "":
-            for attr in self.attributes:
-                url = "https://" + self.ip + "/iih-essentials/DataService/anchor/v1/attributes/" + attr.anchor
-                response = requests.get(url=url, headers=headerData, verify=False)
-                #response_json = response.json()
+        for attr in self.attributes:
+            url = "https://" + self.ip + "/iih-essentials/DataService/anchor/v1/attributes/" + attr.anchor
+            response = requests.get(url=url, headers=headerData, verify=False)
+            #response_json = response.json()
 
-                # Check if value is boolean
-                if response.text == "true":
-                    attr.curRawValue = 1
-                elif response.text == "false":
-                    attr.curRawValue = 0
-                else:
-                    try:
-                        attr.curRawValue = float(response.text)
-                    except ValueError:
-                        attr.curRawValue = None
-        else:
-            self.Connect()
+            # Check if value is boolean
+            if response.text == "true":
+                attr.curRawValue = 1
+            elif response.text == "false":
+                attr.curRawValue = 0
+            else:
+                try:
+                    attr.curRawValue = float(response.text)
+                except ValueError:
+                    attr.curRawValue = None
