@@ -67,6 +67,15 @@
             <div class="accordion-body">
               <div class="form-group row">
 
+                <!-- Siemens Edge -->
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="edge_connector">
+                  <i class="fa-solid fa-plug"></i><span> Siemens Edge IEVD</span>
+                </div>
+
+                <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="edge_attribute">
+                  <i class="fa-solid fa-hashtag"></i><span> Siemens Edge Attribute</span>
+                </div>
+
                 <!-- OSIsoft PI -->
                 {% if app_config.useOsisoftConnector == True %}
                 <div class="drag-drawflow" draggable="true" ondragstart="drag(event)" data-node="osisoft_connector">
@@ -1104,6 +1113,31 @@
         toastList.forEach(toast => toast.show()) 
       }
       
+      if(nodeInputClass.class == "edgeattribute" && nodeOutputClass.class != "edgeconnector"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Edge attributes input can only be connected to output of Edge IEVD.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
+
+      if(nodeOutputClass.class == "edgeconnector" && nodeInputClass.class != "edgeattribute"){
+        // Delete the connection
+        //editor.removeSingleConnection(id_output, id_input, output_class, input_class)
+        editor.removeSingleConnection(output_id, input_id, output_class, input_class)
+
+        document.getElementById("warning-text").innerText = "Connection not compatible! Edge IEVD Connectors can only be connected to input of Edge attributes.";
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function(toastEl) {
+          return new bootstrap.Toast(toastEl)
+        })
+        toastList.forEach(toast => toast.show()) 
+      }
 
       if(nodeInputClass.class == "s7variable" && nodeOutputClass.class != "s7connector"){
         // Delete the connection
@@ -1316,7 +1350,20 @@
       if(name == "osisoft_connector"){
         modelLst = editor.getNodesFromName("osisoftconnector");
         if (modelLst.length > 0){
-          document.getElementById("warning-text").innerText = "Only one instance of model node can be used!";
+          document.getElementById("warning-text").innerText = "Only one instance of OSIsoft node can be used!";
+          var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+          var toastList = toastElList.map(function(toastEl) {
+            return new bootstrap.Toast(toastEl)
+          })
+          toastList.forEach(toast => toast.show()) 
+          return False;
+        }
+      }
+
+      if(name == "edge_connector"){
+        modelLst = editor.getNodesFromName("edgeconnector");
+        if (modelLst.length > 0){
+          document.getElementById("warning-text").innerText = "Only one instance of Edge IEVD node can be used!";
           var toastElList = [].slice.call(document.querySelectorAll('.toast'))
           var toastList = toastElList.map(function(toastEl) {
             return new bootstrap.Toast(toastEl)
@@ -1415,6 +1462,32 @@
           </div>
           `;
           editor.addNode('model', {{Model.variables|count}},  1, pos_x, pos_y, 'model', {"model_uuid": "{{Model.uuid}}", "features_count":"{{Model.variables|count}}", "refresh_time":''}, model);
+          break;
+        case 'edge_connector':
+          var edgeconnector = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> Edge IEVD</div>
+            <div class="box">
+              <p>Edge IEVD parameters</p>
+              <input type="text" df-edge-server placeholder="127.0.0.1"><br><br>
+              <input type="text" df-edge-username placeholder="user"><br><br>
+              <input type="password" df-edge-password placeholder="password"><br><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('edgeconnector', 0, 1, pos_x, pos_y, 'edgeconnector', {"edge": { "server": '', "username": '', "password": '' }}, edgeconnector );
+          break;
+        case 'edge_attribute':
+          var edgeattribute = `
+          <div>
+            <div class="title-box"><img src="../static/img/Siemens_AG_logo.png" style="max-width:80px;"> Edge attribute</div>
+            <div class="box">
+              <p>Attribute Id</p>
+              <input type="text" df-edge-anchor placeholder="Attribute Id"><br>
+            </div>
+          </div>
+          `;
+          editor.addNode('edgeattribute', 1, 1, pos_x, pos_y, 'edgeattribute', {"edge": { "anchor": ''}}, edgeattribute );
           break;
         case 'osisoft_connector':
           var osisoftconnector = `

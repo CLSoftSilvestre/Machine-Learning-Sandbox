@@ -10,6 +10,7 @@ from connectors.OsisoftConnector import OSIsoftConnector, PiPoint
 from connectors.WeatherConnector import WeatherConnector
 from connectors.TeamsConnector import TeamsConnector
 from connectors.DiscordConnector import DiscordConnector
+from connectors.ievdConnector import EdgeAttribute, EdgeConnector
 
 import sys
 import time
@@ -36,6 +37,7 @@ class ValueType(Enum):
     BLUETOOTHCONNECTION = 60
     MODBUSCONNECTION = 70
     OSISOFTCONNECTION = 80
+    EDGECONNECTION = 90
 
 class InputConnector():
     def __init__(self, nodeId, outputNumber, valueType:ValueType = 0):
@@ -63,6 +65,8 @@ class Flow():
         self.modbusRegisters = []
         self.osisoftServers = []
         self.osisoftPiPoints = []
+        self.edgeServers = []
+        self.edgeAttributes = []
         self.weatherData = []
         self.stop = True
         self.service = None
@@ -96,7 +100,34 @@ class Flow():
         self.osisoftServers = []
         self.osisoftPiPoints = []
         self.weatherData = []
+        self.edgeServers = []
+        self.edgeAttributes = []
         self.cooldownTime = 0
+
+        # Create the list of Edge devices
+        for node in self.Nodes:
+            if node.nodeClass == "edgeattribute":
+                try:
+                    node.rawObject = []
+                    edgeattr = EdgeAttribute(node.params["ANCHOR"])
+                    node.rawObject.append(edgeattr)
+                    self.edgeAttributes.append(edgeattr)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
+        
+        # Create the list of Edge devices
+        for node in self.Nodes:
+            if node.nodeClass == "edgeconnector":
+                try:
+                    edge = EdgeConnector(node.params["IP"], node.params["USERNAME"], node.params["PASSWORD"])
+                    for attr in self.edgeAttributes:
+                        edge.AddAttribute(attr)
+                    edge.Connect()
+                    self.edgeServers.append(edge)
+                except Exception as err:
+                    node.outputValue = None
+                    node.setError(str(err))
 
         # Create the list of OSIsoft Pi Points
         for node in self.Nodes:
@@ -318,6 +349,10 @@ class Flow():
                 # Update Read data from OSIsoft
                 for server in self.osisoftServers:
                     server.ReadVariables()
+                
+                # Update Read data from Edge Devices
+                for edge in self.edgeServers:
+                    edge.ReadAttributes()
         
                 # First loop inputs
                 for node in self.Nodes:
@@ -334,6 +369,13 @@ class Flow():
                         node.clearError()
                         try:
                             node.outputValue = float(node.rawObject[0].curValue)
+                        except Exception as err:
+                            node.outputValue = None
+                            node.setError(str(err))
+                    elif node.nodeClass == "edgeattribute":
+                        node.clearError()
+                        try:
+                            node.outputValue = float(node.rawObject[0].curRawValue)
                         except Exception as err:
                             node.outputValue = None
                             node.setError(str(err))

@@ -128,6 +128,37 @@ class PredictionModel:
                     node.SetInputConnector(con)
                     self.flow.AddNode(node)
                 
+                elif elementClass == "edgeconnector":
+                    #get data from siemens edge connector
+                    server = data["drawflow"]["Home"]["data"][str(i)]["data"]["edge"]["server"]
+                    username = data["drawflow"]["Home"]["data"][str(i)]["data"]["edge"]["username"]
+                    password = data["drawflow"]["Home"]["data"][str(i)]["data"]["edge"]["password"]
+
+                    params = {
+                        "IP": server,
+                        "USERNAME": username,
+                        "PASSWORD": password,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    self.flow.AddNode(node)
+                
+                elif elementClass == "edgeattribute":
+                    #get data from siemens edge attribute
+                    anchor = data["drawflow"]["Home"]["data"][str(i)]["data"]["edge"]["anchor"]
+                    connector = data["drawflow"]["Home"]["data"][str(i)]["inputs"]["input_1"]["connections"]
+
+                    params = {
+                        "ANCHOR": anchor,
+                    }
+
+                    node = Node(i, elementClass, params)
+                    nodeId = connector[0]["node"]
+                    nodeInp = connector[0]["input"]
+                    con = InputConnector(nodeId, nodeInp, ValueType.EDGECONNECTION)
+                    node.SetInputConnector(con)
+                    self.flow.AddNode(node)
+
                 elif elementClass == "osisoftconnector":
                     node = Node(i, elementClass, None)
                     self.flow.AddNode(node)
