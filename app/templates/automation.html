@@ -428,6 +428,62 @@
     </div>
   </div>
 
+  <!-- Get Edge objects Modal -->
+  <div class="modal fade" id="edgeModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="edgeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="edgeModalLabel">Siemens Edge Browser</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="container">
+            <div class="row" style="margin: 10px;">
+              <div class="col-xl-3">
+                <h6>Assets list:</h6>
+                <ul class="list-group list-group-flush" id="edgeAssetsList"></ul>
+              </div>
+          
+              <div class="col-xl-9">
+                <h6>Attributes list:</h6>
+                <div class="table-responsive" style="overflow-x: hidden; overflow-y: auto;">
+                  <table class="table table-hover" id="attributesListTable">
+                    <thead>
+                      <tr>
+                        <th scope="col">Anchor</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Datatype</th>
+                        <th scope="col">Unit</th>
+                        <th scope="col">Value</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!--tr>
+                        <td style="vertical-align: middle;">506-UTILI-FROID-COMP1-Z-010</td>
+                        <td style="vertical-align: middle;">Ammonia compressor 1 capacity</td>
+                        <td style="vertical-align: middle;">100</td>
+                        <td style="vertical-align: middle;">%</td>
+                      </tr-->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>      
+          </div>
+          
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-primary" type="button" onclick="updateEdgeList()" id="btnBrowseEdge">Browse Edge</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+        
+      </div>
+    </div>
+  </div>
+
   <!-- Get Osisoft variables Modal -->
   <div class="modal fade" id="osisoftModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="osisoftModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -913,6 +969,11 @@
       // Check if node selected is osisoftpipoint
       selectedNode = editor.getNodeFromId(id)
       var nodeConfigButton = document.getElementById('btnNodeHelp');
+
+      if (selectedNode.class == 'edgeconnector'){
+        nodeConfigButton.dataset.bsTarget = "#edgeModal";
+        nodeConfigButton.classList.remove("disabled")
+      }
         
       if (selectedNode.class == 'osisoftpipoint' || selectedNode.class == 'osisoftconnector'){
         nodeConfigButton.dataset.bsTarget = "#osisoftModal";
@@ -3043,9 +3104,134 @@
               cell4.innerHTML = data[i].uom;
             }
 
-            document.getElementById("btnUpdateList").innerText = "Update list";
+            document.getElementById("btnUpdateList").innerText = "Browse Edge";
 
           });
+    
+    }
+
+    /* Function to browse edge assets */
+    function updateEdgeList(){
+      console.log("Updating Edge assets list...");
+      const apiUrl = '/getassets/'
+
+      document.getElementById("btnBrowseEdge").innerText = "Updating...";
+
+      edgeNode = document.getElementsByClassName("edgeconnector")[0]
+      edgeNode1 = edgeNode.childNodes[1]
+      edgeNode2 = edgeNode1.childNodes[1]
+      edgeNode3 = edgeNode2.childNodes[3]
+      ip_value = edgeNode3.childNodes[3].value
+      user_value = edgeNode3.childNodes[7].value
+      pass_value = edgeNode3.childNodes[11].value
+
+      if (ip_value == "" || user_value == "" || pass_value == ""){
+        document.getElementById("btnBrowseEdge").innerText = "Update list";
+        alert("Update IEVD parameters before browsing...")
+        return
+      }
+
+      bodydata = {
+        ip: ip_value,
+        username: user_value,
+        password: pass_value,
+      }
+
+      const requestOptions = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bodydata)
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            list = document.getElementById("edgeAssetsList")
+            list.innerHTML = "";
+
+            for (let i=0; i< data.length; i++){
+              // Update Edge Assets List
+              elm = document.createElement("button");
+              elm.classList.add("list-group-item")
+              elm.classList.add("list-group-item-action")
+              elm.innerText = data[i].$displayname["xx-XX"]
+              elm.setAttribute("onclick", "updateAssetsAttributes('" + data[i].$anchor + "')")
+              list.appendChild(elm)
+            }
+
+            document.getElementById("btnBrowseEdge").innerText = "Update list";
+
+          });
+
+    }
+
+    /* Function to get the assets attributes */
+    function updateAssetsAttributes(anchor){
+      console.log("Asset anchor: " + anchor);
+      const apiUrl = '/getatributes/' + anchor;
+      console.log(apiUrl)
+
+      const requestOptions = {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        };
+
+        fetch(apiUrl, requestOptions)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log(data)
+            //add the elements to the Modal table
+            var table = document.getElementById("attributesListTable");
+
+            // Clear rows before populating new data
+            var tableHeaderRowCount = 1;
+            var rowCount = table.rows.length;
+            for (var i = tableHeaderRowCount; i < rowCount; i++) {
+              table.deleteRow(tableHeaderRowCount);
+            }
+
+            for (let i=0; i< data.length; i++){
+
+              // Find a <table> element with id="myTable":
+              var row = table.insertRow(1);
+
+              // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+              var cell1 = row.insertCell(0);
+              var cell2 = row.insertCell(1);
+              var cell3 = row.insertCell(2);
+              var cell4 = row.insertCell(3);
+              var cell5 = row.insertCell(4);
+
+              // Add some text to the new cells:
+              cell1.innerHTML = data[i].$anchor;
+              cell2.innerHTML = data[i].$name;
+              cell3.innerHTML = data[i].$datatype;
+              cell4.innerHTML = data[i].$unit;
+
+              if (isNaN(data[i].$value)){
+                // Is string
+                cell5.innerHTML = data[i].$value;
+              } else {
+                cell5.innerHTML = data[i].$value;
+              }
+            }
+
+          });
+
     }
 
     /* Function to update the setting of the display node */

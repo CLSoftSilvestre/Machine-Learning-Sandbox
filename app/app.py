@@ -56,6 +56,8 @@ import pygwalker as pyg
 from DataCollectorService import DataCollectorService
 from connectors.OsisoftConnector import PiPoint, GetPiPointsList, GetPiData
 
+from connectors.ievdConnector import EdgeConnector
+
 import logging
 
 
@@ -76,6 +78,8 @@ mm = ModelManager()
 modelsList = []
 appversion = "1.4.14"
 model_version = 7 # Model includes automation diagram
+
+ievdBrowserConnector = None 
 
 # DataCollectorService
 #dcService = DataCollectorService()
@@ -2011,6 +2015,31 @@ def PiPoints(query):
             return jsonStr, 200
     
     return "No points found.", 404
+
+@app.route("/getassets/", methods=['POST'])
+def GetEdgeAssets():
+
+    resultJson = json.loads(request.data)
+
+    ip = resultJson['ip']
+    name = resultJson['username']
+    password = resultJson['password']
+
+    # Create IEVDConnector Object
+    global ievdBrowserConnector
+    ievdBrowserConnector = EdgeConnector(ip, name, password)
+
+    # First login into IED
+    ievdBrowserConnector.Connect()
+
+    # Second get Assets list and return it
+    assets = ievdBrowserConnector.GetAssets()
+    return assets, 200
+
+@app.route("/getatributes/<anchor>", methods=['GET'])
+def GetEdgeAttributes(anchor):
+    attributes = ievdBrowserConnector.GetAttributes(anchor)
+    return attributes, 200
 
 # API routes
 @app.route("/api/GetModels", methods=['GET'])

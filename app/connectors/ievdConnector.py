@@ -65,3 +65,25 @@ class EdgeConnector:
                     attr.curRawValue = float(response.text)
                 except ValueError:
                     attr.curRawValue = None
+
+    def GetAssets(self):
+        headerData = {
+            "Cookie":"authToken="+self.accessToken
+        }
+
+        url = "https://" + self.ip + "/DataService/anchor/v1/assets?take=10000&offset=0&selectors=+$displayname,+$name"
+
+        response = requests.get(url=url, headers=headerData, verify=False)
+
+        return response.json()
+
+    def GetAttributes(self, anchor):
+        headerData = {
+            "Cookie":"authToken="+self.accessToken
+        }
+
+        url = "https://" + self.ip + "/DataService/anchor/v1/assets/" + anchor + "/attributes"
+
+        response = requests.get(url=url, headers=headerData, verify=False)
+
+        return response.json()

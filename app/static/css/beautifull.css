@@ -837,6 +837,10 @@
 
   }
 
+  .drawflow_content_node div div li {
+    list-style-type: none
+  }
+
   
 
 
